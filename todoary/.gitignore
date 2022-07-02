@@ -1,6 +1,8 @@
 HELP.md
 .gradle
 build/
+*.properties
+**/secret/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -11,6 +13,7 @@ build/
 .factorypath
 .project
 .settings
+
 .springBeans
 .sts4-cache
 bin/
