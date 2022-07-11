@@ -20,10 +20,10 @@ public class UserDao {
     }
 
     public PostUserRes insertUser(PostUserReq postUserReq) {
-        String insertUserQuery = "insert into User(name, nickName, email, password)" +
+        String insertUserQuery = "insert into user(name, nickname, email, password)" +
                 "values(?,?,?,?);";
-        Object[] insertUserParam = new Object[]{postUserReq.getName(), postUserReq.getNickName(), postUserReq.getEmail(), postUserReq.getPassword()};
-        PostUserRes postUserRes = new PostUserRes(postUserReq.getNickName(), postUserReq.getEmail());
+        Object[] insertUserParam = new Object[]{postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), postUserReq.getPassword()};
+        PostUserRes postUserRes = new PostUserRes(postUserReq.getNickname(), postUserReq.getEmail());
 
         int result = this.jdbcTemplate.update(insertUserQuery, insertUserParam);
 
@@ -34,7 +34,7 @@ public class UserDao {
     }
 
     public int checkEmail(String email) {
-        String checkEmailQuery = "select exists(select email from User where email = ?)";
+        String checkEmailQuery = "select exists(select email from user where email = ?)";
         return this.jdbcTemplate.queryForObject(checkEmailQuery,int.class,email);
     }
 }

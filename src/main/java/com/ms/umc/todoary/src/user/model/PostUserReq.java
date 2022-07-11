@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostUserReq {
     private String name;
-    private String nickName;
+    private String nickname;
     private String email;
     private String password;
-    private String check_password;
 }

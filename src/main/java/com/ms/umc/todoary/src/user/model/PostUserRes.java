@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostUserRes {
-    private String nickName;
+    private String nickname;
     private String email;
 }
