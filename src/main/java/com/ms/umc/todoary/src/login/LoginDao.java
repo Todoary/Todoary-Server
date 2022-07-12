@@ -17,19 +17,40 @@ public class LoginDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public User selectUser(PostLoginReq postLoginReq) {
-        String getUserQuery = "select id, name, nickname, email, password from user where email = ?";
-        String getUserParam = postLoginReq.getEmail();
+    // login
+    public User getPwd(PostLoginReq postLoginReq) {
+        String getPwdQuery = "select id, name, nickName,  email, password from User where email = ?";
+        String getPwdParams = postLoginReq.getEmail();
 
-        return this.jdbcTemplate.queryForObject(
-                getUserQuery,
+        return this.jdbcTemplate.queryForObject(getPwdQuery,
                 (rs, rowNum) -> new User(
                         rs.getInt("id"),
                         rs.getString("name"),
-                        rs.getString("nickname"),
+                        rs.getString("nickName"),
                         rs.getString("email"),
                         rs.getString("password")),
-                getUserParam);
+                getPwdParams);
+
+    }
+
+    // user check
+    public int checkUserExist(int userIdx) {
+        String checkUserExistQuery = "select exists(select id from User where id = ?)";
+        int checkUserExistParams = userIdx;
+        return this.jdbcTemplate.queryForObject(checkUserExistQuery,
+                int.class,
+                checkUserExistParams);
+
+    }
+
+    // email check
+    public int checkEmailExist(String email) {
+        String checkEmailQuery = "select exists(select email from User where email = ?)";
+        String checkEmailParams = email;
+        return this.jdbcTemplate.queryForObject(checkEmailQuery,
+                int.class,
+                checkEmailParams);
+
     }
 
 }

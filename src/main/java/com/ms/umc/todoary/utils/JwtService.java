@@ -9,6 +9,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -20,7 +21,6 @@ import static com.ms.umc.todoary.config.BaseResponseStatus.*;
 
 @Service
 public class JwtService {
-
     /*
     JWT 생성
     @param userIdx
@@ -33,7 +33,7 @@ public class JwtService {
                 .claim("userIdx",userIdx) // payload에 userIdx 담을 것
                 .setIssuedAt(now)
                 .setExpiration(new Date(System.currentTimeMillis()+1*(1000*60*60*24*365))) // 만료 기간
-                .signWith(SignatureAlgorithm.HS256, Secret.JWT_SECRET_KEY) // HS256 알고리즘 이용, JWT를 인코딩 해주는 비밀 키 -> 노출되면 안됨
+                .signWith(SignatureAlgorithm.HS512,("${jwt.secret}")) // HS256 알고리즘 이용, JWT를 인코딩 해주는 비밀 키 -> 노출되면 안됨
                 .compact();
     }
 
