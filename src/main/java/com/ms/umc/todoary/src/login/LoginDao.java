@@ -19,6 +19,7 @@ public class LoginDao {
 
     // login
     public User getPwd(PostLoginReq postLoginReq) {
+        System.out.print("hi");
         String getPwdQuery = "select id, name, nickName,  email, password from User where email = ?";
         String getPwdParams = postLoginReq.getEmail();
 
