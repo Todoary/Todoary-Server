@@ -1,0 +1,47 @@
+server:
+  port: 9000
+
+spring:
+  profiles:
+    include: secret
+
+  application:
+    name: practice
+
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver # mysql 8버전
+    # driver-class-name: com.mysql.jdbc.Driver # mysql 5버전
+  sql:
+    init:
+      platform: mysql
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+
+logging:
+  level:
+    me.ggyul: DEBUG
+
+jwt:
+  header:
+  secret:
+  token-validity-in-seconds:
+
+cloud:
+  aws:
+    credentials:
+      secret-key:
+      access-key:
+
+    s3:
+      bucket:
+    region:
+      static:
+    stack:
+      auto:
