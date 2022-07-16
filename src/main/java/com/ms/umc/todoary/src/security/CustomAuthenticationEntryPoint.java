@@ -21,7 +21,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         log.info("401 ERROR");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"error\":\""+INVALID_JWT.getMessage()+"\"}");
+        response.getWriter().write("{" + "\"isSuccess\":false, "
+                + "\"code\":\"" + INVALID_JWT.getCode() +"\","
+                + "\"message\":\"" + INVALID_JWT.getMessage() + "\"}");
+
         response.getWriter().flush();
     }
 }
