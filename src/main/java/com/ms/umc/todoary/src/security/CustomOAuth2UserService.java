@@ -63,9 +63,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private void signUpIfNewUser(OAuthAttributes attributes) throws BaseException {
         // 신규 -> 가입 필요
         if (userProvider.checkEmail(attributes.getEmail()) != 1) {
+            String nickname = (String) attributes.getAttributes().get(attributes.getNameAttributeKey());
+            nickname = nickname.substring(0, Math.min(10, nickname.length()));
             String uuid = UUID.randomUUID().toString().substring(0, 6);
             String password = passwordEncoder.encode("패스워드" + uuid);  // 사용자가 입력한 적은 없지만 임의 생성
-            authService.signUpAndCreateToken(new PostUserReq(attributes.getName(), attributes.getName(),
+            authService.signUpAndCreateToken(new PostUserReq(attributes.getName(), nickname,
                     attributes.getEmail(), password, attributes.getProviderId(), (String) attributes.getAttributes().get(attributes.getNameAttributeKey())));
         }
     }
