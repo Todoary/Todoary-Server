@@ -27,7 +27,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        log.info("onAuthenticationSuccess!!! " + request.toString() + " " + response.toString());
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         String token = jwtService.createJwt(principalDetails.getUser().getId());
         log.info("{}", token);

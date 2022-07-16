@@ -43,7 +43,8 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, authenticationManagerBuilder);
         jwtAuthenticationFilter.setFilterProcessesUrl("/auth/login");
 
-        http.addFilter(jwtAuthenticationFilter)
+        http
+                .addFilter(jwtAuthenticationFilter)
                 .addFilterBefore(new JwtAuthorizationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
 
         http.csrf().disable() // 세션 사용 안하므로

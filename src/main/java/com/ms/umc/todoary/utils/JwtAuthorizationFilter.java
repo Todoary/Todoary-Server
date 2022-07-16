@@ -1,43 +1,29 @@
 package com.ms.umc.todoary.utils;
 
 import com.ms.umc.todoary.src.base.BaseException;
-import com.ms.umc.todoary.src.entity.PrincipalDetails;
-import com.ms.umc.todoary.src.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
-import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    @Autowired
     public JwtAuthorizationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
-
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String jwt = jwtService.resolveToken(httpServletRequest);
+        String jwt = jwtService.getJwt(httpServletRequest);
         String requestUri = httpServletRequest.getRequestURI();
         if(StringUtils.hasText(jwt) && jwtService.validateToken(jwt)){
             try {

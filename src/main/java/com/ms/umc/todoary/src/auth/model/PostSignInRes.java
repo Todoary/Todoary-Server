@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostLoginRes {
+public class PostSignInRes {
     private int id;
     private String jwt;
 }

@@ -16,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
@@ -52,12 +54,12 @@ public class JwtService implements InitializingBean {
     @param userIdx
     @return String
      */
-    public String createJwt(String email){
+    public String createJwt(int userId){
         Date now = new Date();
         Date validity = new Date(System.currentTimeMillis() + tokenValidityInMilliseconds);
         return Jwts.builder()
                 .setHeaderParam("type", "jwt")
-                .claim("email", email)
+                .claim("userId", userId)
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -68,16 +70,20 @@ public class JwtService implements InitializingBean {
     Header에서 X-ACCESS-TOKEN 으로 JWT 추출
     @return String
      */
-    public String resolveToken(HttpServletRequest request){
-        return request.getHeader("X-ACCESS-TOKEN");
+    public String getJwt(HttpServletRequest request){
+        return request.getHeader("Authorization");
     }
 
+    public String getJwt(){
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        return request.getHeader("Authorization");
+    }
     /*
     JWT에서 email 추출
     @return String
     @throws BaseException
      */
-    public String getEmail(String accessToken) throws BaseException{
+    public int getUserId(String accessToken) throws BaseException{
         //1. JWT 추출
         if(accessToken == null || accessToken.length() == 0){
             throw new BaseException(EMPTY_JWT);
@@ -92,8 +98,8 @@ public class JwtService implements InitializingBean {
         } catch (Exception ignored) {
             throw new BaseException(INVALID_JWT);
         }
-        // 3. email 추출
-        return claims.getBody().get("email",String.class);
+        // 3. userId 추출
+        return claims.getBody().get("userId", Integer.class);
     }
 
     public boolean validateToken(String token){
@@ -119,7 +125,7 @@ public class JwtService implements InitializingBean {
 
     public Authentication getAuthentication(String token) throws BaseException {
         log.info("get Authentication...");
-        UserDetails userDetails = userDetailsService.loadUserByUsername(getEmail(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(getUserId(token));
         return new UsernamePasswordAuthenticationToken(userDetails,"", userDetails.getAuthorities());
     }
 }

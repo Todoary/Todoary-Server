@@ -21,8 +21,8 @@ import java.util.Map;
 @AllArgsConstructor
 public class User {
     private int id;
-    private String name;
-    private String nickname;
     private String email;
     private String password;
+    private String nickName;
+    private String introduce;
 }

@@ -5,7 +5,7 @@ import com.ms.umc.todoary.src.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static com.ms.umc.todoary.src.base.BaseResponseStatus.DATABASE_ERROR;
+import static com.ms.umc.todoary.src.base.BaseResponseStatus.*;
 
 @Slf4j
 @Service
@@ -18,37 +18,48 @@ public class UserProvider {
     }
 
     public int checkEmail(String email) throws BaseException {
-        try{
+        try {
             return userDao.checkEmail(email);
-        } catch (Exception exception){
+        } catch (Exception exception) {
             log.warn(exception.getMessage());
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
     public int checkName(String name) throws BaseException {
-        try{
+        try {
             return userDao.checkName(name);
-        } catch (Exception exception){
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkId(int id) throws BaseException {
+        try {
+            return userDao.checkId(id);
+        } catch (Exception exception) {
             log.warn(exception.getMessage());
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
 
-    public User getUserByEmail(String email) throws BaseException {
-        try{
-            return userDao.findByEmail(email);
-        } catch (Exception exception){
+    public User retrieveUserByEmail(String email) throws BaseException {
+        if (checkEmail(email) != 1) throw new BaseException(USERS_EMPTY_USER_EMAIL);
+        try {
+            return userDao.selectUserByEmail(email);
+        } catch (Exception exception) {
             log.warn(exception.getMessage());
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
-    public User getUserById(int id) throws BaseException {
-        try{
-            return userDao.findById(id);
-        } catch (Exception exception){
+    public User retrieveUserById(int id) throws BaseException {
+        if (checkId(id) != 1) throw new BaseException(USERS_EMPTY_USER_ID);
+        try {
+            return userDao.selectUserById(id);
+        } catch (Exception exception) {
             log.warn(exception.getMessage());
             throw new BaseException(DATABASE_ERROR);
         }

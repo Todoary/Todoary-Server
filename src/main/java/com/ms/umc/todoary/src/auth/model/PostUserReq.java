@@ -12,4 +12,13 @@ public class PostUserReq {
     private String nickname;
     private String email;
     private String password;
+    private String provider;
+    private String providerId;
+
+    public PostUserReq(String name, String nickname, String email, String password) {
+        this.name = name;
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+    }
 }

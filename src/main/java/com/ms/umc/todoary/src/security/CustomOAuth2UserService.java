@@ -53,26 +53,20 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         User user;
         try {
             signUpIfNewUser(attributes);
-            user = userProvider.getUserByEmail(attributes.getEmail());
+            user = userProvider.retrieveUserByEmail(attributes.getEmail());
         } catch (BaseException e) {
             throw new RuntimeException(e.getMessage());
         }
-
         return new PrincipalDetails(user, oAuth2User.getAttributes());
     }
 
     private void signUpIfNewUser(OAuthAttributes attributes) throws BaseException {
         // 신규 -> 가입 필요
-        // TODO: 이메일? name?
         if (userProvider.checkEmail(attributes.getEmail()) != 1) {
-            // google_10082..
-            String name = attributes.getProviderId() + "_" + attributes.getAttributes().get(attributes.getNameAttributeKey());
-            String nickname = attributes.getName();
             String uuid = UUID.randomUUID().toString().substring(0, 6);
             String password = passwordEncoder.encode("패스워드" + uuid);  // 사용자가 입력한 적은 없지만 임의 생성
-            String email = attributes.getEmail();
-            log.info(name);
-            authService.createUser(new PostUserReq(name, nickname, email, password));
+            authService.signUpAndCreateToken(new PostUserReq(attributes.getName(), attributes.getName(),
+                    attributes.getEmail(), password, attributes.getProviderId(), (String) attributes.getAttributes().get(attributes.getNameAttributeKey())));
         }
     }
 }

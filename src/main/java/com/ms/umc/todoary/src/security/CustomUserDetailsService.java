@@ -23,8 +23,18 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         try {
-            log.info("Load User By Username");
-            return new PrincipalDetails(userProvider.getUserByEmail(email));
+            log.info("Load User By Username: "+email);
+            return new PrincipalDetails(userProvider.retrieveUserByEmail(email));
+        } catch (BaseException e) {
+            log.info(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public UserDetails loadUserByUsername(int userId) {
+        try {
+            log.info("Load User By userId: "+userId);
+            return new PrincipalDetails(userProvider.retrieveUserById(userId));
         } catch (BaseException e) {
             log.info(e.getMessage());
             throw new RuntimeException(e);

@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetUserRes {
+public class GetUserProfileRes {
     private int userIdx;
-    private String name;
     private String nickName;
+    private String introduce;
     private String email;
 }
