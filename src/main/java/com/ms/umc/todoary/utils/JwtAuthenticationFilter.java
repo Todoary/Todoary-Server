@@ -58,6 +58,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         User principalDetailis = (User) authResult.getPrincipal();
         String jwt = jwtService.createJwt(principalDetailis.getEmail());
+        // 헤더에 jwt
         response.addHeader("Authorization", jwt);
     }
 }
