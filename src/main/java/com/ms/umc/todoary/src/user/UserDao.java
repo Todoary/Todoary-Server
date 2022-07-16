@@ -34,6 +34,11 @@ public class UserDao {
         return this.jdbcTemplate.queryForObject(checkEmailQuery,int.class,email);
     }
 
+    public int checkName(String name) {
+        String checkNameQuery = "select exists(select email from user where name = ?)";
+        return this.jdbcTemplate.queryForObject(checkNameQuery,int.class,name);
+    }
+
     public User findById(int id) {
         String findByIdQuery = "select id,name, nickname,email,password from user where id=?";
         int findByIdParams = id;
@@ -59,5 +64,6 @@ public class UserDao {
                         rs.getString("password")),
                 findByEmailParams);
     }
+
 
 }

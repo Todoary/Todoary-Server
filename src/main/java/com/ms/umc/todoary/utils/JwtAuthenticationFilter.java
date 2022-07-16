@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ms.umc.todoary.src.auth.model.PostLoginReq;
 import com.ms.umc.todoary.src.entity.PrincipalDetails;
 import com.ms.umc.todoary.src.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JwtService jwtService;
@@ -50,16 +51,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authToken);
 
         PrincipalDetails user = (PrincipalDetails) authentication.getPrincipal();
-        System.out.println("Authentication : "+ user.getUsername());
+        log.info("Authentication : "+ user.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        User principalDetailis = (User) authResult.getPrincipal();
-        String jwt = jwtService.createJwt(principalDetailis.getEmail());
-        // 헤더에 jwt
+        PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
+        String jwt = jwtService.createJwt(principalDetailis.getUsername());
+
         response.addHeader("Authorization", jwt);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"jwt\":\""+jwt+"\"}");
+        response.getWriter().flush();
     }
 }

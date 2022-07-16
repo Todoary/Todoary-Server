@@ -1,9 +1,15 @@
 package com.ms.umc.todoary.utils;
 
 import com.ms.umc.todoary.src.base.BaseException;
+import com.ms.umc.todoary.src.entity.PrincipalDetails;
+import com.ms.umc.todoary.src.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -15,6 +21,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
@@ -23,6 +31,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Autowired
     public JwtAuthorizationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
+
     }
 
     @Override

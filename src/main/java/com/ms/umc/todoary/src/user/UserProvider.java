@@ -26,6 +26,15 @@ public class UserProvider {
         }
     }
 
+    public int checkName(String name) throws BaseException {
+        try{
+            return userDao.checkName(name);
+        } catch (Exception exception){
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
     public User getUserByEmail(String email) throws BaseException {
         try{

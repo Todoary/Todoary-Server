@@ -59,7 +59,7 @@ public class AuthService {
             String jwt = jwtService.createJwt(postUserReq.getEmail());
             return new PostUserRes(jwt, userIdx);
         }catch(Exception exception){
-            log.debug(exception.getMessage());
+            log.info(exception.getMessage());
             throw new BaseException(DATABASE_ERROR);
         }
     }
