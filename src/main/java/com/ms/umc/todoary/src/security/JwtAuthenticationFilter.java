@@ -1,8 +1,9 @@
-package com.ms.umc.todoary.utils;
+package com.ms.umc.todoary.src.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ms.umc.todoary.src.auth.model.PostLoginReq;
 import com.ms.umc.todoary.src.entity.PrincipalDetails;
+import com.ms.umc.todoary.utils.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
