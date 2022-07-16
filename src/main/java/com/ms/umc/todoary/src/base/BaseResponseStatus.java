@@ -1,4 +1,4 @@
-package com.ms.umc.todoary.config;
+package com.ms.umc.todoary.src.base;
 
 import lombok.Getter;
 

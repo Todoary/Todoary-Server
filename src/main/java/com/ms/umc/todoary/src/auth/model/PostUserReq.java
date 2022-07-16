@@ -1,4 +1,4 @@
-package com.ms.umc.todoary.src.user.model;
+package com.ms.umc.todoary.src.auth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

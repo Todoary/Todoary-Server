@@ -1,9 +1,8 @@
-package com.ms.umc.todoary.src.login.model;
+package com.ms.umc.todoary.src.auth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Data
 @NoArgsConstructor

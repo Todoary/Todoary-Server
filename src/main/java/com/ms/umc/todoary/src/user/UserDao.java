@@ -1,8 +1,7 @@
 package com.ms.umc.todoary.src.user;
 
-import com.ms.umc.todoary.config.BaseException;
-import com.ms.umc.todoary.src.user.model.PostUserReq;
-import com.ms.umc.todoary.src.user.model.PostUserRes;
+import com.ms.umc.todoary.src.auth.model.PostUserReq;
+import com.ms.umc.todoary.src.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,22 +18,46 @@ public class UserDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public PostUserRes insertUser(PostUserReq postUserReq) {
+    public int insertUser(PostUserReq postUserReq) {
         String insertUserQuery = "insert into user(name, nickname, email, password)" +
                 "values(?,?,?,?);";
         Object[] insertUserParam = new Object[]{postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), postUserReq.getPassword()};
-        PostUserRes postUserRes = new PostUserRes(postUserReq.getNickname(), postUserReq.getEmail());
+        
+        this.jdbcTemplate.update(insertUserQuery, insertUserParam);
 
-        int result = this.jdbcTemplate.update(insertUserQuery, insertUserParam);
-
-        if (result == 1)
-            return postUserRes;
-        else
-            return null;
+        String lastInsertIdxQuery="SELECT last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdxQuery, int.class);
     }
 
     public int checkEmail(String email) {
         String checkEmailQuery = "select exists(select email from user where email = ?)";
         return this.jdbcTemplate.queryForObject(checkEmailQuery,int.class,email);
     }
+
+    public User findById(int id) {
+        String findByIdQuery = "select id,name, nickname,email,password from user where id=?";
+        int findByIdParams = id;
+        return this.jdbcTemplate.queryForObject(findByIdQuery,
+                (rs, rowNum) -> new User(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("nickname"),
+                        rs.getString("email"),
+                        rs.getString("password")),
+                findByIdParams);
+    }
+
+    public User findByEmail(String email) {
+        String findByEmailQuery = "select id,name, nickname,email,password from user where email=?";
+        String findByEmailParams = email;
+        return this.jdbcTemplate.queryForObject(findByEmailQuery,
+                (rs, rowNum) -> new User(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("nickname"),
+                        rs.getString("email"),
+                        rs.getString("password")),
+                findByEmailParams);
+    }
+
 }

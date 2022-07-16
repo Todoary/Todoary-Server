@@ -1,0 +1,27 @@
+package com.ms.umc.todoary.src.security;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static com.ms.umc.todoary.src.base.BaseResponseStatus.INVALID_JWT;
+
+/**
+ * 유효하지 않은 JWT, 401 에러
+ */
+@Slf4j
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        log.info("401 ERROR");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"error\":\""+INVALID_JWT.getMessage()+"\"}");
+        response.getWriter().flush();
+    }
+}

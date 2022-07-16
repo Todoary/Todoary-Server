@@ -1,4 +1,4 @@
-package com.ms.umc.todoary.src.user.model;
+package com.ms.umc.todoary.src.auth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostUserRes {
-    private String nickname;
-    private String email;
+    private String jwt;
+    private int userIdx;
 }
