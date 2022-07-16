@@ -4,6 +4,7 @@ import com.todoary.ms.src.auth.model.PrincipalDetails;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.src.user.UserService;
 import com.todoary.ms.src.user.model.User;
+import com.todoary.ms.util.BaseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -44,7 +45,11 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
         String password = passwordEncoder.encode(provider_id);
         String role = "ROLE_USER";
 
-        user = userProvider.retrieveByEmail(email);
+        try {
+            user = userProvider.retrieveByEmail(email);
+        } catch (BaseException e) {
+            e.printStackTrace();
+        }
         if (user == null) {
             System.out.println("구글 로그인 최초입니다. 회원가입을 진행합니다.");
             user = new User(username, nickname,email, password, role, provider, provider_id);

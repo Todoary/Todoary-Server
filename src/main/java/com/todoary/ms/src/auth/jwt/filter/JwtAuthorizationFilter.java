@@ -41,6 +41,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     .setSigningKey(JWT_ACCESS_SECRET_KEY)
                     .parseClaimsJws(jwtHeader);
 
+            Long user_id = Long.parseLong(jwtTokenProvider.getUseridFromAcs(jwtHeader));
+            request.setAttribute("user_id", user_id);
             chain.doFilter(request,response);
         } catch (ExpiredJwtException e) {
 

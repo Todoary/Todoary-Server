@@ -1,5 +1,6 @@
 package com.todoary.ms.src.user;
 
+import com.todoary.ms.src.user.dto.GetUserRes;
 import com.todoary.ms.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -34,8 +35,8 @@ public class UserDao {
     }
 
     public User selectByEmail(String email) {
-        System.out.println(email);
-        String selectByEmailQuery = "select id, username, nickname,email, password, role, provider, provider_id from user where email = ?";
+
+        String selectByEmailQuery = "select id, username, nickname,email, password, role, provider, provider_id from user where email = ? and status = 1";
 
         try {
             return this.jdbcTemplate.queryForObject(selectByEmailQuery,
@@ -54,8 +55,30 @@ public class UserDao {
         }
     }
 
+    public GetUserRes selectById(Long user_id) {
+        String selectByIdQuery = "select id, nickname,email,profile_img_url,introduce from user where id = ? and status = 1";
+        return this.jdbcTemplate.queryForObject(selectByIdQuery,
+                (rs, rowNum) -> new GetUserRes(
+                        rs.getLong("id"),
+                        rs.getString("nickname"),
+                        rs.getString("email"),
+                        rs.getString("profile_img_url"),
+                        rs.getString("introduce")),
+                user_id);
+    }
+
     public int checkEmail(String email) {
         String checkEmailQuery = "select exists(select email from user where email = ?)";
         return this.jdbcTemplate.queryForObject(checkEmailQuery,int.class,email);
+    }
+
+
+    public String updateProfileImg(Long user_id, String profile_img_url) {
+        String updateProfileImgQuery = "update user set profile_img_url = ? where id = ?";
+        Object[] updateProfileImgParams = new Object[]{profile_img_url, user_id};
+
+        this.jdbcTemplate.update(updateProfileImgQuery, updateProfileImgParams);
+
+        return profile_img_url;
     }
 }
