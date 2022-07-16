@@ -2,6 +2,7 @@ package com.ms.umc.todoary.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ms.umc.todoary.src.auth.model.PostLoginReq;
+import com.ms.umc.todoary.src.entity.PrincipalDetails;
 import com.ms.umc.todoary.src.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,7 +49,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(postLoginReq.getEmail(), postLoginReq.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authToken);
 
-        User user = (User) authentication.getPrincipal();
+        PrincipalDetails user = (PrincipalDetails) authentication.getPrincipal();
         System.out.println("Authentication : "+ user.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;

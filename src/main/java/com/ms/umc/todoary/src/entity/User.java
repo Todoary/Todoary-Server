@@ -7,67 +7,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements UserDetails {
-
+public class User {
     private int id;
-
     private String name;
     private String nickname;
     private String email;
     private String password;
-
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * user라면 무조건 user 권한만 있으므로 항상 ROLE_USER
-     * @return authorities
-     */
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        log.info("Authorities 확인중... ");
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add((new SimpleGrantedAuthority("ROLE_USER")));
-        return authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

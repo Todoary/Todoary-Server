@@ -1,6 +1,7 @@
 package com.ms.umc.todoary.src.security;
 
 import com.ms.umc.todoary.src.base.BaseException;
+import com.ms.umc.todoary.src.entity.PrincipalDetails;
 import com.ms.umc.todoary.src.user.UserProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         try {
             log.info("Load User By Username");
-            return userProvider.getUserByEmail(email);
+            return new PrincipalDetails(userProvider.getUserByEmail(email));
         } catch (BaseException e) {
             log.info(e.getMessage());
             throw new RuntimeException(e);
