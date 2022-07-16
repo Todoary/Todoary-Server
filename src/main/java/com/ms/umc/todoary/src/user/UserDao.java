@@ -24,9 +24,9 @@ public class UserDao {
         return this.jdbcTemplate.queryForObject(checkEmailQuery, int.class, checkEmailParam);
     }
 
-    public int checkName(String name) {
-        String checkNameQuery = "select exists(select name from user where name = ?)";
-        String checkNameParam = name;
+    public int checkNickname(String nickname) {
+        String checkNameQuery = "select exists(select nickname from user where nickname = ?)";
+        String checkNameParam = nickname;
         return this.jdbcTemplate.queryForObject(checkNameQuery, int.class, checkNameParam);
     }
 

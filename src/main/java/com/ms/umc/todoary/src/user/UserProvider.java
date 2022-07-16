@@ -26,9 +26,9 @@ public class UserProvider {
         }
     }
 
-    public int checkName(String name) throws BaseException {
+    public int checkNickname(String nickname) throws BaseException {
         try {
-            return userDao.checkName(name);
+            return userDao.checkNickname(nickname);
         } catch (Exception exception) {
             log.warn(exception.getMessage());
             throw new BaseException(DATABASE_ERROR);

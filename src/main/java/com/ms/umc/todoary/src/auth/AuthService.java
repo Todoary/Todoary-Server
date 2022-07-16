@@ -2,7 +2,6 @@ package com.ms.umc.todoary.src.auth;
 
 import com.ms.umc.todoary.src.base.BaseException;
 import com.ms.umc.todoary.src.auth.model.*;
-import com.ms.umc.todoary.src.entity.User;
 import com.ms.umc.todoary.src.user.UserProvider;
 import com.ms.umc.todoary.src.user.UserService;
 import com.ms.umc.todoary.utils.JwtService;
@@ -31,17 +30,21 @@ public class AuthService {
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
     }
+
     public PostUserRes signUpAndCreateToken(PostUserReq postUserReq) throws BaseException {
         // 이메일 중복 확인
-        if(userProvider.checkEmail(postUserReq.getEmail()) ==1){
+        if (userProvider.checkEmail(postUserReq.getEmail()) == 1) {
             throw new BaseException(POST_USERS_EXISTS_EMAIL);
         }
-        try{
+        if (userProvider.checkNickname(postUserReq.getNickname()) == 1) {
+            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+        }
+        try {
             postUserReq.setPassword(passwordEncoder.encode(postUserReq.getPassword()));
             int userIdx = userService.createUser(postUserReq); // 유저 생성
             String jwt = jwtService.createJwt(userIdx);
             return new PostUserRes(jwt, userIdx);
-        }catch(Exception exception){
+        } catch (Exception exception) {
             log.info(exception.getMessage());
             throw new BaseException(DATABASE_ERROR);
         }

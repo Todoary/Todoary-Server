@@ -9,10 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.ms.umc.todoary.src.base.BaseResponseStatus.INVALID_JWT;
+import static com.ms.umc.todoary.src.base.BaseResponseStatus.INVALID_AUTH;
 
 /**
- * 유효하지 않은 JWT, 401 에러
+ * 유효하지 않은 JWT, 혹은 유저, 401 에러
  */
 @Slf4j
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -22,8 +22,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{" + "\"isSuccess\":false, "
-                + "\"code\":\"" + INVALID_JWT.getCode() +"\","
-                + "\"message\":\"" + INVALID_JWT.getMessage() + "\"}");
+                + "\"code\":\"" + INVALID_AUTH.getCode() +"\","
+                + "\"message\":\"" + INVALID_AUTH.getMessage() + "\"}");
 
         response.getWriter().flush();
     }

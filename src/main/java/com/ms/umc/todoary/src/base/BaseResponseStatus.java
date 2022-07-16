@@ -21,6 +21,8 @@ public enum BaseResponseStatus {
     EMPTY_JWT(false, 2001, "JWT를 입력해주세요."),
     INVALID_JWT(false, 2002, "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(false,2003,"권한이 없는 유저의 접근입니다."),
+    INVALID_AUTH(false, 2004, "유효하지 않은 인증입니다."),
+
 
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
@@ -34,6 +36,9 @@ public enum BaseResponseStatus {
     POST_POSTS_INVALID_CONTENTS(false, 2018, "제한 글자 수를 초과하였습니다."),
     POST_POSTS_EMPTY_IMGURL(false, 2019, "게시물의 이미지를 입력해주세요."),
     POSTS_EMPTY_POST_ID(false, 2020, "게시물 아이디 값을 확인해주세요."),
+
+    POST_USERS_EXISTS_NICKNAME(false,2021,"중복된 닉네임입니다."),
+
 
     POST_USERS_EMPTY_PASSWORD(false, 2030, "비밀번호를 입력해주세요."),
     POST_USERS_INVALID_PASSWORD(false, 2031, "비밀번호 형식을 확인해주세요."),
