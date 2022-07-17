@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -45,34 +46,37 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String jwtHeader = request.getHeader("Authorization");
         String requestUri = request.getRequestURI();
-        try {
-            Jwts
-                    .parser()
-                    .setSigningKey(JWT_ACCESS_SECRET_KEY)
-                    .parseClaimsJws(jwtHeader);
+        if (StringUtils.hasText(jwtHeader)){
+            try {
+                Jwts
+                        .parser()
+                        .setSigningKey(JWT_ACCESS_SECRET_KEY)
+                        .parseClaimsJws(jwtHeader);
 
-            Long user_id = Long.parseLong(jwtTokenProvider.getUseridFromAcs(jwtHeader));
-            UserDetails userDetails = userDetailsService.loadUserByUsername(user_id);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails,"", userDetails.getAuthorities());
-            log.info("인증 완료, uri: " + requestUri + " 인증 정보: " + authentication.getName());
+                Long user_id = Long.parseLong(jwtTokenProvider.getUseridFromAcs(jwtHeader));
+                UserDetails userDetails = userDetailsService.loadUserByUsername(user_id);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails,"", userDetails.getAuthorities());
+                log.info("인증 완료, uri: " + requestUri + " 인증 정보: " + authentication.getName());
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            request.setAttribute("user_id", user_id);
+                request.setAttribute("user_id", user_id);
 
-            chain.doFilter(request, response);
-        } catch (ExpiredJwtException e) {
-            log.info("토큰이 만료됨, uri: " + requestUri);
-            BaseResponse baseResponse = new BaseResponse(EXPIRED_JWT);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            new ObjectMapper().writeValue(response.getOutputStream(), baseResponse);
-
-        } catch (Exception e) {
+            }catch (ExpiredJwtException e) {
+                log.info("토큰이 만료됨, uri: " + requestUri);
+                BaseResponse baseResponse = new BaseResponse(EXPIRED_JWT);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                new ObjectMapper().writeValue(response.getOutputStream(), baseResponse);
+            } catch (Exception e) {
+                log.info("토큰이 유효하지 않음, uri: " + requestUri);
+                BaseResponse baseResponse = new BaseResponse(INVALID_JWT);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                new ObjectMapper().writeValue(response.getOutputStream(), baseResponse);
+            }
+        }else{
             log.info("토큰이 유효하지 않음, uri: " + requestUri);
-            BaseResponse baseResponse = new BaseResponse(INVALID_JWT);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            new ObjectMapper().writeValue(response.getOutputStream(), baseResponse);
         }
+        chain.doFilter(request, response);
 
     }
 
