@@ -12,11 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -30,23 +29,26 @@ public class SecurityConfig {
     private final AuthService authService;
     private final UserProvider userProvider;
     private final PrincipalDetailsService userDetailsService;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
 
 
     @Autowired
-    public SecurityConfig(PrincipalOAuth2UserService principalOAuth2UserService, JwtTokenProvider jwtTokenProvider, OAuth2SuccessHandler successHandler, AuthService authService, UserProvider userProvider, PrincipalDetailsService userDetailsService) {
+    public SecurityConfig(PrincipalOAuth2UserService principalOAuth2UserService, JwtTokenProvider jwtTokenProvider, OAuth2SuccessHandler successHandler, AuthService authService, UserProvider userProvider, PrincipalDetailsService userDetailsService, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.principalOAuth2UserService = principalOAuth2UserService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.successHandler = successHandler;
         this.authService = authService;
         this.userProvider = userProvider;
         this.userDetailsService = userDetailsService;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
 
     @Bean
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenProvider, authenticationManager, authService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenProvider, authenticationManagerBuilder, authService);
         jwtAuthenticationFilter.setFilterProcessesUrl("/auth/signin");
 
         http
