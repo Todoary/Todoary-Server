@@ -14,11 +14,14 @@ public class User {
     private String nickname;
     private String email;
     private String password;
+    private String profile_img_url;
+    private String introduce;
     private String role;
     private String provider;
     private String provider_id;
 
-    public User(String username, String nickname,String email, String password, String role, String provider, String provider_id) {
+
+    public User(String username, String nickname, String email, String password, String role, String provider, String provider_id){
         this.username = username;
         this.nickname = nickname;
         this.email = email;
@@ -27,6 +30,4 @@ public class User {
         this.provider = provider;
         this.provider_id = provider_id;
     }
-
-
 }

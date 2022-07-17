@@ -3,6 +3,7 @@ package com.todoary.ms.src.user;
 import com.todoary.ms.src.user.dto.GetUserRes;
 import com.todoary.ms.src.user.dto.PatchUserReq;
 import com.todoary.ms.src.user.dto.PatchUserRes;
+import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,8 @@ public class UserController {
     public BaseResponse<GetUserRes> getProfile(HttpServletRequest request) throws BaseException {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            GetUserRes getUserRes = userProvider.retrieveById(user_id);
+            User user = userProvider.retrieveById(user_id);
+            GetUserRes getUserRes =new GetUserRes(user.getId(), user.getNickname(), user.getEmail(), user.getProfile_img_url(), user.getIntroduce());
             return new BaseResponse<>(getUserRes);
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());

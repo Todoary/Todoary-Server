@@ -37,18 +37,16 @@ public class AuthController {
     private final UserProvider userProvider;
     private final AuthService authService;
     private final AuthProvider authProvider;
-    private final AuthenticationManager authenticationManager;
 
 
     @Autowired
-    public AuthController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserService userService, UserProvider userProvider, AuthService authService, AuthProvider authProvider, AuthenticationManager authenticationManager) {
+    public AuthController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserService userService, UserProvider userProvider, AuthService authService, AuthProvider authProvider) {
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
         this.userProvider = userProvider;
         this.authService = authService;
         this.authProvider = authProvider;
-        this.authenticationManager = authenticationManager;
     }
 
     @GetMapping("/login/success")
@@ -73,27 +71,27 @@ public class AuthController {
 
     }
 
-//    @PostMapping("/signin")
-//    public BaseResponse<PostLoginRes> login(@RequestBody PostLoginReq postLoginReq) {
-//        User user = null;
-//        try {
-//            user = userProvider.retrieveByEmail(postLoginReq.getEmail());
-//        } catch (BaseException e) {
-//            e.printStackTrace();
-//        }
-//        PrincipalDetails authenticatedUser = attemptAuthentication(user);
-//
-//        Long userid = principalDetails.getUser().getId();
-//        String accessToken = jwtTokenProvider.createAccessToken(userid);
-//        String refreshToken = jwtTokenProvider.createRefreshToken(userid);
-//
-//        authService.createRefreshToken(userid, refreshToken);
-//
-//        Token token = new Token(accessToken, refreshToken);
-//        PostLoginRes postLoginRes = new PostLoginRes(token);
-//
-//
-//    }
+    // @PostMapping("/signin")
+    // public BaseResponse<PostLoginRes> login(@RequestBody PostLoginReq postLoginReq) {
+    //     User user = null;
+    //     try {
+    //         user = userProvider.retrieveByEmail(postLoginReq.getEmail());
+    //     } catch (BaseException e) {
+    //         e.printStackTrace();
+    //     }
+    //     PrincipalDetails authenticatedUser = attemptAuthentication(user);
+    //
+    //     Long userid = principalDetails.getUser().getId();
+    //     String accessToken = jwtTokenProvider.createAccessToken(userid);
+    //     String refreshToken = jwtTokenProvider.createRefreshToken(userid);
+    //
+    //     authService.createRefreshToken(userid, refreshToken);
+    //
+    //     Token token = new Token(accessToken, refreshToken);
+    //     PostLoginRes postLoginRes = new PostLoginRes(token);
+    //
+    //
+    // }
 //    @PostMapping("/signin/auto")
 //    public BaseResponse<PostAutoLoginRes> autoLogin(@RequestBody PostAutoLoginReq postAutoLoginReq) {
 //
@@ -133,10 +131,4 @@ public class AuthController {
         return true;
     }
 
-    public PrincipalDetails attemptAuthentication(User user) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(),user.getPassword()));
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-
-        return principalDetails;
-    }
 }

@@ -38,7 +38,7 @@ public class UserDao {
 
     public User selectByEmail(String email) {
 
-        String selectByEmailQuery = "select id, username, nickname,email, password, role, provider, provider_id from user where email = ? and status = 1";
+        String selectByEmailQuery = "select id, username, nickname,email, password,profile_img_url, introduce, role, provider, provider_id from user where email = ? and status = 1";
 
         try {
             return this.jdbcTemplate.queryForObject(selectByEmailQuery,
@@ -48,6 +48,8 @@ public class UserDao {
                             rs.getString("nickname"),
                             rs.getString("email"),
                             rs.getString("password"),
+                            rs.getString("profile_img_url"),
+                            rs.getString("introduce"),
                             rs.getString("role"),
                             rs.getString("provider"),
                             rs.getString("provider_id")),
@@ -57,15 +59,20 @@ public class UserDao {
         }
     }
 
-    public GetUserRes selectById(Long user_id) {
-        String selectByIdQuery = "select id, nickname,email,profile_img_url,introduce from user where id = ? and status = 1";
+    public User selectById(Long user_id) {
+        String selectByIdQuery = "select id, nickname,email,profile_img_url,introduce,role, provider, provider_id from user where id = ? and status = 1";
         return this.jdbcTemplate.queryForObject(selectByIdQuery,
-                (rs, rowNum) -> new GetUserRes(
+                (rs, rowNum) -> new User(
                         rs.getLong("id"),
+                        rs.getString("username"),
                         rs.getString("nickname"),
                         rs.getString("email"),
+                        rs.getString("password"),
                         rs.getString("profile_img_url"),
-                        rs.getString("introduce")),
+                        rs.getString("introduce"),
+                        rs.getString("role"),
+                        rs.getString("provider"),
+                        rs.getString("provider_id")),
                 user_id);
     }
 

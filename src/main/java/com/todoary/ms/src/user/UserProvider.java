@@ -28,7 +28,7 @@ public class UserProvider {
 
     }
 
-    public GetUserRes retrieveById(Long user_id) throws BaseException {
+    public User retrieveById(Long user_id) throws BaseException {
         try {
             return userDao.selectById(user_id);
         } catch (Exception e) {
