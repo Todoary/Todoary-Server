@@ -53,7 +53,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
 
                 .and()
-                .addFilter(jwtAuthenticationFilter)
                 .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtTokenProvider));
 
     }
@@ -63,5 +62,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-
 }

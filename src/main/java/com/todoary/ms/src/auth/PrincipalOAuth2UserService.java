@@ -5,6 +5,7 @@ import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.src.user.UserService;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
+import com.todoary.ms.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -53,7 +54,12 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
         if (user == null) {
             System.out.println("구글 로그인 최초입니다. 회원가입을 진행합니다.");
             user = new User(username, nickname,email, password, role, provider, provider_id);
-            userService.createUser(user);
+            try {
+                userService.createUser(user);
+            } catch (BaseException e) {
+                e.printStackTrace();
+            }
+
         } else {
             System.out.println("구글 로그인 기록이 있습니다. 로그인을 진행합니다.");
         }

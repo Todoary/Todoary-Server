@@ -1,6 +1,8 @@
 package com.todoary.ms.src.user;
 
 import com.todoary.ms.src.user.dto.GetUserRes;
+import com.todoary.ms.src.user.dto.PatchUserReq;
+import com.todoary.ms.src.user.dto.PatchUserRes;
 import com.todoary.ms.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -80,5 +82,16 @@ public class UserDao {
         this.jdbcTemplate.update(updateProfileImgQuery, updateProfileImgParams);
 
         return profile_img_url;
+    }
+
+    public PatchUserRes updateProfile(Long user_id, PatchUserReq patchUserReq) {
+        String updateProfileQuery = "update user set nickname = ? , introduce = ? where id = ? and status = 1";
+        Object[] updateProfileParams = new Object[]{patchUserReq.getNickname(), patchUserReq.getIntroduce(), user_id};
+
+        int result = this.jdbcTemplate.update(updateProfileQuery, updateProfileParams);
+        if (result == 1)
+            return new PatchUserRes(patchUserReq.getNickname(), patchUserReq.getIntroduce());
+        else
+            return null;
     }
 }

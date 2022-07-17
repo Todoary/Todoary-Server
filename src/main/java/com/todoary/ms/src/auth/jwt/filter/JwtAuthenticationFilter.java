@@ -47,7 +47,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             authentication = authenticationManager.authenticate(authenticationToken);
             // ^ 갔다와서 실행됨
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-            // Authentication 객체는 session에 저장되는데 밑에 있는 getUser()가 출력된다는 것은 로그인 성공을 의미
 
 
         } catch (IOException e) {
