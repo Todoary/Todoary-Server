@@ -1,6 +1,5 @@
 package com.todoary.ms.src.user;
 
-import com.todoary.ms.src.user.dto.GetUserRes;
 import com.todoary.ms.src.user.dto.PatchUserReq;
 import com.todoary.ms.src.user.dto.PatchUserRes;
 import com.todoary.ms.src.user.model.User;
@@ -100,5 +99,11 @@ public class UserDao {
             return new PatchUserRes(patchUserReq.getNickname(), patchUserReq.getIntroduce());
         else
             return null;
+    }
+
+    public int checkNickname(String nickname) {
+        String checkNameQuery = "select exists(select nickname from user where nickname = ?)";
+        String checkNameParam = nickname;
+        return this.jdbcTemplate.queryForObject(checkNameQuery, int.class, checkNameParam);
     }
 }

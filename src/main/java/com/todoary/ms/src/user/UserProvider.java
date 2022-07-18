@@ -1,14 +1,14 @@
 package com.todoary.ms.src.user;
 
-import com.todoary.ms.src.user.dto.GetUserRes;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
-import com.todoary.ms.util.BaseResponseStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.util.BaseResponseStatus.DATABASE_ERROR;
 
+@Slf4j
 @Service
 public class UserProvider {
 
@@ -34,6 +34,14 @@ public class UserProvider {
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
 
+    public int checkNickname(String nickname) throws BaseException {
+        try {
+            return userDao.checkNickname(nickname);
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }
