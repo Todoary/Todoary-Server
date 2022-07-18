@@ -1,6 +1,5 @@
 package com.todoary.ms.src.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoary.ms.src.auth.dto.*;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.auth.model.PrincipalDetails;
@@ -14,14 +13,19 @@ import com.todoary.ms.util.BaseResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
 
@@ -37,16 +41,17 @@ public class AuthController {
     private final UserProvider userProvider;
     private final AuthService authService;
     private final AuthProvider authProvider;
-
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     @Autowired
-    public AuthController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserService userService, UserProvider userProvider, AuthService authService, AuthProvider authProvider) {
+    public AuthController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserService userService, UserProvider userProvider, AuthService authService, AuthProvider authProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
         this.userProvider = userProvider;
         this.authService = authService;
         this.authProvider = authProvider;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
     @GetMapping("/login/success")
@@ -68,34 +73,52 @@ public class AuthController {
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
-
     }
 
-    // @PostMapping("/signin")
-    // public BaseResponse<PostLoginRes> login(@RequestBody PostLoginReq postLoginReq) {
-    //     User user = null;
-    //     try {
-    //         user = userProvider.retrieveByEmail(postLoginReq.getEmail());
-    //     } catch (BaseException e) {
-    //         e.printStackTrace();
-    //     }
-    //     PrincipalDetails authenticatedUser = attemptAuthentication(user);
-    //
-    //     Long userid = principalDetails.getUser().getId();
-    //     String accessToken = jwtTokenProvider.createAccessToken(userid);
-    //     String refreshToken = jwtTokenProvider.createRefreshToken(userid);
-    //
-    //     authService.createRefreshToken(userid, refreshToken);
-    //
-    //     Token token = new Token(accessToken, refreshToken);
-    //     PostLoginRes postLoginRes = new PostLoginRes(token);
-    //
-    //
-    // }
-//    @PostMapping("/signin/auto")
-//    public BaseResponse<PostAutoLoginRes> autoLogin(@RequestBody PostAutoLoginReq postAutoLoginReq) {
-//
-//    }
+     @PostMapping("/signin")
+     public BaseResponse<PostLoginRes> login(@RequestBody PostLoginReq postLoginReq) {
+         User user = null;
+         try {
+             user = userProvider.retrieveByEmail(postLoginReq.getEmail());
+             user.setPassword(postLoginReq.getPassword());
+         } catch (BaseException e) {
+             return new BaseResponse(e.getStatus());
+         }
+
+         Authentication authentication = attemptAuthentication(user);
+         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
+         SecurityContextHolder.getContext().setAuthentication(authentication);
+         Long user_id = userEntity.getUser().getId();
+         String accessToken = jwtTokenProvider.createAccessToken(user_id);
+         Token token = new Token(accessToken, "");
+         PostLoginRes postLoginRes = new PostLoginRes(token);
+
+         return new BaseResponse<>(postLoginRes);
+     }
+    @PostMapping("/signin/auto")
+    public BaseResponse<PostAutoLoginRes> autoLogin(@RequestBody PostAutoLoginReq postAutoLoginReq) {
+        User user = null;
+        try {
+            user = userProvider.retrieveByEmail(postAutoLoginReq.getEmail());
+            user.setPassword(postAutoLoginReq.getPassword());
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus());
+        }
+        Authentication authentication = attemptAuthentication(user);
+        PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
+
+        Long user_id = userEntity.getUser().getId();
+
+        String accessToken = jwtTokenProvider.createAccessToken(user_id);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user_id);
+
+        authService.registerRefreshToken(user_id, refreshToken);
+
+        Token token = new Token(accessToken, refreshToken);
+        PostAutoLoginRes postAutoLoginRes = new PostAutoLoginRes(token);
+
+        return new BaseResponse<>(postAutoLoginRes);
+    }
 
     @PostMapping("/jwt")
     public BaseResponse<PostAccessRes> postAccess(@RequestBody PostAccessReq postAccessReq) {
@@ -105,7 +128,6 @@ public class AuthController {
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
-
 
         Token newTokens = authService.createAccess(refreshToken);
 
@@ -131,4 +153,15 @@ public class AuthController {
         return true;
     }
 
+    public Authentication attemptAuthentication(User user) {
+        Collection<GrantedAuthority> userAuthorities = new ArrayList<>();
+        userAuthorities.add(new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                return user.getRole();
+            }
+        });
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), userAuthorities);
+        return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+    }
 }

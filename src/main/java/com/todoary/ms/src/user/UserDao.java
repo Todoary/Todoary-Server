@@ -60,7 +60,7 @@ public class UserDao {
     }
 
     public User selectById(Long user_id) {
-        String selectByIdQuery = "select id, nickname,email,profile_img_url,introduce,role, provider, provider_id from user where id = ? and status = 1";
+        String selectByIdQuery = "select id, username,nickname,email,password,profile_img_url,introduce,role, provider, provider_id from user where id = ? and status = 1";
         return this.jdbcTemplate.queryForObject(selectByIdQuery,
                 (rs, rowNum) -> new User(
                         rs.getLong("id"),

@@ -23,17 +23,19 @@ public class PrincipalDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         try {
+            System.out.println("loadUserByUsername - email");
             return new PrincipalDetails(userProvider.retrieveByEmail(email));
         } catch (BaseException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public UserDetails loadUserByUsername(Long userId) {
-        try {
-            return new PrincipalDetails(userProvider.retrieveById(userId));
-        } catch (BaseException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public UserDetails loadUserByUsername(Long user_id) {
+//        try {
+//            System.out.println("loadUserByUsername - user_id");
+//            return new PrincipalDetails(userProvider.retrieveById(user_id));
+//        } catch (BaseException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 }

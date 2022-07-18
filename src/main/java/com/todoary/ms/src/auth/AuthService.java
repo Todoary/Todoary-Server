@@ -17,7 +17,7 @@ public class AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public Long createRefreshToken(Long userid, String refreshToken) {
+    public Long registerRefreshToken(Long userid, String refreshToken) {
         if(authDao.checkUser(userid))
             authDao.updateRefreshToken(userid, refreshToken);
         else

@@ -5,7 +5,6 @@ import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.auth.jwt.config.CustomAccessDeniedHandler;
 import com.todoary.ms.src.auth.jwt.config.CustomAuthenticationEntryPoint;
 import com.todoary.ms.src.auth.jwt.config.OAuth2SuccessHandler;
-import com.todoary.ms.src.auth.jwt.filter.JwtAuthenticationFilter;
 import com.todoary.ms.src.auth.jwt.filter.JwtAuthorizationFilter;
 import com.todoary.ms.src.user.UserProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,32 +27,29 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler successHandler;
     private final AuthService authService;
     private final UserProvider userProvider;
-    private final PrincipalDetailsService userDetailsService;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
 
-
     @Autowired
-    public SecurityConfig(PrincipalOAuth2UserService principalOAuth2UserService, JwtTokenProvider jwtTokenProvider, OAuth2SuccessHandler successHandler, AuthService authService, UserProvider userProvider, PrincipalDetailsService userDetailsService, AuthenticationManagerBuilder authenticationManagerBuilder) {
+    public SecurityConfig(PrincipalOAuth2UserService principalOAuth2UserService, JwtTokenProvider jwtTokenProvider, OAuth2SuccessHandler successHandler, AuthService authService, UserProvider userProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.principalOAuth2UserService = principalOAuth2UserService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.successHandler = successHandler;
         this.authService = authService;
         this.userProvider = userProvider;
-        this.userDetailsService = userDetailsService;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
-
     @Bean
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-        AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenProvider, authenticationManagerBuilder, authService);
-        jwtAuthenticationFilter.setFilterProcessesUrl("/auth/signin");
+
+       // AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);// -> null 발생
+//        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenProvider, authenticationManagerBuilder, authService);
+//        jwtAuthenticationFilter.setFilterProcessesUrl("/auth/signin");
 
         http
-                .addFilter(jwtAuthenticationFilter)
-                .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, userProvider, userDetailsService),
+//                .addFilter(jwtAuthenticationFilter)
+                .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, userProvider, authenticationManagerBuilder.getObject()),
                         UsernamePasswordAuthenticationFilter.class);
 
         http.csrf().disable() // 세션 사용 안하므로
@@ -86,7 +82,7 @@ public class SecurityConfig {
                 // .and()
                 .userInfoEndpoint().userService(principalOAuth2UserService)
                 .and()
-                .successHandler(new OAuth2SuccessHandler(jwtTokenProvider));
+                .successHandler(new OAuth2SuccessHandler(jwtTokenProvider, authService));
 
         return http.build();
     }
