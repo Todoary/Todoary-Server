@@ -40,3 +40,11 @@ cloud:
       static:
     stack:
       auto:
+
+jwt:
+  secret:
+    access:
+    refresh:
+  time:
+    access:
+    refresh:

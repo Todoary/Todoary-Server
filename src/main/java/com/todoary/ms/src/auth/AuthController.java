@@ -13,23 +13,19 @@ import com.todoary.ms.util.BaseResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
-
-import static com.todoary.ms.util.Secret.JWT_REFRESH_SECRET_KEY;
+import static com.todoary.ms.util.BaseResponseStatus.EXPIRED_JWT;
+import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
 
 @RestController
 @RequestMapping("/auth")
@@ -139,8 +135,7 @@ public class AuthController {
     public boolean isRefreshTokenEqualAndValid(String token) throws BaseException {
         try {
             Jwts
-                    .parser()
-                    .setSigningKey(JWT_REFRESH_SECRET_KEY)
+                    .parserBuilder().setSigningKey(jwtTokenProvider.getAccessKey()).build()
                     .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
             throw new BaseException(EXPIRED_JWT);

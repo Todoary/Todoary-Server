@@ -1,22 +1,15 @@
 package com.todoary.ms.src.auth.jwt.filter;
 
-import com.todoary.ms.src.auth.PrincipalDetailsService;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.user.UserProvider;
-
-import com.todoary.ms.src.user.model.User;
-import com.todoary.ms.util.BaseResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,10 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static com.todoary.ms.util.BaseResponseStatus.EXPIRED_JWT;
-import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
-import static com.todoary.ms.util.Secret.JWT_ACCESS_SECRET_KEY;
 
 @Slf4j
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -59,8 +48,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(jwtHeader)){
             try {
                 Jwts
-                        .parser()
-                        .setSigningKey(JWT_ACCESS_SECRET_KEY)
+                        .parserBuilder().setSigningKey(jwtTokenProvider.getAccessKey()).build()
                         .parseClaimsJws(jwtHeader);
 
                 Long user_id = Long.parseLong(jwtTokenProvider.getUseridFromAcs(jwtHeader));

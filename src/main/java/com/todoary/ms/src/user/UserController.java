@@ -1,6 +1,5 @@
 package com.todoary.ms.src.user;
 
-import com.todoary.ms.src.s3.dto.PostProfileImgRes;
 import com.todoary.ms.src.user.dto.GetUserRes;
 import com.todoary.ms.src.user.dto.PatchUserReq;
 import com.todoary.ms.src.user.dto.PatchUserRes;
@@ -10,10 +9,8 @@ import com.todoary.ms.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/users")
