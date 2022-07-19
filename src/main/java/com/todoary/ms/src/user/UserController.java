@@ -6,12 +6,15 @@ import com.todoary.ms.src.user.dto.PatchUserRes;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
+import com.todoary.ms.util.BaseResponseStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -27,17 +30,42 @@ public class UserController {
         this.userProvider = userProvider;
     }
 
+
+    /**
+     * 2.5 프로필 조회 api
+     *
+     * @param request
+     * @return profileImgUrl, nickname, introduce, email
+     * @throws BaseException
+     */
     @GetMapping("")
     public BaseResponse<GetUserRes> getProfile(HttpServletRequest request) throws BaseException {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             User user = userProvider.retrieveById(user_id);
-            GetUserRes getUserRes =new GetUserRes(user.getId(), user.getNickname(), user.getEmail(), user.getProfile_img_url(), user.getIntroduce());
+            GetUserRes getUserRes = new GetUserRes(user.getProfile_img_url(), user.getNickname(), user.getIntroduce(), user.getEmail());
             return new BaseResponse<>(getUserRes);
         } catch (BaseException e) {
-            return new BaseResponse(e.getStatus());
+            return new BaseResponse<>(e.getStatus());
         }
 
+    }
+
+    /**
+     * 2.6 유저 삭제 API
+     *
+     * @param user_id
+     * @return
+     */
+    @PatchMapping("/status")
+    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request){
+        try{
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.removeUser(user_id);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
 //    @PatchMapping("/profile-img")

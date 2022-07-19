@@ -6,9 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class GetUserRes {
-    private Long id;
+    private String profileImgUrl;
     private String nickname;
-    private String email;
-    private String profile_img_url;
     private String introduce;
+    private String email;
 }
