@@ -112,4 +112,9 @@ public class UserDao {
             return null;
     }
 
+    public void updateUserStatus(Long user_id) {
+        String updateStatusQuery = "update user set status = 0 where id = ?";
+        Long updateStatusParam = user_id;
+        this.jdbcTemplate.update(updateStatusQuery, updateStatusParam);
+    }
 }
