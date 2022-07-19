@@ -76,10 +76,21 @@ public class UserDao {
     }
 
     public int checkEmail(String email) {
-        String checkEmailQuery = "select exists(select email from user where email = ?)";
+        String checkEmailQuery = "select exists(select email from user where email = ? and status = 1)";
         return this.jdbcTemplate.queryForObject(checkEmailQuery,int.class,email);
     }
 
+    public int checkNickname(String nickname) {
+        String checkNameQuery = "select exists(select nickname from user where nickname = ? and status = 1)";
+        String checkNameParam = nickname;
+        return this.jdbcTemplate.queryForObject(checkNameQuery, int.class, checkNameParam);
+    }
+
+    public int checkId(Long id) {
+        String checkIdQuery = "select exists(select nickname from user where id = ? and status = 1)";
+        Long checkIdParam = id;
+        return this.jdbcTemplate.queryForObject(checkIdQuery, int.class, checkIdParam);
+    }
 
     public String updateProfileImg(Long user_id, String profile_img_url) {
         String updateProfileImgQuery = "update user set profile_img_url = ? where id = ?";
@@ -101,9 +112,4 @@ public class UserDao {
             return null;
     }
 
-    public int checkNickname(String nickname) {
-        String checkNameQuery = "select exists(select nickname from user where nickname = ?)";
-        String checkNameParam = nickname;
-        return this.jdbcTemplate.queryForObject(checkNameQuery, int.class, checkNameParam);
-    }
 }
