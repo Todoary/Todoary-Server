@@ -27,12 +27,20 @@ public class UserController {
         this.userProvider = userProvider;
     }
 
+
+    /**
+     * 2.5 프로필 조회 api
+     *
+     * @param request
+     * @return profileImgUrl, nickname, introduce, email
+     * @throws BaseException
+     */
     @GetMapping("")
     public BaseResponse<GetUserRes> getProfile(HttpServletRequest request) throws BaseException {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             User user = userProvider.retrieveById(user_id);
-            GetUserRes getUserRes =new GetUserRes(user.getId(), user.getNickname(), user.getEmail(), user.getProfile_img_url(), user.getIntroduce());
+            GetUserRes getUserRes = new GetUserRes(user.getProfile_img_url(), user.getNickname(), user.getIntroduce(), user.getEmail());
             return new BaseResponse<>(getUserRes);
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());
