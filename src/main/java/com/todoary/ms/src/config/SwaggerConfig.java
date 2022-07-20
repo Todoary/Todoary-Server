@@ -37,7 +37,7 @@ public class SwaggerConfig {
                 .securityContexts(Arrays.asList(securityContext()))
                 .securitySchemes(Arrays.asList(apiKey()))
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.ms.umc.todoary.src"))
+                .apis(RequestHandlerSelectors.basePackage("com.todoary.ms.src"))
                 .paths(PathSelectors.any())
                 .build()
                 .useDefaultResponseMessages(false);
