@@ -56,9 +56,10 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
         String role = "ROLE_USER";
 
         try {
-            user = userProvider.retrieveByEmail(email);
+            if (userProvider.checkEmail(email, provider) == 1)
+                user = userProvider.retrieveByEmail(email, provider);
         } catch (BaseException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         if (user == null) {
             System.out.println("구글 로그인 최초입니다. 회원가입을 진행합니다.");
@@ -68,12 +69,12 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
             } catch (BaseException e) {
                 e.printStackTrace();
             }
-
+            return new PrincipalDetails(user, oAuth2User.getAttributes(), true);
         } else {
             System.out.println("구글 로그인 기록이 있습니다. 로그인을 진행합니다.");
+            return new PrincipalDetails(user, oAuth2User.getAttributes(), false);
         }
 
-        return new PrincipalDetails(user, oAuth2User.getAttributes());
     }
 
     private String generateRandomNickname() {

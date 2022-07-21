@@ -16,13 +16,21 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     private User user;
     private Map<String, Object> attributes;
 
+    // 새로 가입시킨 유저인가
+    boolean isNew = false;
+
     public PrincipalDetails(User user) {
         this.user = user;
     }
 
-    public PrincipalDetails(User user, Map<String, Object> attributes) {
+    public PrincipalDetails(User user, Map<String, Object> attributes, boolean isNew) {
         this.user = user;
         this.attributes = attributes;
+        this.isNew = isNew;
+    }
+
+    public boolean isNew() {
+        return isNew;
     }
 
     @Override

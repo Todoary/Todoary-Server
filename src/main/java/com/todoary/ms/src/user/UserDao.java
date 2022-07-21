@@ -20,10 +20,9 @@ public class UserDao {
     }
 
 
-
     public User insertUser(User user) {
         String insertUserQuery = "insert into user (username,nickname,email,password,role,provider,provider_id) values (?,?,?,?,?,?,?)";
-        Object[] insertUserParams = new Object[]{user.getUsername(), user.getNickname(),user.getEmail(), user.getPassword(), user.getRole(),user.getProvider(),user.getProvider_id()};
+        Object[] insertUserParams = new Object[]{user.getUsername(), user.getNickname(), user.getEmail(), user.getPassword(), user.getRole(), user.getProvider(), user.getProvider_id()};
 
         this.jdbcTemplate.update(insertUserQuery, insertUserParams);
 
@@ -34,10 +33,9 @@ public class UserDao {
         return user;
     }
 
-    public User selectByEmail(String email) {
-
-        String selectByEmailQuery = "select id, username, nickname,email, password,profile_img_url, introduce, role, provider, provider_id from user where email = ? and status = 1";
-
+    public User selectByEmail(String email, String provider) {
+        String selectByEmailQuery = "select id, username, nickname,email, password,profile_img_url, introduce, role, provider, provider_id from user where email = ? and provider = ? and status = 1";
+        Object[] selectByEmailParams = new Object[]{email, provider};
         try {
             return this.jdbcTemplate.queryForObject(selectByEmailQuery,
                     (rs, rowNum) -> new User(
@@ -51,7 +49,7 @@ public class UserDao {
                             rs.getString("role"),
                             rs.getString("provider"),
                             rs.getString("provider_id")),
-                    email);
+                    selectByEmailParams);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -74,9 +72,10 @@ public class UserDao {
                 user_id);
     }
 
-    public int checkEmail(String email) {
-        String checkEmailQuery = "select exists(select email from user where email = ? and status = 1)";
-        return this.jdbcTemplate.queryForObject(checkEmailQuery,int.class,email);
+    public int checkEmail(String email, String provider) {
+        String checkEmailQuery = "select exists(select email, provider from user where email = ? and provider = ? and status = 1)";
+        Object[] checkEmailParams = new Object[]{email, provider};
+        return this.jdbcTemplate.queryForObject(checkEmailQuery, int.class, checkEmailParams);
     }
 
     public int checkNickname(String nickname) {

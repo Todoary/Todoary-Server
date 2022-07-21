@@ -8,8 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.todoary.ms.util.BaseResponseStatus.DATABASE_ERROR;
-import static com.todoary.ms.util.BaseResponseStatus.USERS_EMPTY_USER_ID;
+import static com.todoary.ms.util.BaseResponseStatus.*;
 
 @Slf4j
 @Service
@@ -25,6 +24,12 @@ public class UserService {
     }
 
     public User createUser(User user) throws BaseException {
+        if (userProvider.checkEmail(user.getEmail(), user.getProvider()) == 1) {
+            throw new BaseException(POST_USERS_EXISTS_EMAIL);
+        }
+        if (userProvider.checkNickname(user.getNickname()) == 1) {
+            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+        }
         try {
             return this.userDao.insertUser(user);
         } catch (Exception e) {
@@ -55,9 +60,9 @@ public class UserService {
     public void removeUser(Long user_id) throws BaseException {
         if (userProvider.checkId(user_id) == 0)
             throw new BaseException(USERS_EMPTY_USER_ID);
-        try{
+        try {
             userDao.updateUserStatus(user_id);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
