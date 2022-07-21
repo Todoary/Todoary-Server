@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -24,12 +25,12 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final AuthService authService;
 
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, AuthenticationManager authenticationManager, AuthService authService) {
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, AuthService authService) {
         this.jwtTokenProvider = jwtTokenProvider;
-        this.authenticationManager = authenticationManager;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.authService = authService;
     }
 
@@ -44,14 +45,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             User user = om.readValue(request.getInputStream(), User.class); //json으로 넘어온 username과 password user에 담아줌.
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
                         // 여기서 PrincipalDetailsService의 loadByUsername 실행됨
-            authentication = authenticationManager.authenticate(authenticationToken);
+            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             // ^ 갔다와서 실행됨
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-            // Authentication 객체는 session에 저장되는데 밑에 있는 getUser()가 출력된다는 것은 로그인 성공을 의미
 
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return authentication;
     }
@@ -64,7 +64,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String accessToken = jwtTokenProvider.createAccessToken(userid);
         String refreshToken = jwtTokenProvider.createRefreshToken(userid);
 
-        authService.createRefreshToken(userid, refreshToken);
+        authService.registerRefreshToken(userid, refreshToken);
 
         Token token = new Token(accessToken, refreshToken);
         PostLoginRes postLoginRes = new PostLoginRes(token);

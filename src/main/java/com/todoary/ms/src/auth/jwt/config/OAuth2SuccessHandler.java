@@ -1,5 +1,6 @@
 package com.todoary.ms.src.auth.jwt.config;
 
+import com.todoary.ms.src.auth.AuthService;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.auth.model.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
@@ -28,6 +30,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String accessToken =  jwtTokenProvider.createAccessToken(oAuth2User.getUser().getId());
         String refreshToken =  jwtTokenProvider.createRefreshToken(oAuth2User.getUser().getId());
+
+        authService.registerRefreshToken(oAuth2User.getUser().getId(),refreshToken);
 
         targetUrl = UriComponentsBuilder.fromUriString("/auth/login/success")
                 .queryParam("accessToken",accessToken)

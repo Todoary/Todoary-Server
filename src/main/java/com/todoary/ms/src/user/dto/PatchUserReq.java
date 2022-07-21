@@ -5,9 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GetUserRes {
-    private String profileImgUrl;
+public class PatchUserReq {
     private String nickname;
     private String introduce;
-    private String email;
 }

@@ -1,39 +1,50 @@
+server:
+  port:
+
 spring:
+  profiles:
+    include: secret
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://todoary-db-mysql.cuwt4o0bncub.ap-northeast-2.rds.amazonaws.com:3306/security
-    username: root
-    password: UMC_todoary_0705
+    url:
+    username:
+    password:
   security:
     oauth2:
       client:
         registration:
-          google: # /oauth2/authorization/google ? ??? ???? ??.
-            client-id: 934211372591-odpv0gigs5o3bf25afsvsi68r62i1cq2.apps.googleusercontent.com
-            client-secret: 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
+          google:
+            client-id:
+            client-secret:
             scope:
-              - email
-              - profile
   
-  # file upload max size
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size:
+      max-request-size:
 
   # AWS Account Credentials
 
 cloud:
   aws:
     credentials:
-      access-key: AKIAUG2QCOB4KNYI3AJG
-      secret-key: 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
+      access-key:
+      secret-key:
 
   # AWS S3 bucket Info
     s3:
-      bucket: todoarybucket
+      bucket:
 
     region:
-      static: ap-northeast-2
+      static:
     stack:
-      auto: false
+      auto:
+
+jwt:
+  secret:
+    access:
+    refresh:
+  time:
+    access:
+    refresh:

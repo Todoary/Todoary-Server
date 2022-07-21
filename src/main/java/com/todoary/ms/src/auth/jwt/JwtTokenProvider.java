@@ -1,21 +1,55 @@
 package com.todoary.ms.src.auth.jwt;
 
-import io.jsonwebtoken.*;
-import lombok.RequiredArgsConstructor;
-
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.security.Key;
 import java.util.Date;
 
-import static com.todoary.ms.util.Secret.*;
-
-@RequiredArgsConstructor
 @Component
+@Getter
 public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
+    private final long JWT_ACCESS_TOKEN_EXPTIME;
+    private final long JWT_REFRESH_TOKEN_EXPTIME;
+    private final String  JWT_ACCESS_SECRET_KEY;
+    private final String  JWT_REFRESH_SECRET_KEY;
+    private Key accessKey;
+    private Key refreshKey;
 
+    public JwtTokenProvider(UserDetailsService userDetailsService,
+                            @Value("${jwt.time.access}") long JWT_ACCESS_TOKEN_EXPTIME,
+                            @Value("${jwt.time.refresh}") long JWT_REFRESH_TOKEN_EXPTIME,
+                            @Value("${jwt.secret.access}") String JWT_ACCESS_SECRET_KEY,
+                            @Value("${jwt.secret.refresh}") String JWT_REFRESH_SECRET_KEY) {
+        this.userDetailsService = userDetailsService;
+        this.JWT_ACCESS_TOKEN_EXPTIME = JWT_ACCESS_TOKEN_EXPTIME;
+        this.JWT_REFRESH_TOKEN_EXPTIME = JWT_REFRESH_TOKEN_EXPTIME;
+        this.JWT_ACCESS_SECRET_KEY = JWT_ACCESS_SECRET_KEY;
+        this.JWT_REFRESH_SECRET_KEY = JWT_REFRESH_SECRET_KEY;
+    }
+
+    @Autowired
+
+
+    @PostConstruct
+    public void initialize() {
+        byte[] accessKeyBytes = Decoders.BASE64.decode(JWT_ACCESS_SECRET_KEY);
+        this.accessKey = Keys.hmacShaKeyFor(accessKeyBytes);
+
+        byte[] secretKeyBytes = Decoders.BASE64.decode(JWT_REFRESH_SECRET_KEY);
+        this.refreshKey = Keys.hmacShaKeyFor(secretKeyBytes);
+    }
 
     // JWT 토큰 생성
     public String createAccessToken(Long userid) {
@@ -26,10 +60,11 @@ public class JwtTokenProvider {
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + JWT_ACCESS_TOKEN_EXPTIME)) // set Expire Time
-                .signWith(SignatureAlgorithm.HS256, JWT_ACCESS_SECRET_KEY)  // 사용할 암호화 알고리즘과
+                .signWith(accessKey, SignatureAlgorithm.HS256)  // 사용할 암호화 알고리즘과
                 // signature 에 들어갈 secret값 세팅
                 .compact();
     }
+
     public String createRefreshToken(Long userid) {
         Claims claims = Jwts.claims().setSubject(userid.toString()); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣는다.
 
@@ -38,7 +73,7 @@ public class JwtTokenProvider {
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + JWT_REFRESH_TOKEN_EXPTIME)) // set Expire Time
-                .signWith(SignatureAlgorithm.HS256, JWT_REFRESH_SECRET_KEY)  // 사용할 암호화 알고리즘과
+                .signWith(accessKey, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘과
                 // signature 에 들어갈 secret값 세팅
                 .compact();
     }
@@ -51,12 +86,13 @@ public class JwtTokenProvider {
 
     // 토큰에서 회원 정보 추출
     public String getUseridFromAcs(String token) {
-        return Jwts.parser().setSigningKey(JWT_ACCESS_SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder().setSigningKey(accessKey).build()
+                .parseClaimsJws(token).getBody().getSubject();
     }
+
     public String getUseridFromRef(String token) {
-        return Jwts.parser().setSigningKey(JWT_REFRESH_SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder().setSigningKey(accessKey).build()
+                .parseClaimsJws(token).getBody().getSubject();
     }
-
-
 
 }

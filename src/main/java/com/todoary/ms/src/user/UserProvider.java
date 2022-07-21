@@ -1,14 +1,14 @@
 package com.todoary.ms.src.user;
 
-import com.todoary.ms.src.user.dto.GetUserRes;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
-import com.todoary.ms.util.BaseResponseStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
 
+@Slf4j
 @Service
 public class UserProvider {
 
@@ -20,6 +20,8 @@ public class UserProvider {
     }
 
     public User retrieveByEmail(String email) throws BaseException {
+        if (checkEmail(email) == 0)
+            throw new BaseException(USERS_EMPTY_USER_EMAIL);
         try {
             return userDao.selectByEmail(email);
         } catch (Exception e) {
@@ -28,12 +30,40 @@ public class UserProvider {
 
     }
 
-    public GetUserRes retrieveById(Long user_id) throws BaseException {
+    public User retrieveById(Long user_id) throws BaseException {
+        if (checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
         try {
             return userDao.selectById(user_id);
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
 
+    public int checkEmail(String email) throws BaseException {
+        try {
+            return userDao.checkEmail(email);
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkNickname(String nickname) throws BaseException {
+        try {
+            return userDao.checkNickname(nickname);
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkId(Long id) throws BaseException {
+        try {
+            return userDao.checkId(id);
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }
