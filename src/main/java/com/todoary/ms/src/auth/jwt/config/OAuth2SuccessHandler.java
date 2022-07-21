@@ -28,15 +28,25 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String targetUrl;
 
-        String accessToken =  jwtTokenProvider.createAccessToken(oAuth2User.getUser().getId());
-        String refreshToken =  jwtTokenProvider.createRefreshToken(oAuth2User.getUser().getId());
+        String accessToken = jwtTokenProvider.createAccessToken(oAuth2User.getUser().getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(oAuth2User.getUser().getId());
 
-        authService.registerRefreshToken(oAuth2User.getUser().getId(),refreshToken);
+        authService.registerRefreshToken(oAuth2User.getUser().getId(), refreshToken);
 
-        targetUrl = UriComponentsBuilder.fromUriString("/auth/login/success")
-                .queryParam("accessToken",accessToken)
-                .queryParam("refreshToken",refreshToken)
-                .build().toUriString();
+        // 새로 가입한 유저
+        if (oAuth2User.isNew()) {
+            targetUrl = UriComponentsBuilder.fromUriString("/auth/login/success")
+                    .queryParam("isNew", true)
+                    .queryParam("accessToken", accessToken)
+                    .queryParam("refreshToken", refreshToken)
+                    .build().toUriString();
+        } else { // 기존 유저
+            targetUrl = UriComponentsBuilder.fromUriString("/auth/login/success")
+                    .queryParam("isNew", false)
+                    .queryParam("accessToken", accessToken)
+                    .queryParam("refreshToken", refreshToken)
+                    .build().toUriString();
+        }
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }

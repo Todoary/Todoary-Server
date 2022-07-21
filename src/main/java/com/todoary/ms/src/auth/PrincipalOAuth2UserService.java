@@ -69,12 +69,12 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
             } catch (BaseException e) {
                 e.printStackTrace();
             }
-
+            return new PrincipalDetails(user, oAuth2User.getAttributes(), true);
         } else {
             System.out.println("구글 로그인 기록이 있습니다. 로그인을 진행합니다.");
+            return new PrincipalDetails(user, oAuth2User.getAttributes(), false);
         }
 
-        return new PrincipalDetails(user, oAuth2User.getAttributes());
     }
 
     private String generateRandomNickname() {

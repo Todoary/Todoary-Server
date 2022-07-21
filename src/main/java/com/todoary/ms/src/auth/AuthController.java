@@ -52,10 +52,10 @@ public class AuthController {
     }
 
     @GetMapping("/login/success")
-    public BaseResponse<PostLoginRes> loginSuccess(@RequestParam("accessToken") String accessToken, @RequestParam("refreshToken") String refreshToken) {
+    public BaseResponse<PostLoginRes> oauth2LoginSuccess(@RequestParam("isNew") boolean isNew, @RequestParam("accessToken") String accessToken, @RequestParam("refreshToken") String refreshToken) {
         Token token = new Token(accessToken, refreshToken);
 
-        PostLoginRes postLoginRes = new PostLoginRes(token);
+        PostLoginRes postLoginRes = new PostLoginRes(isNew, token);
         return new BaseResponse<>(postLoginRes);
     }
 
