@@ -10,6 +10,7 @@ import com.todoary.ms.src.user.dto.PostUserReq;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
+import com.todoary.ms.util.BaseResponseStatus;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +52,10 @@ public class AuthController {
     }
 
     @GetMapping("/login/success")
-    public BaseResponse<PostLoginRes> loginSuccess(@RequestParam("accessToken") String accessToken, @RequestParam("refreshToken") String refreshToken) {
+    public BaseResponse<PostLoginRes> oauth2LoginSuccess(@RequestParam("isNew") boolean isNew, @RequestParam("accessToken") String accessToken, @RequestParam("refreshToken") String refreshToken) {
         Token token = new Token(accessToken, refreshToken);
 
-        PostLoginRes postLoginRes = new PostLoginRes(token);
+        PostLoginRes postLoginRes = new PostLoginRes(isNew, token);
         return new BaseResponse<>(postLoginRes);
     }
 
@@ -65,7 +66,7 @@ public class AuthController {
             String encodedPassword = passwordEncoder.encode(postUserReq.getPassword());
             User user = new User(postUserReq.getUsername(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none");
             userService.createUser(user);
-            return new BaseResponse("회원가입에 성공했습니다.");
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
