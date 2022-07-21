@@ -1,7 +1,6 @@
 package com.todoary.ms.src.user;
 
-import com.todoary.ms.src.user.dto.PatchUserReq;
-import com.todoary.ms.src.user.dto.PatchUserRes;
+import com.todoary.ms.src.user.dto.*;
 import com.todoary.ms.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -116,5 +115,29 @@ public class UserDao {
         String updateStatusQuery = "update user set status = 0 where id = ?";
         Long updateStatusParam = user_id;
         this.jdbcTemplate.update(updateStatusQuery, updateStatusParam);
+    }
+
+    public void todoAlarmStatus(Long user_id, PatchTodoaryAlarmReq patchTodoaryAlarmReq) {
+        String alarmStatusQuery = "update user set isChecked = 1 where id = ?";
+        Long alarmStatusParam = user_id;
+        this.jdbcTemplate.update(alarmStatusQuery, alarmStatusParam);
+    }
+
+    public void diaryAlarmStatus(Long user_id, PatchDiaryAlarmReq patchDiaryAlarmReq) {
+        String alarmStatusQuery = "update user set isChecked = 1 where id = ?";
+        Long alarmStatusParam = user_id;
+        this.jdbcTemplate.update(alarmStatusQuery, alarmStatusParam);
+    }
+
+    public void remindAlarmStatus(Long user_id, PatchRemindAlarmReq patchRemindAlarmReq) {
+        String alarmStatusQuery = "update user set isChecked = 1 where id = ?";
+        Long alarmStatusParam = user_id;
+        this.jdbcTemplate.update(alarmStatusQuery, alarmStatusParam);
+    }
+
+    public void termsStatus(Long user_id, PatchTermsReq patchTermsReq) {
+        String termsStatusQuery = "update user set isChecked = 1 where id = ?";
+        Long termsStatusParam = user_id;
+        this.jdbcTemplate.update(termsStatusQuery, termsStatusParam);
     }
 }

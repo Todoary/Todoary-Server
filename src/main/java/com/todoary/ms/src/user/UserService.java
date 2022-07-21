@@ -1,8 +1,7 @@
 package com.todoary.ms.src.user;
 
 import com.todoary.ms.src.s3.dto.PostProfileImgRes;
-import com.todoary.ms.src.user.dto.PatchUserReq;
-import com.todoary.ms.src.user.dto.PatchUserRes;
+import com.todoary.ms.src.user.dto.*;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +57,42 @@ public class UserService {
             throw new BaseException(USERS_EMPTY_USER_ID);
         try{
             userDao.updateUserStatus(user_id);
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void todoAlarm(Long user_id, PatchTodoaryAlarmReq patchTodoaryAlarmReq) throws BaseException {
+        try{
+            userDao.todoAlarmStatus(user_id, patchTodoaryAlarmReq);
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void diaryAlarm(Long user_id, PatchDiaryAlarmReq patchDiaryAlarmReq) throws BaseException {
+        try{
+            userDao.diaryAlarmStatus(user_id, patchDiaryAlarmReq);
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void remindAlarm(Long user_id, PatchRemindAlarmReq patchRemindAlarmReq) throws BaseException {
+        try{
+            userDao.remindAlarmStatus(user_id, patchRemindAlarmReq);
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void serviceTerms(Long user_id, PatchTermsReq patchTermsReq) throws BaseException {
+        try{
+            userDao.termsStatus(user_id, patchTermsReq);
         }catch(Exception e){
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);

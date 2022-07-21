@@ -1,8 +1,6 @@
 package com.todoary.ms.src.user;
 
-import com.todoary.ms.src.user.dto.GetUserRes;
-import com.todoary.ms.src.user.dto.PatchUserReq;
-import com.todoary.ms.src.user.dto.PatchUserRes;
+import com.todoary.ms.src.user.dto.*;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
@@ -93,6 +91,51 @@ public class UserController {
             return new BaseResponse(e.getStatus());
         }
 
+    }
+
+
+    @PatchMapping("/alarm/todo")
+    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchTodoaryAlarmReq patchTodoaryAlarmReq){
+        try{
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.todoAlarm (user_id, patchTodoaryAlarmReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @PatchMapping("/alarm/diary")
+    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchDiaryAlarmReq patchDairyAlarmReq){
+        try{
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.diaryAlarm (user_id, patchDairyAlarmReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @PatchMapping("/alarm/remind")
+    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchRemindAlarmReq patchRemindAlarmReq){
+        try{
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.remindAlarm(user_id, patchRemindAlarmReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @GetMapping("/service/terms")
+    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchTermsReq patchTermsReq){
+        try{
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.serviceTerms(user_id, patchTermsReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 }
 
