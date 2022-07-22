@@ -10,6 +10,7 @@ import com.todoary.ms.src.user.dto.PostUserReq;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
+import com.todoary.ms.util.BaseResponseStatus;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.todoary.ms.util.BaseResponseStatus.EXPIRED_JWT;
-import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
+import static com.todoary.ms.util.BaseResponseStatus.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -51,10 +51,10 @@ public class AuthController {
     }
 
     @GetMapping("/login/success")
-    public BaseResponse<PostLoginRes> loginSuccess(@RequestParam("accessToken") String accessToken, @RequestParam("refreshToken") String refreshToken) {
+    public BaseResponse<PostLoginRes> oauth2LoginSuccess(@RequestParam("isNew") boolean isNew, @RequestParam("accessToken") String accessToken, @RequestParam("refreshToken") String refreshToken) {
         Token token = new Token(accessToken, refreshToken);
 
-        PostLoginRes postLoginRes = new PostLoginRes(token);
+        PostLoginRes postLoginRes = new PostLoginRes(isNew, token);
         return new BaseResponse<>(postLoginRes);
     }
 
@@ -63,34 +63,36 @@ public class AuthController {
     public BaseResponse<String> postUser(@RequestBody PostUserReq postUserReq) {
         try {
             String encodedPassword = passwordEncoder.encode(postUserReq.getPassword());
-            User user = new User(postUserReq.getUsername(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none");
+            User user = new User(postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none");
             userService.createUser(user);
-            return new BaseResponse("회원가입에 성공했습니다.");
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
     }
 
-     @PostMapping("/signin")
-     public BaseResponse<PostLoginRes> login(@RequestBody PostLoginReq postLoginReq) {
-         User user = null;
-         try {
-             user = userProvider.retrieveByEmail(postLoginReq.getEmail());
-             user.setPassword(postLoginReq.getPassword());
-         } catch (BaseException e) {
-             return new BaseResponse(e.getStatus());
-         }
+    @PostMapping("/signin")
+    public BaseResponse<PostLoginRes> login(@RequestBody PostLoginReq postLoginReq) {
+        User user = null;
+        try {
+            user = userProvider.retrieveByEmail(postLoginReq.getEmail());
+            user.setPassword(postLoginReq.getPassword());
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus());
+        }
 
-         Authentication authentication = attemptAuthentication(user);
-         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
-         SecurityContextHolder.getContext().setAuthentication(authentication);
-         Long user_id = userEntity.getUser().getId();
-         String accessToken = jwtTokenProvider.createAccessToken(user_id);
-         Token token = new Token(accessToken, "");
-         PostLoginRes postLoginRes = new PostLoginRes(token);
 
-         return new BaseResponse<>(postLoginRes);
-     }
+        Authentication authentication = attemptAuthentication(user);
+        PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Long user_id = userEntity.getUser().getId();
+        String accessToken = jwtTokenProvider.createAccessToken(user_id);
+        Token token = new Token(accessToken, "");
+        PostLoginRes postLoginRes = new PostLoginRes(token);
+
+        return new BaseResponse<>(postLoginRes);
+    }
+
     @PostMapping("/signin/auto")
     public BaseResponse<PostAutoLoginRes> autoLogin(@RequestBody PostAutoLoginReq postAutoLoginReq) {
         User user = null;
@@ -120,19 +122,40 @@ public class AuthController {
     public BaseResponse<PostAccessRes> postAccess(@RequestBody PostAccessReq postAccessReq) {
         String refreshToken = postAccessReq.getRefreshToken();
         try {
-            isRefreshTokenEqualAndValid(refreshToken);
+            AssertRefreshTokenEqualAndValid(refreshToken);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
 
-        Token newTokens = authService.createAccess(refreshToken);
-
-        PostAccessRes postAccessRes = new PostAccessRes(newTokens);
-        return new BaseResponse<>(postAccessRes);
+        try {
+            Token newTokens = authService.createAccess(refreshToken);
+            PostAccessRes postAccessRes = new PostAccessRes(newTokens);
+            return new BaseResponse<>(postAccessRes);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
+    /**
+     * 1.7 이메일 중복체크 api
+     * [GET] /email/duplication?email=
+     * @param  email
+     * @return
+     */
+    @GetMapping("/email/duplication")
+    public BaseResponse<String> checkEmail(@RequestParam(required = true) String email) {
+        try {
+            if (userProvider.checkEmail(email) == 0) { // 새 user
+                return new BaseResponse<>("가능한 이메일입니다.");
+            } else { // 이미 있는 유저
+                return new BaseResponse<>(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
+            }
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
-    public boolean isRefreshTokenEqualAndValid(String token) throws BaseException {
+    public void AssertRefreshTokenEqualAndValid(String token) throws BaseException {
         try {
             Jwts
                     .parserBuilder().setSigningKey(jwtTokenProvider.getAccessKey()).build()
@@ -142,10 +165,8 @@ public class AuthController {
         } catch (Exception e) {
             throw new BaseException(INVALID_JWT);
         }
-
-        if(!authProvider.isRefreshTokenEqual(token))
-            return false;
-        return true;
+        if (!authProvider.isRefreshTokenEqual(token))
+            throw new BaseException(DIFFERENT_REFRESH_TOKEN);
     }
 
     public Authentication attemptAuthentication(User user) {
@@ -157,6 +178,7 @@ public class AuthController {
             }
         });
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), userAuthorities);
+        System.out.println(user.getPassword());
         return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
     }
 }
