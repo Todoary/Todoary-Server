@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostUserReq {
-    private String name;
-    private String nickname;
-    private String email;
-    private String password;
+public class PatchPasswordReq {
+    private String exPassword;
+    private String newPassword;
+
 }

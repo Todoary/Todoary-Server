@@ -1,6 +1,7 @@
 package com.todoary.ms.src.user;
 
 import com.todoary.ms.src.user.dto.*;
+import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
@@ -11,23 +12,43 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
+    private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final UserProvider userProvider;
 
     @Autowired
-    public UserController(PasswordEncoder passwordEncoder, UserService userService, UserProvider userProvider) {
+    public UserController(JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, UserService userService, UserProvider userProvider) {
+
+        this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.userProvider = userProvider;
     }
 
+    /**
+     * 2.1 비밀번호 재설정 API
+     *
+     * @param request
+     * @return
+     */
+    @PatchMapping("/password")
+    public BaseResponse<BaseResponseStatus> patchUserPassword(HttpServletRequest request, @RequestBody PatchPasswordReq patchPasswordReq) {
+        try {
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            String Password = userProvider.retrieveById(user_id).getPassword();
+            userService.changePassword(user_id, Password, patchPasswordReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 
     /**
      * 2.5 프로필 조회 api
@@ -37,7 +58,7 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("")
-    public BaseResponse<GetUserRes> getProfile(HttpServletRequest request) throws BaseException {
+    public BaseResponse<GetUserRes> getProfile(HttpServletRequest request) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             User user = userProvider.retrieveById(user_id);
@@ -56,10 +77,36 @@ public class UserController {
      * @return
      */
     @PatchMapping("/status")
-    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request){
-        try{
+    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request) {
+        try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             userService.removeUser(user_id);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 2.7 로그아웃 API
+     *
+     * @param user_id
+     * @return
+     */
+
+    // Todo : access token 유효시간 가져오기
+    @PostMapping("/signout")
+    public BaseResponse<BaseResponseStatus> logout(HttpServletRequest request) {
+        try {
+            String jwtHeader = request.getHeader("Authorization");
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            /* remove refreshToken */
+            if (userProvider.checkRefreshToken(user_id) == 1) {
+                userService.removeRefreshToken(user_id);
+            }
+
+            //Date expiration = new Date(jwtTokenProvider.getExpiration(jwtHeader)); // 남은 유효시간
+            //userService.signOutUser(jwtHeader, expiration);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());

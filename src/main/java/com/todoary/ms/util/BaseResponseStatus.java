@@ -23,10 +23,14 @@ public enum BaseResponseStatus {
     EXPIRED_JWT(false, 2003, "만료된 JWT입니다."),
     INVALID_USER_JWT(false,2004,"권한이 없는 유저의 접근입니다."),
     INVALID_AUTH(false, 2005, "유효하지 않은 회원 정보입니다."),
+    DIFFERENT_REFRESH_TOKEN(false, 2006, "유저 정보와 일치하지 않는 refresh token입니다."),
 
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     USERS_EMPTY_USER_EMAIL(false, 2011, "유저 이메일 값을 확인해주세요."),
+
+    USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
+
 
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
@@ -39,6 +43,7 @@ public enum BaseResponseStatus {
 
     POST_USERS_EMPTY_PASSWORD(false, 2030, "비밀번호를 입력해주세요."),
     POST_USERS_INVALID_PASSWORD(false, 2031, "비밀번호 형식을 확인해주세요."),
+
 
     POST_USERS_EXISTS_NICKNAME(false, 2032, "중복된 닉네임입니다."),
     /**
