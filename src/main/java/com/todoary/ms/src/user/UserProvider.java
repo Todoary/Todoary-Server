@@ -88,4 +88,13 @@ public class UserProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public int checkRefreshToken(Long id) throws BaseException {
+        try {
+            return userDao.checkRefreshToken(id);
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

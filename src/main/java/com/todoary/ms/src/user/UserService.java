@@ -93,4 +93,16 @@ public class UserService {
 
     }
 
+    public void removeRefreshToken(Long user_id) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
+        try {
+            userDao.deleteRefreshToken(user_id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
 }

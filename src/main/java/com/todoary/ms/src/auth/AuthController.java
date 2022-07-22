@@ -81,6 +81,7 @@ public class AuthController {
             return new BaseResponse(e.getStatus());
         }
 
+
         Authentication authentication = attemptAuthentication(user);
         //System.out.println(authentication.getPrincipal());
         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
