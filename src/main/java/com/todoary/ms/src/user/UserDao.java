@@ -117,16 +117,16 @@ public class UserDao {
     }
 
     public void updateAlarm(Long user_id, String alarm, boolean isChecked) {
-        String alarmStatusQuery = "update user set ? = 1 where id = ?";
-        Long alarmStatusParam = user_id;
-        this.jdbcTemplate.update(alarmStatusQuery, alarmStatusParam);
+        String alarmStatusQuery = "update user set "+ alarm + " = ? where id = ?";
+        Object[] alarmStatusParams = new Object[]{isChecked, user_id};
+        this.jdbcTemplate.update(alarmStatusQuery, alarmStatusParams);
     }
 
 
     public void termsStatus(Long user_id, String terms, boolean isChecked) {
-        String termsStatusQuery = "update user set ? = 1 where id = ?";
-        Long termsStatusParam = user_id;
-        this.jdbcTemplate.update(termsStatusQuery, termsStatusParam);
+        String termsStatusQuery = "update user set "+ terms + " = ? where id = ?";
+        Object[] termsStatusParams = new Object[]{isChecked, user_id};
+        this.jdbcTemplate.update(termsStatusQuery, termsStatusParams);
     }
 
     public void updatePassword(Long user_id, String encodedPassword) {

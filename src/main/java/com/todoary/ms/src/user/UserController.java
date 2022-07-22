@@ -185,7 +185,7 @@ public class UserController {
     /**
      * 2.9 마케팅  동의 api
      */
-    @GetMapping("/service/terms")
+    @PatchMapping("/service/terms")
     public BaseResponse<BaseResponseStatus> patchTermsStatus(HttpServletRequest request, @RequestBody PatchTermsReq patchTermsReq){
         try{
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
