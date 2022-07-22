@@ -1,9 +1,7 @@
 package com.todoary.ms.src.user;
 
 import com.todoary.ms.src.s3.dto.PostProfileImgRes;
-import com.todoary.ms.src.user.dto.PatchPasswordReq;
-import com.todoary.ms.src.user.dto.PatchUserReq;
-import com.todoary.ms.src.user.dto.PatchUserRes;
+import com.todoary.ms.src.user.dto.*;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import lombok.extern.slf4j.Slf4j;
@@ -74,8 +72,30 @@ public class UserService {
         }
     }
 
-    public void changePassword(PatchPasswordReq patchPasswordReq) throws BaseException {
+    public void modifyAlarm(Long user_id, String alarm, boolean isChecked) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
+        try {
+            userDao.updateAlarm(user_id, alarm, isChecked);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 
+
+    public void serviceTerms(Long user_id, String terms, boolean isChecked) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
+        try {
+            userDao.termsStatus(user_id, terms, isChecked);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void changePassword(PatchPasswordReq patchPasswordReq) throws BaseException {
         String email = patchPasswordReq.getEmail();
         //validation
         if (userProvider.checkEmail(email) != 1)
@@ -84,7 +104,7 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(patchPasswordReq.getNewPassword());
 
         try {
-            userDao.updatePassword(email,encodedPassword);
+            userDao.updatePassword(email, encodedPassword);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
@@ -102,6 +122,5 @@ public class UserService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
-
 
 }

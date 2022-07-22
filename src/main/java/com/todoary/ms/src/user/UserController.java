@@ -1,10 +1,7 @@
 package com.todoary.ms.src.user;
 
+import com.todoary.ms.src.user.dto.*;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.user.dto.GetUserRes;
-import com.todoary.ms.src.user.dto.PatchPasswordReq;
-import com.todoary.ms.src.user.dto.PatchUserReq;
-import com.todoary.ms.src.user.dto.PatchUserRes;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
@@ -124,6 +121,62 @@ public class UserController {
             return new BaseResponse(e.getStatus());
         }
 
+    }
+
+    /**
+     * 2.8.1 Todoary 알림 활성화 api
+     */
+    @PatchMapping("/alarm/todo")
+    public BaseResponse<BaseResponseStatus> patchTodoAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){
+        try{
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.modifyAlarm(user_id, "alarm_todo", patchAlarmReq.isChecked());
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 2.8.2 하루기록 알림 활성화 api
+     */
+    @PatchMapping("/alarm/diary")
+    public BaseResponse<BaseResponseStatus> patchDiaryAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){
+        try{
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.modifyAlarm(user_id, "alarm_diary", patchAlarmReq.isChecked());
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 2.8.3 하루기록 알림 활성화 api
+     */
+    @PatchMapping("/alarm/remind")
+    public BaseResponse<BaseResponseStatus> patchRemindAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){
+        try{
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.modifyAlarm(user_id, "alarm_remind", patchAlarmReq.isChecked());
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 2.9 마케팅  동의 api
+     */
+    @GetMapping("/service/terms")
+    public BaseResponse<BaseResponseStatus> patchTermsStatus(HttpServletRequest request, @RequestBody PatchTermsReq patchTermsReq){
+        try{
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.serviceTerms(user_id, "terms", patchTermsReq.isChecked());
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 }
 

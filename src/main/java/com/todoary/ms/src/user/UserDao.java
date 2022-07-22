@@ -1,7 +1,6 @@
 package com.todoary.ms.src.user;
 
-import com.todoary.ms.src.user.dto.PatchUserReq;
-import com.todoary.ms.src.user.dto.PatchUserRes;
+import com.todoary.ms.src.user.dto.*;
 import com.todoary.ms.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -117,6 +116,24 @@ public class UserDao {
         this.jdbcTemplate.update(updateStatusQuery, updateStatusParam);
     }
 
+    public void updateAlarm(Long user_id, String alarm, boolean isChecked) {
+        String alarmStatusQuery = "update user set ? = 1 where id = ?";
+        Long alarmStatusParam = user_id;
+        this.jdbcTemplate.update(alarmStatusQuery, alarmStatusParam);
+    }
+
+
+    public void termsStatus(Long user_id, String terms, boolean isChecked) {
+        String termsStatusQuery = "update user set ? = 1 where id = ?";
+        Long termsStatusParam = user_id;
+        this.jdbcTemplate.update(termsStatusQuery, termsStatusParam);
+    }
+
+    public void updatePassword(Long user_id, String encodedPassword) {
+        String updatePasswordQuery = "update user set password = ? where id = ?";
+        Object[] updatePasswordParams = new Object[]{encodedPassword, user_id};
+        this.jdbcTemplate.update(updatePasswordQuery, updatePasswordParams);
+    }
     public void updatePassword(String email, String encodedPassword) {
         String updatePasswordQuery = "update user set password = ? where email = ? and provider = 'none'";
         Object[] updatePasswordParams = new Object[]{encodedPassword, email};
@@ -127,7 +144,6 @@ public class UserDao {
         String checkRefreshTokenQuery = "select exists(select user_id from token where user_id = ?)";
         Long checkRefreshTokenParam = id;
         return this.jdbcTemplate.queryForObject(checkRefreshTokenQuery, int.class, checkRefreshTokenParam);
-
     }
 
     public void deleteRefreshToken(Long user_id) {
@@ -135,6 +151,5 @@ public class UserDao {
         Long deleteRefreshTokenParam = user_id;;
         this.jdbcTemplate.update(deleteRefreshTokenQuery, deleteRefreshTokenParam);
     }
-
 
 }
