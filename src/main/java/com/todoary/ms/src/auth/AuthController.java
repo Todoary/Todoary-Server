@@ -25,8 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.todoary.ms.util.BaseResponseStatus.EXPIRED_JWT;
-import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
+import static com.todoary.ms.util.BaseResponseStatus.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -72,27 +71,28 @@ public class AuthController {
         }
     }
 
-     @PostMapping("/signin")
-     public BaseResponse<PostLoginRes> login(@RequestBody PostLoginReq postLoginReq) {
-         User user = null;
-         try {
-             user = userProvider.retrieveByEmail(postLoginReq.getEmail());
-             user.setPassword(postLoginReq.getPassword());
-         } catch (BaseException e) {
-             return new BaseResponse(e.getStatus());
-         }
+    @PostMapping("/signin")
+    public BaseResponse<PostLoginRes> login(@RequestBody PostLoginReq postLoginReq) {
+        User user = null;
+        try {
+            user = userProvider.retrieveByEmail(postLoginReq.getEmail());
+            user.setPassword(postLoginReq.getPassword());
+        } catch (BaseException e) {
+            return new BaseResponse(e.getStatus());
+        }
 
-         Authentication authentication = attemptAuthentication(user);
-         //System.out.println(authentication.getPrincipal());
-         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
-         SecurityContextHolder.getContext().setAuthentication(authentication);
-         Long user_id = userEntity.getUser().getId();
-         String accessToken = jwtTokenProvider.createAccessToken(user_id);
-         Token token = new Token(accessToken, "");
-         PostLoginRes postLoginRes = new PostLoginRes(token);
+        Authentication authentication = attemptAuthentication(user);
+        //System.out.println(authentication.getPrincipal());
+        PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Long user_id = userEntity.getUser().getId();
+        String accessToken = jwtTokenProvider.createAccessToken(user_id);
+        Token token = new Token(accessToken, "");
+        PostLoginRes postLoginRes = new PostLoginRes(token);
 
-         return new BaseResponse<>(postLoginRes);
-     }
+        return new BaseResponse<>(postLoginRes);
+    }
+
     @PostMapping("/signin/auto")
     public BaseResponse<PostAutoLoginRes> autoLogin(@RequestBody PostAutoLoginReq postAutoLoginReq) {
         User user = null;
@@ -122,19 +122,22 @@ public class AuthController {
     public BaseResponse<PostAccessRes> postAccess(@RequestBody PostAccessReq postAccessReq) {
         String refreshToken = postAccessReq.getRefreshToken();
         try {
-            isRefreshTokenEqualAndValid(refreshToken);
+            AssertRefreshTokenEqualAndValid(refreshToken);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
 
-        Token newTokens = authService.createAccess(refreshToken);
-
-        PostAccessRes postAccessRes = new PostAccessRes(newTokens);
-        return new BaseResponse<>(postAccessRes);
+        try {
+            Token newTokens = authService.createAccess(refreshToken);
+            PostAccessRes postAccessRes = new PostAccessRes(newTokens);
+            return new BaseResponse<>(postAccessRes);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
 
-    public boolean isRefreshTokenEqualAndValid(String token) throws BaseException {
+    public void AssertRefreshTokenEqualAndValid(String token) throws BaseException {
         try {
             Jwts
                     .parserBuilder().setSigningKey(jwtTokenProvider.getAccessKey()).build()
@@ -144,10 +147,8 @@ public class AuthController {
         } catch (Exception e) {
             throw new BaseException(INVALID_JWT);
         }
-
-        if(!authProvider.isRefreshTokenEqual(token))
-            return false;
-        return true;
+        if (!authProvider.isRefreshTokenEqual(token))
+            throw new BaseException(DIFFERENT_REFRESH_TOKEN);
     }
 
     public Authentication attemptAuthentication(User user) {

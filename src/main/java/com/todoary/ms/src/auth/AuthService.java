@@ -2,6 +2,8 @@ package com.todoary.ms.src.auth;
 
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.auth.model.Token;
+import com.todoary.ms.util.BaseException;
+import com.todoary.ms.util.BaseResponseStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,14 +34,19 @@ public class AuthService {
 //        return userid;
 //    }
 
-    public Token createAccess(String refreshToken) {
+    public Token createAccess(String refreshToken) throws BaseException {
 
         Long userid = Long.parseLong(jwtTokenProvider.getUseridFromRef(refreshToken));
 
         String newAccessToken = jwtTokenProvider.createAccessToken(userid);
         String newRefreshToken = jwtTokenProvider.createRefreshToken(userid);
 
-        authDao.updateRefreshToken(userid, newRefreshToken);
+        try{
+            authDao.updateRefreshToken(userid, newRefreshToken);
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
 
         Token newTokens = new Token(newAccessToken, newRefreshToken);
         return newTokens;
