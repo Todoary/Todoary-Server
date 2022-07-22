@@ -116,27 +116,18 @@ public class UserDao {
         this.jdbcTemplate.update(updateStatusQuery, updateStatusParam);
     }
 
-    public void todoAlarmStatus(Long user_id, PatchTodoaryAlarmReq patchTodoaryAlarmReq) {
-        String alarmStatusQuery = "update user set alarm_todo = 1 where id = ?";
+    public void updateAlarm(Long user_id, String alarm, boolean isChecked) {
+        String alarmStatusQuery = "update user set ? = 1 where id = ?";
         Long alarmStatusParam = user_id;
         this.jdbcTemplate.update(alarmStatusQuery, alarmStatusParam);
     }
 
-    public void diaryAlarmStatus(Long user_id, PatchDiaryAlarmReq patchDiaryAlarmReq) {
-        String alarmStatusQuery = "update user set alarm_diary = 1 where id = ?";
-        Long alarmStatusParam = user_id;
-        this.jdbcTemplate.update(alarmStatusQuery, alarmStatusParam);
-    }
 
-    public void remindAlarmStatus(Long user_id, PatchRemindAlarmReq patchRemindAlarmReq) {
-        String alarmStatusQuery = "update user set alarm_remind = 1 where id = ?";
-        Long alarmStatusParam = user_id;
-        this.jdbcTemplate.update(alarmStatusQuery, alarmStatusParam);
-    }
-
-    public void termsStatus(Long user_id, PatchTermsReq patchTermsReq) {
-        String termsStatusQuery = "update user set terms = 1 where id = ?";
+    public void termsStatus(Long user_id, String terms, boolean isChecked) {
+        String termsStatusQuery = "update user set ? = 1 where id = ?";
         Long termsStatusParam = user_id;
         this.jdbcTemplate.update(termsStatusQuery, termsStatusParam);
     }
+
+
 }

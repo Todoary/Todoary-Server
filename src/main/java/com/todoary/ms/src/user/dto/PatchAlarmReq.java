@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PatchDiaryAlarmReq {
+public class PatchAlarmReq {
 
     private boolean isChecked;
 

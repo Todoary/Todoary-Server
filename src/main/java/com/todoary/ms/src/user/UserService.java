@@ -68,44 +68,23 @@ public class UserService {
         }
     }
 
-    public void todoAlarm(Long user_id, PatchTodoaryAlarmReq patchTodoaryAlarmReq) throws BaseException {
+    public void modifyAlarm(Long user_id, String alarm, boolean isChecked) throws BaseException {
         if (userProvider.checkId(user_id) == 0)
             throw new BaseException(USERS_EMPTY_USER_ID);
         try{
-            userDao.todoAlarmStatus(user_id, patchTodoaryAlarmReq);
+            userDao.updateAlarm(user_id, alarm, isChecked);
         }catch(Exception e){
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
-    public void diaryAlarm(Long user_id, PatchDiaryAlarmReq patchDiaryAlarmReq) throws BaseException {
-        if (userProvider.checkId(user_id) == 0)
-            throw new BaseException(USERS_EMPTY_USER_ID);
-        try{
-            userDao.diaryAlarmStatus(user_id, patchDiaryAlarmReq);
-        }catch(Exception e){
-            e.printStackTrace();
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
 
-    public void remindAlarm(Long user_id, PatchRemindAlarmReq patchRemindAlarmReq) throws BaseException {
+    public void serviceTerms(Long user_id, String terms, boolean isChecked) throws BaseException {
         if (userProvider.checkId(user_id) == 0)
             throw new BaseException(USERS_EMPTY_USER_ID);
         try{
-            userDao.remindAlarmStatus(user_id, patchRemindAlarmReq);
-        }catch(Exception e){
-            e.printStackTrace();
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
-
-    public void serviceTerms(Long user_id, PatchTermsReq patchTermsReq) throws BaseException {
-        if (userProvider.checkId(user_id) == 0)
-            throw new BaseException(USERS_EMPTY_USER_ID);
-        try{
-            userDao.termsStatus(user_id, patchTermsReq);
+            userDao.termsStatus(user_id, terms, isChecked);
         }catch(Exception e){
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);

@@ -97,10 +97,10 @@ public class UserController {
      * 2.8.1 Todoary 알림 활성화 api
      */
     @PatchMapping("/alarm/todo")
-    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchTodoaryAlarmReq patchTodoaryAlarmReq){
+    public BaseResponse<BaseResponseStatus> patchTodoAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){
         try{
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            userService.todoAlarm (user_id, patchTodoaryAlarmReq);
+            userService.modifyAlarm(user_id, "alarm_todo", patchAlarmReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -111,10 +111,10 @@ public class UserController {
      * 2.8.2 하루기록 알림 활성화 api
      */
     @PatchMapping("/alarm/diary")
-    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchDiaryAlarmReq patchDairyAlarmReq){
+    public BaseResponse<BaseResponseStatus> patchDiaryAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){
         try{
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            userService.diaryAlarm (user_id, patchDairyAlarmReq);
+            userService.modifyAlarm(user_id, "alarm_diary", patchAlarmReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -125,10 +125,10 @@ public class UserController {
      * 2.8.3 하루기록 알림 활성화 api
      */
     @PatchMapping("/alarm/remind")
-    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchRemindAlarmReq patchRemindAlarmReq){
+    public BaseResponse<BaseResponseStatus> patchRemindAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){
         try{
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            userService.remindAlarm(user_id, patchRemindAlarmReq);
+            userService.modifyAlarm(user_id, "alarm_remind", patchAlarmReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -139,10 +139,10 @@ public class UserController {
      * 2.9 마케팅  동의 api
      */
     @GetMapping("/service/terms")
-    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchTermsReq patchTermsReq){
+    public BaseResponse<BaseResponseStatus> patchTermsStatus(HttpServletRequest request, @RequestBody PatchTermsReq patchTermsReq){
         try{
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            userService.serviceTerms(user_id, patchTermsReq);
+            userService.serviceTerms(user_id, "terms", patchTermsReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
