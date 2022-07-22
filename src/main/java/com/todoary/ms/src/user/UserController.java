@@ -42,11 +42,11 @@ public class UserController {
      * @return
      */
     @PatchMapping("/password")
-    public BaseResponse<BaseResponseStatus> patchUserPassword(HttpServletRequest request, @RequestBody PatchPasswordReq patchPasswordReq){
-        try{
+    public BaseResponse<BaseResponseStatus> patchUserPassword(HttpServletRequest request, @RequestBody PatchPasswordReq patchPasswordReq) {
+        try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             String Password = userProvider.retrieveById(user_id).getPassword();
-            userService.changePassword(user_id,Password,patchPasswordReq);
+            userService.changePassword(user_id, Password, patchPasswordReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -61,7 +61,7 @@ public class UserController {
      * @throws BaseException
      */
     @GetMapping("")
-    public BaseResponse<GetUserRes> getProfile(HttpServletRequest request) throws BaseException {
+    public BaseResponse<GetUserRes> getProfile(HttpServletRequest request) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             User user = userProvider.retrieveById(user_id);
@@ -80,8 +80,8 @@ public class UserController {
      * @return
      */
     @PatchMapping("/status")
-    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request){
-        try{
+    public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request) {
+        try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             userService.removeUser(user_id);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
@@ -99,12 +99,12 @@ public class UserController {
 
     // Todo : access token 유효시간 가져오기
     @PostMapping("/signout")
-    public BaseResponse<BaseResponseStatus> logout(HttpServletRequest request){
-        try{
+    public BaseResponse<BaseResponseStatus> logout(HttpServletRequest request) {
+        try {
             String jwtHeader = request.getHeader("Authorization");
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             /* remove refreshToken */
-            if(userProvider.checkRefreshToken(user_id) == 1) {
+            if (userProvider.checkRefreshToken(user_id) == 1) {
                 userService.removeRefreshToken(user_id);
             }
 
