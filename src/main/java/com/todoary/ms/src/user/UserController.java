@@ -32,23 +32,6 @@ public class UserController {
         this.userProvider = userProvider;
     }
 
-    /**
-     * 2.1 비밀번호 재설정 API
-     *
-     * @param request
-     * @return
-     */
-    @PatchMapping("/password")
-    public BaseResponse<BaseResponseStatus> patchUserPassword(HttpServletRequest request, @RequestBody PatchPasswordReq patchPasswordReq) {
-        try {
-            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            String Password = userProvider.retrieveById(user_id).getPassword();
-            userService.changePassword(user_id, Password, patchPasswordReq);
-            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
-        } catch (BaseException e) {
-            return new BaseResponse<>(e.getStatus());
-        }
-    }
 
     /**
      * 2.5 프로필 조회 api

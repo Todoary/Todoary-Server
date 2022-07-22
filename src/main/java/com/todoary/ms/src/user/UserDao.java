@@ -134,12 +134,16 @@ public class UserDao {
         Object[] updatePasswordParams = new Object[]{encodedPassword, user_id};
         this.jdbcTemplate.update(updatePasswordQuery, updatePasswordParams);
     }
+    public void updatePassword(String email, String encodedPassword) {
+        String updatePasswordQuery = "update user set password = ? where email = ? and provider = 'none'";
+        Object[] updatePasswordParams = new Object[]{encodedPassword, email};
+        this.jdbcTemplate.update(updatePasswordQuery, updatePasswordParams);
+    }
 
     public int checkRefreshToken(Long id) {
         String checkRefreshTokenQuery = "select exists(select user_id from token where user_id = ?)";
         Long checkRefreshTokenParam = id;
         return this.jdbcTemplate.queryForObject(checkRefreshTokenQuery, int.class, checkRefreshTokenParam);
-
     }
 
     public void deleteRefreshToken(Long user_id) {

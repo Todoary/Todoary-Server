@@ -75,9 +75,9 @@ public class UserService {
     public void modifyAlarm(Long user_id, String alarm, boolean isChecked) throws BaseException {
         if (userProvider.checkId(user_id) == 0)
             throw new BaseException(USERS_EMPTY_USER_ID);
-        try{
+        try {
             userDao.updateAlarm(user_id, alarm, isChecked);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
@@ -87,25 +87,24 @@ public class UserService {
     public void serviceTerms(Long user_id, String terms, boolean isChecked) throws BaseException {
         if (userProvider.checkId(user_id) == 0)
             throw new BaseException(USERS_EMPTY_USER_ID);
-        try{
+        try {
             userDao.termsStatus(user_id, terms, isChecked);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }
-    public void changePassword(Long user_id, String Password, PatchPasswordReq patchPasswordReq) throws BaseException {
 
+    public void changePassword(PatchPasswordReq patchPasswordReq) throws BaseException {
+        String email = patchPasswordReq.getEmail();
         //validation
-        if (userProvider.checkId(user_id) == 0)
-            throw new BaseException(USERS_EMPTY_USER_ID);
-        if (!passwordEncoder.matches(patchPasswordReq.getExPassword(), Password)) {
-            throw new BaseException(USERS_DISACCORD_PASSWORD);
-        }
+        if (userProvider.checkEmail(email) != 1)
+            throw new BaseException(USERS_EMPTY_USER_EMAIL);
+
         String encodedPassword = passwordEncoder.encode(patchPasswordReq.getNewPassword());
 
         try {
-            userDao.updatePassword(user_id,encodedPassword);
+            userDao.updatePassword(email, encodedPassword);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
