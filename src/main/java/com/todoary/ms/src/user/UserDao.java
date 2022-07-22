@@ -22,8 +22,8 @@ public class UserDao {
 
 
     public User insertUser(User user) {
-        String insertUserQuery = "insert into user (username,nickname,email,password,role,provider,provider_id) values (?,?,?,?,?,?,?)";
-        Object[] insertUserParams = new Object[]{user.getUsername(), user.getNickname(), user.getEmail(), user.getPassword(), user.getRole(), user.getProvider(), user.getProvider_id()};
+        String insertUserQuery = "insert into user (name,nickname,email,password,role,provider,provider_id) values (?,?,?,?,?,?,?)";
+        Object[] insertUserParams = new Object[]{user.getName(), user.getNickname(), user.getEmail(), user.getPassword(), user.getRole(), user.getProvider(), user.getProvider_id()};
 
         this.jdbcTemplate.update(insertUserQuery, insertUserParams);
 
@@ -35,13 +35,13 @@ public class UserDao {
     }
 
     public User selectByEmail(String email, String provider) {
-        String selectByEmailQuery = "select id, username, nickname,email, password,profile_img_url, introduce, role, provider, provider_id from user where email = ? and provider = ? and status = 1";
+        String selectByEmailQuery = "select id, name, nickname,email, password,profile_img_url, introduce, role, provider, provider_id from user where email = ? and provider = ? and status = 1";
         Object[] selectByEmailParams = new Object[]{email, provider};
         try {
             return this.jdbcTemplate.queryForObject(selectByEmailQuery,
                     (rs, rowNum) -> new User(
                             rs.getLong("id"),
-                            rs.getString("username"),
+                            rs.getString("name"),
                             rs.getString("nickname"),
                             rs.getString("email"),
                             rs.getString("password"),
@@ -57,11 +57,11 @@ public class UserDao {
     }
 
     public User selectById(Long user_id) {
-        String selectByIdQuery = "select id, username,nickname,email,password,profile_img_url,introduce,role, provider, provider_id from user where id = ? and status = 1";
+        String selectByIdQuery = "select id, name,nickname,email,password,profile_img_url,introduce,role, provider, provider_id from user where id = ? and status = 1";
         return this.jdbcTemplate.queryForObject(selectByIdQuery,
                 (rs, rowNum) -> new User(
                         rs.getLong("id"),
-                        rs.getString("username"),
+                        rs.getString("name"),
                         rs.getString("nickname"),
                         rs.getString("email"),
                         rs.getString("password"),
