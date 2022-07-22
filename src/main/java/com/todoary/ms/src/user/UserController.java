@@ -93,7 +93,9 @@ public class UserController {
 
     }
 
-
+    /**
+     * 2.8.1 Todoary 알림 활성화 api
+     */
     @PatchMapping("/alarm/todo")
     public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchTodoaryAlarmReq patchTodoaryAlarmReq){
         try{
@@ -105,6 +107,9 @@ public class UserController {
         }
     }
 
+    /**
+     * 2.8.2 하루기록 알림 활성화 api
+     */
     @PatchMapping("/alarm/diary")
     public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchDiaryAlarmReq patchDairyAlarmReq){
         try{
@@ -116,6 +121,9 @@ public class UserController {
         }
     }
 
+    /**
+     * 2.8.3 하루기록 알림 활성화 api
+     */
     @PatchMapping("/alarm/remind")
     public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchRemindAlarmReq patchRemindAlarmReq){
         try{
@@ -127,6 +135,9 @@ public class UserController {
         }
     }
 
+    /**
+     * 2.9 마케팅  동의 api
+     */
     @GetMapping("/service/terms")
     public BaseResponse<BaseResponseStatus> patchUserStatus(HttpServletRequest request, @RequestBody PatchTermsReq patchTermsReq){
         try{

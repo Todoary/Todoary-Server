@@ -69,6 +69,8 @@ public class UserService {
     }
 
     public void todoAlarm(Long user_id, PatchTodoaryAlarmReq patchTodoaryAlarmReq) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
         try{
             userDao.todoAlarmStatus(user_id, patchTodoaryAlarmReq);
         }catch(Exception e){
@@ -78,6 +80,8 @@ public class UserService {
     }
 
     public void diaryAlarm(Long user_id, PatchDiaryAlarmReq patchDiaryAlarmReq) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
         try{
             userDao.diaryAlarmStatus(user_id, patchDiaryAlarmReq);
         }catch(Exception e){
@@ -87,6 +91,8 @@ public class UserService {
     }
 
     public void remindAlarm(Long user_id, PatchRemindAlarmReq patchRemindAlarmReq) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
         try{
             userDao.remindAlarmStatus(user_id, patchRemindAlarmReq);
         }catch(Exception e){
@@ -96,6 +102,8 @@ public class UserService {
     }
 
     public void serviceTerms(Long user_id, PatchTermsReq patchTermsReq) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
         try{
             userDao.termsStatus(user_id, patchTermsReq);
         }catch(Exception e){
