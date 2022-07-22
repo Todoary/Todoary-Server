@@ -116,4 +116,10 @@ public class UserDao {
         Long updateStatusParam = user_id;
         this.jdbcTemplate.update(updateStatusQuery, updateStatusParam);
     }
+
+    public void updatePassword(Long user_id, String encodedPassword) {
+        String updatePasswordQuery = "update user set password = ? where id = ?";
+        Object[] updatePasswordParams = new Object[]{encodedPassword, user_id};
+        this.jdbcTemplate.update(updatePasswordQuery, updatePasswordParams);
+    }
 }

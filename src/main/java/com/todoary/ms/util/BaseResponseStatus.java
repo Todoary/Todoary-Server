@@ -28,6 +28,9 @@ public enum BaseResponseStatus {
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     USERS_EMPTY_USER_EMAIL(false, 2011, "유저 이메일 값을 확인해주세요."),
 
+    USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
+
+
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
@@ -39,6 +42,7 @@ public enum BaseResponseStatus {
 
     POST_USERS_EMPTY_PASSWORD(false, 2030, "비밀번호를 입력해주세요."),
     POST_USERS_INVALID_PASSWORD(false, 2031, "비밀번호 형식을 확인해주세요."),
+
 
     POST_USERS_EXISTS_NICKNAME(false, 2032, "중복된 닉네임입니다."),
     /**
