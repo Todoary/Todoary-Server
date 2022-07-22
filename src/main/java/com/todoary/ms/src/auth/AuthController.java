@@ -6,6 +6,7 @@ import com.todoary.ms.src.auth.model.PrincipalDetails;
 import com.todoary.ms.src.auth.model.Token;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.src.user.UserService;
+import com.todoary.ms.src.user.dto.PatchPasswordReq;
 import com.todoary.ms.src.user.dto.PostUserReq;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
@@ -152,6 +153,40 @@ public class AuthController {
             }
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
+        }
+    }
+    /**
+     * 1.10.1 이메일 검증 api
+     * [GET] /auth/email/existence
+     * @param  email
+     * @return
+     */
+    @GetMapping("/auth/email/existence")
+    public BaseResponse<String> checkEmailExistence(@RequestParam(required = true) String email) {
+        try {
+            if (userProvider.checkEmail(email) == 1) { // email 확인
+                return new BaseResponse<>("존재하는 일반 이메일 입니다.");
+            } else { // 일반 email이 없는 경우
+                return new BaseResponse<>(BaseResponseStatus.USERS_EMPTY_USER_EMAIL);
+            }
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 2.1 비밀번호 재설정 API
+     *
+     * @param request
+     * @return
+     */
+    @PatchMapping("/password")
+    public BaseResponse<BaseResponseStatus> patchUserPassword(@RequestBody PatchPasswordReq patchPasswordReq) {
+        try {
+            userService.changePassword(patchPasswordReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
