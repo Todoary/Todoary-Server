@@ -63,7 +63,7 @@ public class AuthController {
     public BaseResponse<String> postUser(@RequestBody PostUserReq postUserReq) {
         try {
             String encodedPassword = passwordEncoder.encode(postUserReq.getPassword());
-            User user = new User(postUserReq.getUsername(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none");
+            User user = new User(postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none");
             userService.createUser(user);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
@@ -136,6 +136,24 @@ public class AuthController {
         }
     }
 
+    /**
+     * 1.7 이메일 중복체크 api
+     * [GET] /email/duplication?email=
+     * @param  email
+     * @return
+     */
+    @GetMapping("/email/duplication")
+    public BaseResponse<String> checkEmail(@RequestParam(required = true) String email) {
+        try {
+            if (userProvider.checkEmail(email) == 0) { // 새 user
+                return new BaseResponse<>("가능한 이메일입니다.");
+            } else { // 이미 있는 유저
+                return new BaseResponse<>(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
+            }
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
     public void AssertRefreshTokenEqualAndValid(String token) throws BaseException {
         try {
