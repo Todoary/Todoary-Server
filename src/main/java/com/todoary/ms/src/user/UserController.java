@@ -97,7 +97,7 @@ public class UserController {
      * @return
      */
 
-    // Todo : access token 유효시간 가져오기 & blacklist 지정 & 자동로그인인 경우 해제
+    // Todo : access token 유효시간 가져오기
     @PostMapping("/signout")
     public BaseResponse<BaseResponseStatus> logout(HttpServletRequest request){
         try{
@@ -108,7 +108,7 @@ public class UserController {
                 userService.removeRefreshToken(user_id);
             }
 
-            Date expiration = new Date(jwtTokenProvider.getExpiration(jwtHeader)); // 남은 유효시간
+            //Date expiration = new Date(jwtTokenProvider.getExpiration(jwtHeader)); // 남은 유효시간
             //userService.signOutUser(jwtHeader, expiration);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {

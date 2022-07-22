@@ -83,7 +83,6 @@ public class AuthController {
          }
 
          Authentication authentication = attemptAuthentication(user);
-         //System.out.println(authentication.getPrincipal());
          PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
          SecurityContextHolder.getContext().setAuthentication(authentication);
          Long user_id = userEntity.getUser().getId();
