@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class User {
 
     private Long id;
-    private String username;
+    private String name;
     private String nickname;
     private String email;
     private String password;
@@ -21,8 +21,8 @@ public class User {
     private String provider_id;
 
 
-    public User(String username, String nickname, String email, String password, String role, String provider, String provider_id){
-        this.username = username;
+    public User(String name, String nickname, String email, String password, String role, String provider, String provider_id){
+        this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.password = password;

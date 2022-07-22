@@ -41,7 +41,7 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
         //강제 회원가입
         String provider = userRequest.getClientRegistration().getRegistrationId();
         String provider_id = (String) oAuth2User.getAttributes().get("sub");
-        String username = (String) oAuth2User.getAttributes().get("name");
+        String name = (String) oAuth2User.getAttributes().get("name");
         String nickname = generateRandomNickname();
         while (true) {
             try {
@@ -63,7 +63,7 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
         }
         if (user == null) {
             System.out.println("구글 로그인 최초입니다. 회원가입을 진행합니다.");
-            user = new User(username, nickname, email, password, role, provider, provider_id);
+            user = new User(name, nickname, email, password, role, provider, provider_id);
             try {
                 userService.createUser(user);
             } catch (BaseException e) {

@@ -38,6 +38,7 @@ public class UserService {
         try {
             return this.userDao.insertUser(user);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
 
