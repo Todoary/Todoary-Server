@@ -33,6 +33,8 @@ public enum BaseResponseStatus {
 
     INVALID_PROVIDER(false, 2013, "올바르지 않은 provider입니다. (예: google)"),
 
+    USERS_CATEGORY_NOT_EXISTS(false, 2014, "해당하는 유저와 일치하는 카테고리가 없습니다."),
+
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
