@@ -1,7 +1,7 @@
 package com.todoary.ms.src.auth.jwt.filter;
 
 import com.todoary.ms.src.auth.AuthService;
-import com.todoary.ms.src.auth.dto.PostLoginRes;
+import com.todoary.ms.src.auth.dto.PostSigninRes;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.auth.model.PrincipalDetails;
 import com.todoary.ms.src.auth.model.Token;
@@ -9,7 +9,6 @@ import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -67,10 +66,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         authService.registerRefreshToken(userid, refreshToken);
 
         Token token = new Token(accessToken, refreshToken);
-        PostLoginRes postLoginRes = new PostLoginRes(token);
+        PostSigninRes postSigninRes = new PostSigninRes(token);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getOutputStream(), new BaseResponse<PostLoginRes>(postLoginRes));
+        new ObjectMapper().writeValue(response.getOutputStream(), new BaseResponse<PostSigninRes>(postSigninRes));
 
     }
 }

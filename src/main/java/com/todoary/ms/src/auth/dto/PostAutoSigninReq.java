@@ -3,7 +3,7 @@ package com.todoary.ms.src.auth.dto;
 import lombok.Data;
 
 @Data
-public class PostLoginReq {
+public class PostAutoSigninReq {
     private String email;
     private String password;
 }

@@ -20,9 +20,10 @@ public class UserDao {
     }
 
 
-    public User insertUser(User user) {
-        String insertUserQuery = "insert into user (name,nickname,email,password,role,provider,provider_id) values (?,?,?,?,?,?,?)";
-        Object[] insertUserParams = new Object[]{user.getName(), user.getNickname(), user.getEmail(), user.getPassword(), user.getRole(), user.getProvider(), user.getProvider_id()};
+    public User insertUser(User user, boolean isTermsEnable) {
+        String insertUserQuery = "insert into user (name,nickname,email,password,role,provider,provider_id, terms) values (?,?,?,?,?,?,?, ?)";
+        Object[] insertUserParams = new Object[]{user.getName(), user.getNickname(), user.getEmail(), user.getPassword(),
+                user.getRole(), user.getProvider(), user.getProvider_id(), isTermsEnable};
 
         this.jdbcTemplate.update(insertUserQuery, insertUserParams);
 
