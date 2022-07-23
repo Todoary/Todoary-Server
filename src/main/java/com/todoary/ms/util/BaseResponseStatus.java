@@ -31,6 +31,7 @@ public enum BaseResponseStatus {
 
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
 
+    INVALID_PROVIDER(false, 2013, "올바르지 않은 provider입니다. (예: google)"),
 
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
@@ -53,7 +54,6 @@ public enum BaseResponseStatus {
     RESPONSE_ERROR(false, 3000, "값을 불러오는데 실패하였습니다."),
 
     // [POST] /users
-    DUPLICATED_EMAIL(false, 3013, "중복된 이메일입니다."),
     FAILED_TO_LOGIN(false,3014,"없는 아이디거나 비밀번호가 틀렸습니다."),
 
     MODIFY_FAIL_POST(false, 3020, "게시물 수정에 실패하였습니다."),

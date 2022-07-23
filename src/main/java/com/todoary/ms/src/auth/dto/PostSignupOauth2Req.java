@@ -1,18 +1,18 @@
-package com.todoary.ms.src.user.dto;
+package com.todoary.ms.src.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostUserReq {
+public class PostSignupOauth2Req {
     private String name;
-    private String nickname;
     private String email;
-    private String password;
+    private String provider;
+    private String providerId;
     @JsonProperty("isTermsEnable")
     private boolean isTermsEnable;
 }
