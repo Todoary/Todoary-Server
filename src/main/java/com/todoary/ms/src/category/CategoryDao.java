@@ -1,6 +1,5 @@
 package com.todoary.ms.src.category;
 
-import com.todoary.ms.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -22,5 +21,12 @@ public class CategoryDao {
 
         this.jdbcTemplate.update(insertCategoryQuery, insertCategoryParams);
 
+    }
+
+    public int selectExistsUsersCategoryById(long userId, long categoryId) {
+        String selectExistsUsersCategoryByIdQuery = "SELECT EXISTS(SELECT user_id, id FROM category " +
+                "where user_id = ? and id = ?)";
+        Object[] selectExistsUsersCategoryByIdParams = new Object[]{userId, categoryId};
+        return this.jdbcTemplate.queryForObject(selectExistsUsersCategoryByIdQuery, int.class, selectExistsUsersCategoryByIdParams);
     }
 }
