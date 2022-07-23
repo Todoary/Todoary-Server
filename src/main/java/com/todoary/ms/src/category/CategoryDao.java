@@ -15,7 +15,7 @@ public class CategoryDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void insertCategory(Long user_id,String title, String color) {
+    public void insertCategory(Long user_id, String title, String color) {
         String insertCategoryQuery = "insert into category (user_id, title, color) values (?,?,?)";
         Object[] insertCategoryParams = new Object[]{user_id, title, color};
 
@@ -29,4 +29,5 @@ public class CategoryDao {
         Object[] selectExistsUsersCategoryByIdParams = new Object[]{userId, categoryId};
         return this.jdbcTemplate.queryForObject(selectExistsUsersCategoryByIdQuery, int.class, selectExistsUsersCategoryByIdParams);
     }
+
 }

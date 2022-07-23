@@ -23,4 +23,5 @@ public class CategoryProvider {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
 }
