@@ -23,4 +23,12 @@ public class CategoryProvider {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+    public boolean checkUsersTodoById(long userId, long todoId) throws BaseException {
+        try {
+            return (categoryDao.selectExistsUsersTodoById(userId, todoId) == 1);
+        } catch (Exception exception) {
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }

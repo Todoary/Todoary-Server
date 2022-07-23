@@ -27,9 +27,9 @@ public class TodoService {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public void createTodo(long userId, PostTodoReq postTodoReq) throws BaseException {
+    public long createTodo(long userId, PostTodoReq postTodoReq) throws BaseException {
         AssertUserValidById(userId);
-        AssertUserCategoriesValidById(userId, postTodoReq.getCategories());
+        AssertUsersCategoriesValidById(userId, postTodoReq.getCategories());
         try {
             long todoId;
             if (postTodoReq.isAlarmEnabled()) {
@@ -37,24 +37,45 @@ public class TodoService {
             } else {
                 todoId = todoDao.insertTodo(userId, postTodoReq.getTitle(), postTodoReq.getTargetDate());
             }
-            for (int categoryId : postTodoReq.getCategories()) {
+            for (long categoryId : postTodoReq.getCategories()) {
                 todoDao.insertTodoCategory(todoId, categoryId);
             }
+            return todoId;
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
-    private void AssertUserCategoriesValidById(long userId, List<Integer> categories) throws BaseException {
-        for (int categoryId : categories) {
-            if (!categoryProvider.checkUsersCategoryById(userId, categoryId))
-                throw new BaseException(BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS);
+    public void removeTodo(long userId, long todoId) throws BaseException {
+        AssertUserValidById(userId);
+        AssertUsersTodoValidById(userId, todoId);
+        try {
+            todoDao.deleteTodo(todoId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
+    }
+
+    private void AssertUsersCategoriesValidById(long userId, List<Long> categories) throws BaseException {
+        for (long categoryId : categories) {
+            AssertUsersCategoryValidById(userId, categoryId);
+        }
+    }
+
+    private void AssertUsersCategoryValidById(long userId, long categoryId) throws BaseException {
+        if (!categoryProvider.checkUsersCategoryById(userId, categoryId))
+            throw new BaseException(BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS);
     }
 
     private void AssertUserValidById(long userId) throws BaseException {
         if (userProvider.checkId(userId) == 0)
             throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
+    }
+
+    private void AssertUsersTodoValidById(long userId, long todoId) throws BaseException {
+        if (!categoryProvider.checkUsersTodoById(userId, todoId))
+            throw new BaseException(BaseResponseStatus.USERS_TODO_NOT_EXISTS);
     }
 }

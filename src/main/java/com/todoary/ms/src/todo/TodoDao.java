@@ -37,9 +37,15 @@ public class TodoDao {
         return this.jdbcTemplate.queryForObject(lastInsertIdQuery, long.class);
     }
 
-    public void insertTodoCategory(long todoId, int categoryId) {
+    public void insertTodoCategory(long todoId, long categoryId) {
         String insertTodoCategoryQuery = "INSERT INTO todo_and_category (todo_id, category_id) VALUES(?, ?)";
         Object[] insertTodoCategoryParams = new Object[]{todoId, categoryId};
         this.jdbcTemplate.update(insertTodoCategoryQuery, insertTodoCategoryParams);
+    }
+
+    public void deleteTodo(long todoId) {
+        String deleteTodoQuery = "DELETE FROM todo WHERE id = ?";
+        long deleteTodoParam = todoId;
+        this.jdbcTemplate.update(deleteTodoQuery, deleteTodoParam);
     }
 }
