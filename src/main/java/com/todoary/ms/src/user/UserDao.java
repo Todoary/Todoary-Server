@@ -92,7 +92,7 @@ public class UserDao {
     }
 
     public String updateProfileImg(Long user_id, String profile_img_url) {
-        String updateProfileImgQuery = "update user set profile_img_url = ? where id = ?";
+        String updateProfileImgQuery = "update user set profile_img_url = ? where id = ? and status = 1";
         Object[] updateProfileImgParams = new Object[]{profile_img_url, user_id};
 
         this.jdbcTemplate.update(updateProfileImgQuery, updateProfileImgParams);

@@ -74,11 +74,14 @@ public enum BaseResponseStatus {
     DELETE_USER_FAIL(false, 4008, "유저 정보 삭제에 실패하였습니다."),
 
     PASSWORD_ENCRYPTION_ERROR(false, 4011, "비밀번호 암호화에 실패하였습니다."),
-    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패하였습니다.");
+    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패하였습니다."),
 
 
 
-    // 5000 : 필요시 만들어서 쓰세요
+
+    // 5000 : AWS관련 오류
+    AWS_ACCESS_DENIED(false,5001 ,"접근 권한이 없습니다."),
+    AWS_FILE_NOT_FOUND(false,5002 ,"파일 키에 해당하는 파일이 존재하지 않습니다.");
     // 6000 : 필요시 만들어서 쓰세요
 
 

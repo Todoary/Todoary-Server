@@ -27,28 +27,28 @@ public class AmazonS3Controller {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
     }
+//
+//    @PostMapping("/images")
+//    public BaseResponse<PostProfileImgRes> uploadProfileImg(@RequestParam("profile-img") MultipartFile multipartFile, HttpServletRequest request) throws IOException {
+//
+//        try {
+//            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+//            String dirName = "todoary/users/info/" + user_id + "/profile-img";
+//            String profile_img_url = awsS3Service.upload(multipartFile, dirName);
+//            return new BaseResponse<>(userService.setProfileImg(user_id, profile_img_url));
+//        } catch (BaseException e) {
+//            return new BaseResponse(e.getStatus());
+//        }
+//    }
 
-    @PostMapping("/images")
-    public BaseResponse<PostProfileImgRes> uploadProfileImg(@RequestParam("profile-img") MultipartFile multipartFile, HttpServletRequest request) throws IOException {
-
-        try {
-            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            String dirName = "todoary/users/info/" + user_id + "/profile-img";
-            String profile_img_url = awsS3Service.upload(multipartFile, dirName);
-            return new BaseResponse<>(userService.setProfileImg(user_id, profile_img_url));
-        } catch (BaseException e) {
-            return new BaseResponse(e.getStatus());
-        }
-    }
-
-    @DeleteMapping("/images")
-    public BaseResponse<String> deleteImage(@RequestParam("file") String fileName) {
-        int result = awsS3Service.deleteS3(fileName);
-
-        if (result == 0) {
-            return new BaseResponse("삭제 실패");
-        } else {
-            return new BaseResponse("삭제 성공");
-        }
-    }
+//    @DeleteMapping("/images")
+//    public BaseResponse<String> deleteImage(@RequestParam("file") String fileName) {
+//        int result = awsS3Service.fileDelete(fileName);
+//
+//        if (result == 0) {
+//            return new BaseResponse("삭제 실패");
+//        } else {
+//            return new BaseResponse("삭제 성공");
+//        }
+//    }
 }
