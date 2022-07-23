@@ -213,7 +213,7 @@ public class AuthController {
      * @param email
      * @return
      */
-    @GetMapping("/auth/email/existence")
+    @GetMapping("/email/existence")
     public BaseResponse<String> checkEmailExistence(@RequestParam(required = true) String email) {
         try {
             if (userProvider.checkEmail(email) == 1) { // email 확인
