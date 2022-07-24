@@ -51,4 +51,14 @@ public class TodoService {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+    public void modifyTodoStatus(long userId, long todoId, boolean isChecked) throws BaseException {
+        todoProvider.assertUsersTodoValidById(userId, todoId);
+        try {
+            todoDao.updateTodoStatus(todoId, isChecked);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }

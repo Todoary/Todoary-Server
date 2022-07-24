@@ -1,9 +1,6 @@
 package com.todoary.ms.src.todo;
 
-import com.todoary.ms.src.todo.dto.GetTodoByCategoryRes;
-import com.todoary.ms.src.todo.dto.GetTodoByDateRes;
-import com.todoary.ms.src.todo.dto.PostTodoReq;
-import com.todoary.ms.src.todo.dto.PostTodoRes;
+import com.todoary.ms.src.todo.dto.*;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
@@ -111,6 +108,27 @@ public class TodoController {
         try {
             long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveTodoListByCategory(userId, categoryId));
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 3.6 투두 체크박스 체크 api
+     * [PATCH] /todo/status
+     *
+     * @param request
+     * @param patchTodoStatusReq
+     * @return
+     */
+    @PatchMapping("/status")
+    public BaseResponse<BaseResponseStatus> patchTodoStatus(HttpServletRequest request,
+                                                            @RequestBody PatchTodoStatusReq patchTodoStatusReq) {
+        try {
+            long userId = getUserIdFromRequest(request);
+            todoService.modifyTodoStatus(userId, patchTodoStatusReq.getTodoId(), patchTodoStatusReq.isChecked());
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());
