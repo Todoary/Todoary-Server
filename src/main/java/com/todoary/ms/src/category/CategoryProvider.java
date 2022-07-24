@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.todoary.ms.util.BaseResponseStatus.DATABASE_ERROR;
-import static com.todoary.ms.util.BaseResponseStatus.USERS_EMPTY_USER_ID;
+import static io.jsonwebtoken.lang.Collections.size;
+
 
 @Slf4j
 @Service
@@ -43,11 +43,12 @@ public class CategoryProvider {
 
     public List<Category> retrieveById(Long user_id) throws BaseException {
         if (userProvider.checkId(user_id) == 0)
-            throw new BaseException(USERS_EMPTY_USER_ID);
+            throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
         try {
-            return categoryDao.selectById(user_id);
+             return categoryDao.selectById(user_id);
+
         } catch (Exception e) {
-            throw new BaseException(DATABASE_ERROR);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 

@@ -40,7 +40,7 @@ public class CategoryController {
     public BaseResponse<PostCategoryRes> postCategory(HttpServletRequest request, @RequestBody PostCategoryReq postCategoryReq) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            Long categoryId = categoryService.createCategory(user_id,postCategoryReq);
+            Long categoryId = categoryService.createCategory(user_id, postCategoryReq);
             return new BaseResponse<>(new PostCategoryRes(categoryId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
@@ -50,19 +50,22 @@ public class CategoryController {
 
     /**
      * 4.2 카테고리 조회 api
+     *[GET] /category
      *
      * @param request
-     * @return title, color
+     * @return categories
      * @throws BaseException
      */
     @GetMapping("")
     public BaseResponse<GetCategoryRes> getCategory(HttpServletRequest request) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            List<Category> categories = new ArrayList<Category>();
-            categories = categoryProvider.retrieveById(user_id);
-            System.out.println(categories);
-            GetCategoryRes getCategoryRes = new GetCategoryRes(categories);
+            List<Category> categories = new ArrayList<>();
+
+            if (categories.isEmpty())
+                throw new BaseException(BaseResponseStatus.EMPTY_CATEGORY);
+
+            GetCategoryRes getCategoryRes = new GetCategoryRes(categoryProvider.retrieveById(user_id));
             return new BaseResponse<>(getCategoryRes);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());

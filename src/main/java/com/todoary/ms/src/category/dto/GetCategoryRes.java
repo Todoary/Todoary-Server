@@ -12,9 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetCategoryRes {
-//    private Long id;
-//    private String title;
-//    private String color;
     private List<Category> categories;
 
 }
