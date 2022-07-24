@@ -1,6 +1,8 @@
 package com.todoary.ms.src.category;
 
 import com.todoary.ms.src.category.dto.PostCategoryReq;
+import com.todoary.ms.src.category.dto.PostCategoryRes;
+import com.todoary.ms.src.todo.dto.PostTodoRes;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -32,11 +34,11 @@ public class CategoryController {
      */
 
     @PostMapping("")
-    public BaseResponse<BaseResponseStatus> postCategory(HttpServletRequest request, @RequestBody PostCategoryReq postCategoryReq) {
+    public BaseResponse<PostCategoryRes> postCategory(HttpServletRequest request, @RequestBody PostCategoryReq postCategoryReq) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            categoryService.createCategory(user_id,postCategoryReq);
-            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+            Long categoryId = categoryService.createCategory(user_id,postCategoryReq);
+            return new BaseResponse<>(new PostCategoryRes(categoryId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());
