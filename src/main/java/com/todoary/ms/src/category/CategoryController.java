@@ -6,10 +6,7 @@ import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,6 +25,7 @@ public class CategoryController {
 
     /**
      * 4.1 카테고리 생성 API
+     * [CREATE] /category
      *
      * @param request title color
      * @return
@@ -40,6 +38,26 @@ public class CategoryController {
             categoryService.createCategory(user_id,postCategoryReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 4.4 카테고리 삭제 api
+     * [DELETE] /category/:categoryId
+     *
+     * @param request categoryId
+     * @return
+     */
+    @DeleteMapping("/{categoryId}")
+    public BaseResponse<BaseResponseStatus> deleteCategory(HttpServletRequest request, @PathVariable("categoryId") long categoryId) {
+        try {
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            categoryService.removeCategory(user_id, categoryId);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());
         }
     }

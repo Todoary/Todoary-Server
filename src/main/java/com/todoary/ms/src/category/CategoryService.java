@@ -39,4 +39,15 @@ public class CategoryService {
         }
 
     }
+
+    public void removeCategory(long userId, long categoryId) throws BaseException {
+        if (userProvider.checkId(userId) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
+        try {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }
