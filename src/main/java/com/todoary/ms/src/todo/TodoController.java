@@ -22,6 +22,10 @@ public class TodoController {
         this.todoService = todoService;
     }
 
+    private long getUserIdFromRequest(HttpServletRequest request) {
+        return Long.parseLong(request.getAttribute("user_id").toString());
+    }
+
     /**
      * 3.1 투두 생성 api
      * [POST] /todo
@@ -62,7 +66,4 @@ public class TodoController {
     }
 
 
-    private long getUserIdFromRequest(HttpServletRequest request) {
-        return Long.parseLong(request.getAttribute("user_id").toString());
-    }
 }

@@ -2,10 +2,17 @@ package com.todoary.ms.src.todo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Objects;
 
 @Repository
 public class TodoDao {
@@ -19,22 +26,40 @@ public class TodoDao {
     @Transactional
     public long insertTodo(long userId, String title, String targetDate,
                            boolean isAlarmEnabled, String targetTime) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         String insertTodoQuery = "INSERT INTO todo (user_id, title, target_date, is_alarm_enabled, target_time) VALUES(?, ?, ?, ?, ?)";
-        Object[] insertTodoParams = new Object[]{userId, title, targetDate, isAlarmEnabled, targetTime};
-        this.jdbcTemplate.update(insertTodoQuery, insertTodoParams);
-
-        String lastInsertIdQuery = "SELECT last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInsertIdQuery, long.class);
+        this.jdbcTemplate.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement pstmt = con.prepareStatement(insertTodoQuery,
+                        new String[]{"id"});
+                pstmt.setLong(1, userId);
+                pstmt.setString(2, title);
+                pstmt.setString(3, targetDate);
+                pstmt.setBoolean(4, isAlarmEnabled);
+                pstmt.setString(5, targetTime);
+                return pstmt;
+            }
+        }, keyHolder);
+        return Objects.requireNonNull(keyHolder.getKey()).longValue();
     }
 
     @Transactional
     public long insertTodo(long userId, String title, String targetDate) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         String insertTodoQuery = "INSERT INTO todo (user_id, title, target_date) VALUES(?, ?, ?);";
-        Object[] insertTodoParams = new Object[]{userId, title, targetDate};
-        this.jdbcTemplate.update(insertTodoQuery, insertTodoParams);
-
-        String lastInsertIdQuery = "SELECT last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInsertIdQuery, long.class);
+        this.jdbcTemplate.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement pstmt = con.prepareStatement(insertTodoQuery,
+                        new String[]{"id"});
+                pstmt.setLong(1, userId);
+                pstmt.setString(2, title);
+                pstmt.setString(3, targetDate);
+                return pstmt;
+            }
+        }, keyHolder);
+        return Objects.requireNonNull(keyHolder.getKey()).longValue();
     }
 
     public void insertTodoCategory(long todoId, long categoryId) {
