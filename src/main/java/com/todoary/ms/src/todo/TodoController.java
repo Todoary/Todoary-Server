@@ -1,7 +1,9 @@
 package com.todoary.ms.src.todo;
 
+import com.todoary.ms.src.todo.dto.GetTodoByDateRes;
 import com.todoary.ms.src.todo.dto.PostTodoReq;
 import com.todoary.ms.src.todo.dto.PostTodoRes;
+import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -10,20 +12,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/todo")
 public class TodoController {
+
+    private final TodoProvider todoProvider;
     private final TodoService todoService;
+    private final UserProvider userProvider;
 
     @Autowired
-    public TodoController(TodoService todoService) {
+    public TodoController(TodoProvider todoProvider, TodoService todoService, UserProvider userProvider) {
+        this.todoProvider = todoProvider;
         this.todoService = todoService;
+        this.userProvider = userProvider;
     }
 
-    private long getUserIdFromRequest(HttpServletRequest request) {
-        return Long.parseLong(request.getAttribute("user_id").toString());
+    private long getUserIdFromRequest(HttpServletRequest request) throws BaseException {
+        long userId = Long.parseLong(request.getAttribute("user_id").toString());
+        userProvider.assertUserValidById(userId);
+        return userId;
     }
 
     /**
@@ -65,5 +75,23 @@ public class TodoController {
         }
     }
 
-
+    /**
+     * 3.4 투두 날짜별 조회 api
+     * [GET] /todo?date=
+     *
+     * @param request
+     * @param targetDate
+     * @return
+     */
+    @GetMapping("")
+    public BaseResponse<List<GetTodoByDateRes>> getTodoListByDate(HttpServletRequest request,
+                                                                  @RequestParam("date") String targetDate) {
+        try {
+            long userId = getUserIdFromRequest(request);
+            return new BaseResponse<>(todoProvider.retrieveTodoListByDate(userId, targetDate));
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
