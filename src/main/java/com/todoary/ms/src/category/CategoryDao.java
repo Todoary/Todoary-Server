@@ -4,9 +4,13 @@ import com.todoary.ms.src.category.model.Category;
 import com.todoary.ms.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 @Repository
 public class CategoryDao {
@@ -35,22 +39,20 @@ public class CategoryDao {
     }
 
 
-    public Category selectById(Long user_id) {
-        String selectByIdQuery = "select id, category_img_id, title, color from category where id = ?";
-        return this.jdbcTemplate.queryForObject(selectByIdQuery,
-                (rs, rowNum) -> new User(
-                        rs.getLong("id"),
-                        rs.getString("name"),
-                        rs.getString("nickname"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("profile_img_url"),
-                        rs.getString("introduce"),
-                        rs.getString("role"),
-                        rs.getString("provider"),
-                        rs.getString("provider_id")),
-                user_id);
+    public List<Category> selectById(Long user_id) {
+        List<Category> categories = jdbcTemplate.query("select id, title, color from category where user_id = ?",
+                (rs, rowNum) -> {
+                    Category category = new Category(
+                            rs.getLong("id"),
+                            rs.getString("title"),
+                            rs.getString("color")
+                            );
+                    return category;
+                },user_id
+                );
+        return categories;
     }
+
 
     public int selectExistsCategoryTitle(Long user_id, String title) {
         String selectExistsCategoryTitleQuery = "SELECT EXISTS(SELECT id FROM category " +

@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static com.todoary.ms.util.BaseResponseStatus.DATABASE_ERROR;
 import static com.todoary.ms.util.BaseResponseStatus.USERS_EMPTY_USER_ID;
 
@@ -31,21 +33,21 @@ public class CategoryProvider {
         }
     }
 
-    public Category retrieveById(Long user_id) throws BaseException {
+    public boolean checkCategoryDuplicate(Long user_id, String title) throws BaseException {
+        try {
+            return (categoryDao.selectExistsCategoryTitle(user_id,title) == 1);
+        } catch (Exception exception) {
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    public List<Category> retrieveById(Long user_id) throws BaseException {
         if (userProvider.checkId(user_id) == 0)
             throw new BaseException(USERS_EMPTY_USER_ID);
         try {
             return categoryDao.selectById(user_id);
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
-        }
-    }
-
-    public boolean checkCategoryDuplicate(Long user_id, String title) throws BaseException {
-        try {
-            return (categoryDao.selectExistsCategoryTitle(user_id,title) == 1);
-        } catch (Exception exception) {
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
