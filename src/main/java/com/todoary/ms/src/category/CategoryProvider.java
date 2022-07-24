@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static io.jsonwebtoken.lang.Collections.size;
-
-
 @Slf4j
 @Service
 public class CategoryProvider {
@@ -25,6 +22,17 @@ public class CategoryProvider {
         this.userProvider = userProvider;
     }
 
+    public void assertUsersCategoriesValidById(long userId, List<Long> categories) throws BaseException {
+        for (long categoryId : categories) {
+            assertUsersCategoryValidById(userId, categoryId);
+        }
+    }
+
+    public void assertUsersCategoryValidById(long userId, long categoryId) throws BaseException {
+        if (!checkUsersCategoryById(userId, categoryId))
+            throw new BaseException(BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS);
+    }
+
     public boolean checkUsersCategoryById(long userId, long categoryId) throws BaseException {
         try {
             return (categoryDao.selectExistsUsersCategoryById(userId, categoryId) == 1);
@@ -35,17 +43,16 @@ public class CategoryProvider {
 
     public boolean checkCategoryDuplicate(Long user_id, String title) throws BaseException {
         try {
-            return (categoryDao.selectExistsCategoryTitle(user_id,title) == 1);
+            return (categoryDao.selectExistsCategoryTitle(user_id, title) == 1);
         } catch (Exception exception) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
     public List<Category> retrieveById(Long user_id) throws BaseException {
-        if (userProvider.checkId(user_id) == 0)
-            throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
+        if (userProvider.checkId(user_id) == 0) throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
         try {
-             return categoryDao.selectById(user_id);
+            return categoryDao.selectById(user_id);
 
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
