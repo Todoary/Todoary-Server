@@ -31,6 +31,11 @@ public enum BaseResponseStatus {
 
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
 
+    // category 도메인 에러
+    DUPLICATE_CATEGORY(false, 2104, "중복되는 카테고리입니다."),
+    EMPTY_CATEGORY(false, 2105, "카테고리 리스트가 비어있습니다."),
+
+
     INVALID_PROVIDER(false, 2013, "올바르지 않은 provider입니다. (예: google)"),
 
     // 300대 -> 3. todo 도메인 에러

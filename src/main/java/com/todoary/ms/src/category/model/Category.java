@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Category {
     private Long id;
-    // private Long categoryImgId;
+
+    //private Long categoryImgId;
     private String title;
     private String color;
 
