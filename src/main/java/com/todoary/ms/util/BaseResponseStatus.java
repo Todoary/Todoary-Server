@@ -33,7 +33,9 @@ public enum BaseResponseStatus {
 
     INVALID_PROVIDER(false, 2013, "올바르지 않은 provider입니다. (예: google)"),
 
-    USERS_CATEGORY_NOT_EXISTS(false, 2014, "해당하는 유저와 일치하는 카테고리가 없습니다."),
+    // 300대 -> 3. todo 도메인 에러
+    USERS_CATEGORY_NOT_EXISTS(false, 2301, "해당하는 유저와 일치하는 카테고리가 없습니다."),
+    USERS_TODO_NOT_EXISTS(false, 2302, "해당하는 유저와 일치하는 투두가 없습니다."),
 
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),

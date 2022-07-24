@@ -16,5 +16,5 @@ public class PostTodoReq {
     @JsonProperty("isAlarmEnabled")
     private boolean isAlarmEnabled;
     private String targetTime;
-    private List<Integer> categories;
+    private List<Long> categories;
 }
