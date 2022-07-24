@@ -1,15 +1,15 @@
 package com.todoary.ms.src.category;
 
 import com.todoary.ms.src.category.dto.PostCategoryReq;
+import com.todoary.ms.src.category.model.Category;
+import com.todoary.ms.src.user.dto.GetUserRes;
+import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,6 +42,26 @@ public class CategoryController {
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
+    }
+
+    /**
+     * 4.2 카테고리 조회 api
+     *
+     * @param request
+     * @return title, color
+     * @throws BaseException
+     */
+    @GetMapping("")
+    public BaseResponse<GetCategoryRes> getCategory(HttpServletRequest request) {
+        try {
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            Category category = categoryProvider.retrieveById(user_id);
+            GetCategoryRes getCategoryRes = new GetCategoryRes(category.getId(),category.getTitle(), category.getColor());
+            return new BaseResponse<>(getCategoryRes);
+        } catch (BaseException e) {
+            //return new BaseResponse<>(e.getStatus());
+        }
+
     }
 
 }

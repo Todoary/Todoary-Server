@@ -16,11 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 @AllArgsConstructor
 public class Category {
     private Long id;
-    private Long categoryImgId;
+    //private Long categoryImgId;
     private String title;
     private String color;
 
-    public Category(String title, String color){
+    public Category( String title, String color){
+
         this.title = title;
         this.color = color;
     }
