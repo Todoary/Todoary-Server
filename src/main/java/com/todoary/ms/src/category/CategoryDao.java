@@ -17,11 +17,13 @@ public class CategoryDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void insertCategory(Long user_id, String title, String color) {
+    public Long insertCategory(Long user_id, String title, String color) {
         String insertCategoryQuery = "insert into category (user_id, title, color) values (?,?,?)";
         Object[] insertCategoryParams = new Object[]{user_id, title, color};
-
         this.jdbcTemplate.update(insertCategoryQuery, insertCategoryParams);
+
+        String lastInsertIdQuery = "SELECT last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery, Long.class);
 
     }
 
@@ -31,6 +33,7 @@ public class CategoryDao {
         Object[] selectExistsUsersCategoryByIdParams = new Object[]{userId, categoryId};
         return this.jdbcTemplate.queryForObject(selectExistsUsersCategoryByIdQuery, int.class, selectExistsUsersCategoryByIdParams);
     }
+
 
     public Category selectById(Long user_id) {
         String selectByIdQuery = "select id, category_img_id, title, color from category where id = ?";
@@ -47,6 +50,20 @@ public class CategoryDao {
                         rs.getString("provider"),
                         rs.getString("provider_id")),
                 user_id);
+    }
+
+    public int selectExistsCategoryTitle(Long user_id, String title) {
+        String selectExistsCategoryTitleQuery = "SELECT EXISTS(SELECT id FROM category " +
+                "where user_id = ? and title = ?)";
+        Object[] selectExistsCategoryTitleParams = new Object[]{user_id, title};
+        return this.jdbcTemplate.queryForObject(selectExistsCategoryTitleQuery,int.class, selectExistsCategoryTitleParams);
+    }
+
+    public void deleteCategory(Long categoryId) {
+        String deleteCategoryQuery = "DELETE FROM category WHERE id = ?";
+        long deleteCategoryParam = categoryId;
+        this.jdbcTemplate.update(deleteCategoryQuery, deleteCategoryParam);
+
     }
 
 }
