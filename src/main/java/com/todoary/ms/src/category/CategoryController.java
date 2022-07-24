@@ -60,12 +60,12 @@ public class CategoryController {
     public BaseResponse<GetCategoryRes> getCategory(HttpServletRequest request) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            List<Category> categories = new ArrayList<>();
+            List<Category> categories = new ArrayList<>(categoryProvider.retrieveById(user_id));
 
             if (categories.isEmpty())
                 throw new BaseException(BaseResponseStatus.EMPTY_CATEGORY);
 
-            GetCategoryRes getCategoryRes = new GetCategoryRes(categoryProvider.retrieveById(user_id));
+            GetCategoryRes getCategoryRes = new GetCategoryRes(categories);
             return new BaseResponse<>(getCategoryRes);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
