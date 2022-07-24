@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -27,7 +26,7 @@ public class TodoService {
 
     @Transactional(rollbackOn = Exception.class)
     public long createTodo(long userId, PostTodoReq postTodoReq) throws BaseException {
-        assertUsersCategoriesValidById(userId, postTodoReq.getCategories());
+        categoryProvider.assertUsersCategoriesValidById(userId, postTodoReq.getCategories());
         try {
             long todoId;
             if (postTodoReq.isAlarmEnabled()) {
@@ -51,16 +50,5 @@ public class TodoService {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
-    }
-
-    private void assertUsersCategoriesValidById(long userId, List<Long> categories) throws BaseException {
-        for (long categoryId : categories) {
-            assertUsersCategoryValidById(userId, categoryId);
-        }
-    }
-
-    private void assertUsersCategoryValidById(long userId, long categoryId) throws BaseException {
-        if (!categoryProvider.checkUsersCategoryById(userId, categoryId))
-            throw new BaseException(BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS);
     }
 }

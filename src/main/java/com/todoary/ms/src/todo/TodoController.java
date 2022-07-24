@@ -1,5 +1,6 @@
 package com.todoary.ms.src.todo;
 
+import com.todoary.ms.src.todo.dto.GetTodoByCategoryRes;
 import com.todoary.ms.src.todo.dto.GetTodoByDateRes;
 import com.todoary.ms.src.todo.dto.PostTodoReq;
 import com.todoary.ms.src.todo.dto.PostTodoRes;
@@ -83,12 +84,33 @@ public class TodoController {
      * @param targetDate
      * @return
      */
-    @GetMapping("")
+    @GetMapping(value = "", params = "date")
     public BaseResponse<List<GetTodoByDateRes>> getTodoListByDate(HttpServletRequest request,
                                                                   @RequestParam("date") String targetDate) {
         try {
             long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveTodoListByDate(userId, targetDate));
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+
+    /**
+     * 3.5 투두 카테고리별 조회 api
+     * [GET] /todo?categoryId=
+     *
+     * @param request
+     * @param categoryId
+     * @return
+     */
+    @GetMapping(value = "", params = "category")
+    public BaseResponse<List<GetTodoByCategoryRes>> getTodoListByCategory(HttpServletRequest request,
+                                                                          @RequestParam("category") long categoryId) {
+        try {
+            long userId = getUserIdFromRequest(request);
+            return new BaseResponse<>(todoProvider.retrieveTodoListByCategory(userId, categoryId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());

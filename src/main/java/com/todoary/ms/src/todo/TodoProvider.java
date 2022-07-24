@@ -1,5 +1,7 @@
 package com.todoary.ms.src.todo;
 
+import com.todoary.ms.src.category.CategoryProvider;
+import com.todoary.ms.src.todo.dto.GetTodoByCategoryRes;
 import com.todoary.ms.src.todo.dto.GetTodoByDateRes;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -13,9 +15,12 @@ public class TodoProvider {
 
     private final TodoDao todoDao;
 
+    private final CategoryProvider categoryProvider;
+
     @Autowired
-    public TodoProvider(TodoDao todoDao) {
+    public TodoProvider(TodoDao todoDao, CategoryProvider categoryProvider) {
         this.todoDao = todoDao;
+        this.categoryProvider = categoryProvider;
     }
 
     public boolean checkUsersTodoById(long userId, long todoId) throws BaseException {
@@ -27,6 +32,11 @@ public class TodoProvider {
         }
     }
 
+    public void assertUsersTodoValidById(long userId, long todoId) throws BaseException {
+        if (!checkUsersTodoById(userId, todoId))
+            throw new BaseException(BaseResponseStatus.USERS_TODO_NOT_EXISTS);
+    }
+
     public List<GetTodoByDateRes> retrieveTodoListByDate(long userId, String targetDate) throws BaseException {
         try {
             return todoDao.selectTodoListByDate(userId, targetDate);
@@ -36,8 +46,14 @@ public class TodoProvider {
         }
     }
 
-    public void assertUsersTodoValidById(long userId, long todoId) throws BaseException {
-        if (!checkUsersTodoById(userId, todoId))
-            throw new BaseException(BaseResponseStatus.USERS_TODO_NOT_EXISTS);
+    public List<GetTodoByCategoryRes> retrieveTodoListByCategory(long userId, long categoryId) throws BaseException {
+
+        categoryProvider.assertUsersCategoryValidById(userId, categoryId);
+        try {
+            return todoDao.selectTodoListByCategory(userId, categoryId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
     }
 }
