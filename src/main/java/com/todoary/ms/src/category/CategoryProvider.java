@@ -24,4 +24,12 @@ public class CategoryProvider {
         }
     }
 
+    public boolean checkCategoryDuplicate(Long user_id, String title) throws BaseException {
+        try {
+            return (categoryDao.selectExistsCategoryTitle(user_id,title) == 1);
+        } catch (Exception exception) {
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
 }
