@@ -1,10 +1,16 @@
 package com.todoary.ms.src.category;
 
+import com.todoary.ms.src.category.model.Category;
+import com.todoary.ms.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 @Repository
 public class CategoryDao {
@@ -32,6 +38,22 @@ public class CategoryDao {
         return this.jdbcTemplate.queryForObject(selectExistsUsersCategoryByIdQuery, int.class, selectExistsUsersCategoryByIdParams);
     }
 
+
+    public List<Category> selectById(Long user_id) {
+        List<Category> categories = jdbcTemplate.query("select id, title, color from category where user_id = ?",
+                (rs, rowNum) -> {
+                    Category category = new Category(
+                            rs.getLong("id"),
+                            rs.getString("title"),
+                            rs.getString("color")
+                            );
+                    return category;
+                },user_id
+                );
+        return categories;
+    }
+
+
     public int selectExistsCategoryTitle(Long user_id, String title) {
         String selectExistsCategoryTitleQuery = "SELECT EXISTS(SELECT id FROM category " +
                 "where user_id = ? and title = ?)";
@@ -43,6 +65,7 @@ public class CategoryDao {
         String deleteCategoryQuery = "DELETE FROM category WHERE id = ?";
         long deleteCategoryParam = categoryId;
         this.jdbcTemplate.update(deleteCategoryQuery, deleteCategoryParam);
+
     }
 
 }

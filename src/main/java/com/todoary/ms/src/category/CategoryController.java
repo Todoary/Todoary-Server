@@ -1,8 +1,9 @@
 package com.todoary.ms.src.category;
 
+import com.todoary.ms.src.category.dto.GetCategoryRes;
 import com.todoary.ms.src.category.dto.PostCategoryReq;
+import com.todoary.ms.src.category.model.Category;
 import com.todoary.ms.src.category.dto.PostCategoryRes;
-import com.todoary.ms.src.todo.dto.PostTodoRes;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -27,7 +30,7 @@ public class CategoryController {
 
     /**
      * 4.1 카테고리 생성 API
-     * [CREATE] /category
+     * [POST] /category
      *
      * @param request title color
      * @return
@@ -37,12 +40,37 @@ public class CategoryController {
     public BaseResponse<PostCategoryRes> postCategory(HttpServletRequest request, @RequestBody PostCategoryReq postCategoryReq) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            Long categoryId = categoryService.createCategory(user_id,postCategoryReq);
+            Long categoryId = categoryService.createCategory(user_id, postCategoryReq);
             return new BaseResponse<>(new PostCategoryRes(categoryId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());
         }
+    }
+
+    /**
+     * 4.2 카테고리 조회 api
+     *[GET] /category
+     *
+     * @param request
+     * @return categories
+     * @throws BaseException
+     */
+    @GetMapping("")
+    public BaseResponse<GetCategoryRes> getCategory(HttpServletRequest request) {
+        try {
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            List<Category> categories = new ArrayList<>(categoryProvider.retrieveById(user_id));
+
+            if (categories.isEmpty())
+                throw new BaseException(BaseResponseStatus.EMPTY_CATEGORY);
+
+            GetCategoryRes getCategoryRes = new GetCategoryRes(categories);
+            return new BaseResponse<>(getCategoryRes);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+
     }
 
     /**
