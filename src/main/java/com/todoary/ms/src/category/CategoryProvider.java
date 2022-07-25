@@ -34,9 +34,9 @@ public class CategoryProvider {
             throw new BaseException(BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS);
     }
 
-    public boolean checkUsersCategoryById(long userId, long categoryId) throws BaseException {
+    public boolean checkUsersCategoryById(Long user_id, Long categoryId) throws BaseException {
         try {
-            return (categoryDao.selectExistsUsersCategoryById(userId, categoryId) == 1);
+            return (categoryDao.selectExistsUsersCategoryById(user_id, categoryId) == 1);
         } catch (Exception exception) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
@@ -45,6 +45,14 @@ public class CategoryProvider {
     public boolean checkCategoryDuplicate(Long user_id, String title) throws BaseException {
         try {
             return (categoryDao.selectExistsCategoryTitle(user_id, title) == 1);
+        } catch (Exception exception) {
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    public boolean checkCategoryEdit(Long user_id,Long categoryId, String title) throws BaseException {
+        try {
+            return (categoryDao.selectExistsCategoryEdit(user_id, categoryId, title) == 1);
         } catch (Exception exception) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }

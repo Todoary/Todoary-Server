@@ -1,6 +1,7 @@
 package com.todoary.ms.src.category;
 
 import com.todoary.ms.src.category.dto.GetCategoryRes;
+import com.todoary.ms.src.category.dto.PostCategoryReq;
 import com.todoary.ms.src.category.model.Category;
 import com.todoary.ms.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,13 @@ public class CategoryDao {
 
     }
 
-    public int selectExistsUsersCategoryById(long userId, long categoryId) {
+    public void updateCategory(Long user_id, Long categoryId, PostCategoryReq postCategoryReq) {
+        String updateCategoryQuery = "update category set title = ? , color = ? where user_id = ? and id = ?";
+        Object[] updateCategoryParams = new Object[]{postCategoryReq.getTitle(),postCategoryReq.getColor(), user_id,categoryId};
+        this.jdbcTemplate.update(updateCategoryQuery, updateCategoryParams);
+    }
+
+    public int selectExistsUsersCategoryById(Long userId, Long categoryId) {
         String selectExistsUsersCategoryByIdQuery = "SELECT EXISTS(SELECT user_id, id FROM category " +
                 "where user_id = ? and id = ?)";
         Object[] selectExistsUsersCategoryByIdParams = new Object[]{userId, categoryId};
@@ -58,6 +65,13 @@ public class CategoryDao {
                 "where user_id = ? and title = ?)";
         Object[] selectExistsCategoryTitleParams = new Object[]{user_id, title};
         return this.jdbcTemplate.queryForObject(selectExistsCategoryTitleQuery,int.class, selectExistsCategoryTitleParams);
+    }
+
+    public int selectExistsCategoryEdit(Long user_id,Long categoryId, String title) {
+        String selectExistsCategoryEditQuery = "SELECT EXISTS(SELECT id FROM category " +
+                "where user_id = ? and title = ? and id != ?)";
+        Object[] selectExistsCategoryEditParams = new Object[]{user_id, title, categoryId};
+        return this.jdbcTemplate.queryForObject(selectExistsCategoryEditQuery,int.class, selectExistsCategoryEditParams);
     }
 
     public void deleteCategory(Long categoryId) {
