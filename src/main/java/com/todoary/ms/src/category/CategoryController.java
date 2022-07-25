@@ -57,16 +57,10 @@ public class CategoryController {
      * @throws BaseException
      */
     @GetMapping("")
-    public BaseResponse<GetCategoryRes> getCategory(HttpServletRequest request) {
+    public BaseResponse<List<GetCategoryRes>> getCategory(HttpServletRequest request) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
-            List<Category> categories = new ArrayList<>(categoryProvider.retrieveById(user_id));
-
-            if (categories.isEmpty())
-                throw new BaseException(BaseResponseStatus.EMPTY_CATEGORY);
-
-            GetCategoryRes getCategoryRes = new GetCategoryRes(categories);
-            return new BaseResponse<>(getCategoryRes);
+            return new BaseResponse<>(categoryProvider.retrieveById(user_id));
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }

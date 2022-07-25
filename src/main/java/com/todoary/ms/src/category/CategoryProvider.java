@@ -1,5 +1,6 @@
 package com.todoary.ms.src.category;
 
+import com.todoary.ms.src.category.dto.GetCategoryRes;
 import com.todoary.ms.src.category.model.Category;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
@@ -49,11 +50,10 @@ public class CategoryProvider {
         }
     }
 
-    public List<Category> retrieveById(Long user_id) throws BaseException {
+    public List<GetCategoryRes> retrieveById(Long user_id) throws BaseException {
         if (userProvider.checkId(user_id) == 0) throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
         try {
             return categoryDao.selectById(user_id);
-
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }

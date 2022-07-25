@@ -1,5 +1,6 @@
 package com.todoary.ms.src.category;
 
+import com.todoary.ms.src.category.dto.GetCategoryRes;
 import com.todoary.ms.src.category.model.Category;
 import com.todoary.ms.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,18 +40,16 @@ public class CategoryDao {
     }
 
 
-    public List<Category> selectById(Long user_id) {
-        List<Category> categories = jdbcTemplate.query("select id, title, color from category where user_id = ?",
-                (rs, rowNum) -> {
-                    Category category = new Category(
+    public List<GetCategoryRes> selectById(Long user_id) {
+        return this.jdbcTemplate.query("select id, title, color from category where user_id = ?",
+                (rs, rowNum) ->
+                    new GetCategoryRes(
                             rs.getLong("id"),
                             rs.getString("title"),
                             rs.getString("color")
-                            );
-                    return category;
-                },user_id
+                            )
+                ,user_id
                 );
-        return categories;
     }
 
 
