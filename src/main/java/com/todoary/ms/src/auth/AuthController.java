@@ -208,7 +208,7 @@ public class AuthController {
 
     /**
      * 1.9.1 이메일 검증 api
-     * [GET] /auth/email/existence
+     * [GET] /auth/email/existence?email=
      *
      * @param email
      * @return
