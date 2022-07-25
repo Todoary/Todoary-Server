@@ -3,6 +3,7 @@ package com.todoary.ms.src.todo;
 import com.todoary.ms.src.category.model.Category;
 import com.todoary.ms.src.todo.dto.GetTodoByCategoryRes;
 import com.todoary.ms.src.todo.dto.GetTodoByDateRes;
+import com.todoary.ms.src.todo.dto.PostTodoReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +17,7 @@ import javax.transaction.Transactional;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -68,7 +70,7 @@ public class TodoDao {
     }
 
     public void insertTodoCategories(long todoId, List<Long> categories) {
-        String insertTodoCategoryQuery = "INSERT INTO todo_and_category (todo_id, category_id) VALUES(?, ?)";
+        String insertTodoCategoryQuery = "INSERT IGNORE INTO todo_and_category (todo_id, category_id) VALUES(?, ?)";
         this.jdbcTemplate.batchUpdate(insertTodoCategoryQuery, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -94,6 +96,25 @@ public class TodoDao {
                 "where user_id = ? and id = ?)";
         Object[] selectExistsUsersTodoByIdParams = new Object[]{userId, todoId};
         return this.jdbcTemplate.queryForObject(selectExistsUsersTodoByIdQuery, int.class, selectExistsUsersTodoByIdParams);
+    }
+
+    public void updateTodo(long todoId, PostTodoReq postTodoReq) {
+        String updateTodoQuery = "UPDATE todo " +
+                "SET title = ?, target_date = ?,  is_alarm_enabled = ?, target_time = ? " +
+                "WHERE id = ?";
+        Object[] updateTodoParams = new Object[]{postTodoReq.getTitle(), postTodoReq.getTargetDate(),
+                postTodoReq.isAlarmEnabled(), postTodoReq.getTargetTime(), todoId};
+        this.jdbcTemplate.update(updateTodoQuery, updateTodoParams);
+    }
+
+    @Transactional
+    public void deleteAndUpdateTodoCategories(long todoId, List<Long> categories) {
+        String inParameter = String.join(",", Collections.nCopies(categories.size(), "?"));
+        String updateTodoCategoriesQuery = String.format("DELETE FROM todo_and_category WHERE todo_id = ? and category_id NOT IN(%s)", inParameter);
+        categories.add(0, todoId);
+        Object[] updateTodoCategoriesParams = categories.toArray();
+        this.jdbcTemplate.update(updateTodoCategoriesQuery, updateTodoCategoriesParams);
+        insertTodoCategories(todoId, categories);
     }
 
     public void deleteTodo(long todoId) {

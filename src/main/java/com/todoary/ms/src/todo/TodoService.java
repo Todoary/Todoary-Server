@@ -42,6 +42,18 @@ public class TodoService {
         }
     }
 
+    @Transactional(rollbackOn = Exception.class)
+    public void modifyTodo(long userId, long todoId, PostTodoReq postTodoReq) throws BaseException {
+        todoProvider.assertUsersTodoValidById(userId, todoId);
+        try {
+            todoDao.updateTodo(todoId, postTodoReq);
+            todoDao.deleteAndUpdateTodoCategories(todoId, postTodoReq.getCategories());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
     public void removeTodo(long userId, long todoId) throws BaseException {
         todoProvider.assertUsersTodoValidById(userId, todoId);
         try {

@@ -54,6 +54,27 @@ public class TodoController {
     }
 
     /**
+     * 3.2 투두 수정 api
+     * [PATCH] /todo/:todoId
+     * @param request
+     * @param postTodoReq
+     * @return
+     */
+    @PatchMapping("/{todoId}")
+    public BaseResponse<BaseResponseStatus> patchTodo(HttpServletRequest request,
+                                               @PathVariable("todoId") long todoId,
+                                               @RequestBody PostTodoReq postTodoReq) {
+        try {
+            long userId = getUserIdFromRequest(request);
+            todoService.modifyTodo(userId, todoId, postTodoReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
      * 3.3 투두 삭제 api
      * [DELETE] /todo/:todoId
      *
