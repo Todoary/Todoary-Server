@@ -4,6 +4,7 @@ import com.todoary.ms.src.category.dto.GetCategoryRes;
 import com.todoary.ms.src.category.dto.PostCategoryReq;
 import com.todoary.ms.src.category.model.Category;
 import com.todoary.ms.src.category.dto.PostCategoryRes;
+import com.todoary.ms.src.todo.dto.PostTodoReq;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -49,11 +50,33 @@ public class CategoryController {
     }
 
     /**
-     * 4.2 카테고리 조회 api
+     * 4.2 카테고리 수정 api
+     *[PATCH] /category/:categoryId
+     *
+     * @param request
+     * @return
+     * @throws BaseException
+     */
+    @PatchMapping("/{categoryId}")
+    public BaseResponse<BaseResponseStatus> patchCategory(HttpServletRequest request,
+                                                      @PathVariable("categoryId") Long categoryId,
+                                                      @RequestBody PostCategoryReq postCategoryReq) {
+        try {
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            categoryService.modifyCategory(user_id, categoryId, postCategoryReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 4.3 카테고리 조회 api
      *[GET] /category
      *
      * @param request
-     * @return categories
+     * @return List<GetCategoryRes>
      * @throws BaseException
      */
     @GetMapping("")
