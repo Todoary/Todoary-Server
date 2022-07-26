@@ -1,9 +1,12 @@
 package com.todoary.ms.src.s3;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.todoary.ms.util.BaseException;
+import com.todoary.ms.util.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.todoary.ms.util.BaseResponseStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,15 +52,25 @@ public class AwsS3Service {
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
+    // delete file
+    public int fileDelete(String fileName) throws BaseException {
+        log.info("file name : "+ fileName);
+        try {
+            boolean isFileExists = amazonS3Client.doesObjectExist(bucket, fileName);
+            if (isFileExists == false) {
+                throw new BaseException(AWS_FILE_NOT_FOUND);
+            }
 
-    public int deleteS3(String fileName){
-        int result = 0;
-        boolean isExistObject = amazonS3Client.doesObjectExist(bucket, fileName);
-        if (isExistObject == true) {
-            amazonS3Client.deleteObject(new DeleteObjectRequest(this.bucket, fileName));
-            result++;
+            amazonS3Client.deleteObject(this.bucket, (fileName).replace(File.separatorChar, '/'));
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+            throw new BaseException(AWS_ACCESS_DENIED);
+        } catch (BaseException e) {
+            throw new BaseException(AWS_FILE_NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return result;
+        return 1;
     }
 
     // 로컬에 저장된 이미지 지우기

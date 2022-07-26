@@ -20,9 +20,10 @@ public class UserDao {
     }
 
 
-    public User insertUser(User user) {
-        String insertUserQuery = "insert into user (name,nickname,email,password,role,provider,provider_id) values (?,?,?,?,?,?,?)";
-        Object[] insertUserParams = new Object[]{user.getName(), user.getNickname(), user.getEmail(), user.getPassword(), user.getRole(), user.getProvider(), user.getProvider_id()};
+    public User insertUser(User user, boolean isTermsEnable) {
+        String insertUserQuery = "insert into user (name,nickname,email,password,role,provider,provider_id, terms) values (?,?,?,?,?,?,?, ?)";
+        Object[] insertUserParams = new Object[]{user.getName(), user.getNickname(), user.getEmail(), user.getPassword(),
+                user.getRole(), user.getProvider(), user.getProvider_id(), isTermsEnable};
 
         this.jdbcTemplate.update(insertUserQuery, insertUserParams);
 
@@ -91,7 +92,7 @@ public class UserDao {
     }
 
     public String updateProfileImg(Long user_id, String profile_img_url) {
-        String updateProfileImgQuery = "update user set profile_img_url = ? where id = ?";
+        String updateProfileImgQuery = "update user set profile_img_url = ? where id = ? and status = 1";
         Object[] updateProfileImgParams = new Object[]{profile_img_url, user_id};
 
         this.jdbcTemplate.update(updateProfileImgQuery, updateProfileImgParams);
@@ -134,12 +135,16 @@ public class UserDao {
         Object[] updatePasswordParams = new Object[]{encodedPassword, user_id};
         this.jdbcTemplate.update(updatePasswordQuery, updatePasswordParams);
     }
+    public void updatePassword(String email, String encodedPassword) {
+        String updatePasswordQuery = "update user set password = ? where email = ? and provider = 'none'";
+        Object[] updatePasswordParams = new Object[]{encodedPassword, email};
+        this.jdbcTemplate.update(updatePasswordQuery, updatePasswordParams);
+    }
 
     public int checkRefreshToken(Long id) {
         String checkRefreshTokenQuery = "select exists(select user_id from token where user_id = ?)";
         Long checkRefreshTokenParam = id;
         return this.jdbcTemplate.queryForObject(checkRefreshTokenQuery, int.class, checkRefreshTokenParam);
-
     }
 
     public void deleteRefreshToken(Long user_id) {

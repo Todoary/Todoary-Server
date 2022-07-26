@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatchPasswordReq {
-    private String exPassword;
+    private String email;
     private String newPassword;
 
 }

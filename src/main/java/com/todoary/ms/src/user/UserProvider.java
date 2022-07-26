@@ -97,6 +97,4 @@ public class UserProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
-
-
 }

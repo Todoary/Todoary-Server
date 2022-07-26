@@ -6,6 +6,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PostAutoLoginRes {
+public class PostSigninRes {
     private Token token;
 }
