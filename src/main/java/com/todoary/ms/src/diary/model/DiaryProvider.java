@@ -17,9 +17,9 @@ public class DiaryProvider {
         this.diaryDao = diaryDao;
     }
 
-    public boolean checkUsersTodoById(long userId, long todoId) throws BaseException {
+    public boolean checkUsersDiaryById(long userId, long diaryId) throws BaseException {
         try {
-            return (diaryDao.selectExistsUsersDiaryById(userId, todoId) == 1);
+            return (diaryDao.selectExistsUsersDiaryById(userId, diaryId) == 1);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
@@ -27,13 +27,13 @@ public class DiaryProvider {
     }
 
     public void assertUsersDiaryValidById(long userId, long diaryId) throws BaseException {
-        if (!checkUsersTodoById(userId, diaryId))
+        if (!checkUsersDiaryById(userId, diaryId))
             throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
     }
 
-    public List<GetDiaryByDateRes> retrieveDiaryListByDate(long userId, String targetDate) throws BaseException {
+    public List<GetDiaryByDateRes> retrieveDiaryListByDate(long userId, String updated_date) throws BaseException {
         try {
-            return diaryDao.selectDiaryListByDate(userId, targetDate);
+            return diaryDao.selectDiaryListByDate(userId, updated_date);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

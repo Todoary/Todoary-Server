@@ -41,7 +41,7 @@ public class DiaryController {
      * 5.1 일기 생성 api
      */
     @PostMapping("")
-    public BaseResponse<PostDiaryRes> postTodo(HttpServletRequest request, @RequestBody PostDiaryReq postTodoReq) {
+    public BaseResponse<PostDiaryRes> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postTodoReq) {
         try {
             long userId = getUserIdFromRequest(request);
             long diaryId = diaryService.createDiary(userId, postTodoReq);
