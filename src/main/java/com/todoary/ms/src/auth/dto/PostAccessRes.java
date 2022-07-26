@@ -7,5 +7,5 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 public class PostAccessRes {
-    private final Token refreshToken;
+    private final Token token;
 }
