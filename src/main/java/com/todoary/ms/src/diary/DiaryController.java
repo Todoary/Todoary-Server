@@ -1,4 +1,4 @@
-package com.todoary.ms.src.diary.model;
+package com.todoary.ms.src.diary;
 
 
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
@@ -41,10 +41,10 @@ public class DiaryController {
      * 5.1 일기 생성 api
      */
     @PostMapping("")
-    public BaseResponse<PostDiaryRes> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postTodoReq) {
+    public BaseResponse<PostDiaryRes> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postDiaryReq) {
         try {
             long userId = getUserIdFromRequest(request);
-            long diaryId = diaryService.createDiary(userId, postTodoReq);
+            long diaryId = diaryService.createDiary(userId, postDiaryReq);
             return new BaseResponse<>(new PostDiaryRes(diaryId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
@@ -89,10 +89,10 @@ public class DiaryController {
      */
     @GetMapping(value = "", params = "date")
     public BaseResponse<List<GetDiaryByDateRes>> getDiaryListByDate(HttpServletRequest request,
-                                                                   @RequestParam("date") String targetDate) {
+                                                                   @RequestParam("date") String created_at) {
         try {
             long userId = getUserIdFromRequest(request);
-            return new BaseResponse<>(diaryProvider.retrieveDiaryListByDate(userId, targetDate));
+            return new BaseResponse<>(diaryProvider.retrieveDiaryListByDate(userId, created_at));
         } catch (BaseException e) {
             log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());

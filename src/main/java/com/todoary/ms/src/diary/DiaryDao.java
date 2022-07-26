@@ -1,4 +1,4 @@
-package com.todoary.ms.src.diary.model;
+package com.todoary.ms.src.diary;
 
 
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
@@ -29,9 +29,9 @@ public class DiaryDao {
 
 
     @Transactional
-    public long insertDiary(long userId, String title, String targetDate) {
+    public long insertDiary(long userId, String title, String content) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String insertDiaryQuery = "INSERT INTO diary (user_id, title, target_date) VALUES(?, ?, ?);";
+        String insertDiaryQuery = "INSERT INTO diary (user_id, title, content) VALUES(?, ?, ?);";
         this.jdbcTemplate.update(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -39,7 +39,7 @@ public class DiaryDao {
                         new String[]{"id"});
                 pstmt.setLong(1, userId);
                 pstmt.setString(2, title);
-                pstmt.setString(3, targetDate);
+                pstmt.setString(3, content);
                 return pstmt;
             }
         }, keyHolder);
@@ -48,16 +48,16 @@ public class DiaryDao {
 
     public int selectExistsUsersDiaryById(long userId, long diaryId) {
         String selectExistsUsersDiaryByIdQuery = "SELECT EXISTS(SELECT user_id, id FROM diary " +
-                "where user_id = ? and id = ?)";
+                "WHERE user_id = ? and id = ?)";
         Object[] selectExistsUsersDiaryByIdParams = new Object[]{userId, diaryId};
         return this.jdbcTemplate.queryForObject(selectExistsUsersDiaryByIdQuery, int.class, selectExistsUsersDiaryByIdParams);
     }
 
     public void updateDiary(long userId,long diaryId, PostDiaryReq postDiaryReq) {
         String updateDiaryQuery = "UPDATE diary " +
-                "SET title = ?, target_date = ?" +
+                "SET title = ?, content = ?" +
                 "WHERE id = ?";
-        Object[] updateDiaryParams = new Object[]{postDiaryReq.getTitle(), postDiaryReq.getTargetDate(), diaryId};
+        Object[] updateDiaryParams = new Object[]{userId, diaryId, postDiaryReq.getTitle(), postDiaryReq.getContent()};
         this.jdbcTemplate.update(updateDiaryQuery, updateDiaryParams);
     }
 
@@ -67,10 +67,21 @@ public class DiaryDao {
         this.jdbcTemplate.update(deleteDiaryQuery, deleteDiaryParam);
     }
 
-    public List<GetDiaryByDateRes> selectDiaryListByDate(long userId, String targetDate) {
-        String selectDiaryByDateQuery =
+    public List<GetDiaryByDateRes> selectDiaryListByDate(Long userId, String created_at) {
+        String selectDiaryByDateQuery ="SELECT userId, created_at " +
+                "FROM diary" +
+                "WHERE user_id = ? and id = ? " +
+                "ORDER BY created_at";
 
 
+        return this.jdbcTemplate.query(selectDiaryByDateQuery,
+                (rs,rowNum) -> new GetDiaryByDateRes(
+                        rs.getInt("id"),
+                        rs.getLong("diaryId"),
+                        rs.getString("title"),
+                        rs.getString("content"),
+                        rs.getString("created_at")
+                ));
 
     }
 

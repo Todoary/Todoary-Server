@@ -2,6 +2,7 @@ package com.todoary.ms.src.user;
 
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
+import com.todoary.ms.util.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -96,5 +97,14 @@ public class UserProvider {
             log.warn(exception.getMessage());
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    public boolean isProviderCorrect(String provider) {
+        return (provider.equals("google") || provider.equals("apple"));
+    }
+
+    public void assertUserValidById(long userId) throws BaseException {
+        if (checkId(userId) == 0)
+            throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
     }
 }

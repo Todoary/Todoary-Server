@@ -1,6 +1,8 @@
-package com.todoary.ms.src.diary.model;
+package com.todoary.ms.src.diary;
 
 
+import com.todoary.ms.src.diary.DiaryDao;
+import com.todoary.ms.src.diary.DiaryProvider;
 import com.todoary.ms.src.diary.dto.PostDiaryReq;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -23,7 +25,7 @@ public class DiaryService {
 
     public long createDiary(long userId, PostDiaryReq postDiaryReq) throws BaseException {
         try {
-            long todoId = diaryDao.insertDiary(userId, postDiaryReq.getTitle(), postDiaryReq.getTargetDate());
+            long todoId = diaryDao.insertDiary(userId, postDiaryReq.getTitle(), postDiaryReq.getContent());
             return todoId;
         } catch (Exception e) {
             e.printStackTrace();

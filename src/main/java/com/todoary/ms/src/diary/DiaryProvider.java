@@ -1,5 +1,6 @@
-package com.todoary.ms.src.diary.model;
+package com.todoary.ms.src.diary;
 
+import com.todoary.ms.src.diary.DiaryDao;
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -31,9 +32,9 @@ public class DiaryProvider {
             throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
     }
 
-    public List<GetDiaryByDateRes> retrieveDiaryListByDate(long userId, String updated_date) throws BaseException {
+    public List<GetDiaryByDateRes> retrieveDiaryListByDate(long userId, String created_at) throws BaseException {
         try {
-            return diaryDao.selectDiaryListByDate(userId, updated_date);
+            return diaryDao.selectDiaryListByDate(userId, created_at);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

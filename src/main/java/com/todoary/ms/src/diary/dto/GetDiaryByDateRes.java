@@ -13,7 +13,6 @@ public class GetDiaryByDateRes {
     private long diaryId;
     private String title;
     private String content;
-
     private String created_at;
-    private String updated_at;
+
 }

@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class PostDiaryReq {
 
     private String title;
-    private String targetDate;
+    private String content;
+
 }

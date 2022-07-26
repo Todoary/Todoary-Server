@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostDiaryRes {
-    private long todoId;
+    private long diaryId;
 }
