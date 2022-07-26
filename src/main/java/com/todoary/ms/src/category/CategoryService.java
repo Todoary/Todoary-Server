@@ -1,6 +1,7 @@
 package com.todoary.ms.src.category;
 
 import com.todoary.ms.src.category.dto.PostCategoryReq;
+import com.todoary.ms.src.todo.dto.PostTodoReq;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -47,12 +48,29 @@ public class CategoryService {
     }
 
     @Transactional
-    public void removeCategory(long user_Id, long categoryId) throws BaseException {
+    public void modifyCategory(Long user_id, Long categoryId, PostCategoryReq postCategoryReq) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
+        if (!categoryProvider.checkUsersCategoryById(user_id, categoryId))
+            throw new BaseException(BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS);
+        if (categoryProvider.checkCategoryEdit(user_id,categoryId,postCategoryReq.getTitle()))
+            throw new BaseException(DUPLICATE_CATEGORY);
+
+        try {
+            categoryDao.updateCategory(user_id,categoryId,postCategoryReq);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    @Transactional
+    public void removeCategory(Long user_id, Long categoryId) throws BaseException {
 
         /* validation */
-        if (userProvider.checkId(user_Id) == 0)
+        if (userProvider.checkId(user_id) == 0)
             throw new BaseException(USERS_EMPTY_USER_ID);
-        if (!categoryProvider.checkUsersCategoryById(user_Id, categoryId))
+        if (!categoryProvider.checkUsersCategoryById(user_id, categoryId))
             throw new BaseException(BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS);
 
         try {

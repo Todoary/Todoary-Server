@@ -124,9 +124,9 @@ public class TodoDao {
     }
 
     public List<GetTodoByDateRes> selectTodoListByDate(long userId, String targetDate) {
-        String selectTodosByDateQuery = "SELECT id, is_checked, title, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time " +
+        String selectTodosByDateQuery = "SELECT id, is_checked, title, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at " +
                 "from todo WHERE user_id = ? and target_date = ? " +
-                "ORDER BY target_date, target_time";
+                "ORDER BY target_date, target_time, created_at";
         Object[] selectTodosByDateParams = new Object[]{userId, targetDate};
         String selectCategoriesByTodoIdQuery = "SELECT category_id, c.title, c.color\n" +
                 "FROM todo_and_category as tc JOIN category c on tc.category_id = c.id\n" +
@@ -139,6 +139,7 @@ public class TodoDao {
                         rs.getString("title"),
                         rs.getBoolean("is_alarm_enabled"),
                         rs.getString("target_time"),
+                        rs.getString("created_at"),
                         this.jdbcTemplate.query(selectCategoriesByTodoIdQuery,
                                 (rs2, rowNum2) -> new Category(
                                         rs2.getLong("category_id"),
@@ -149,10 +150,10 @@ public class TodoDao {
     }
 
     public List<GetTodoByCategoryRes> selectTodoListByCategory(long userId, long categoryId) {
-        String selectTodosByCategoryQuery = "SELECT todo_id, is_checked, title, target_date, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time " +
+        String selectTodosByCategoryQuery = "SELECT todo_id, is_checked, title, target_date, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at " +
                 "FROM todo_and_category JOIN todo t on t.id = todo_and_category.todo_id " +
                 "WHERE category_id = ? " +
-                "ORDER BY target_date, target_time";
+                "ORDER BY target_date, target_time, created_at";
         long selectTodosByCategoryParam = categoryId;
         String selectCategoriesByTodoIdQuery = "SELECT category_id, c.title, c.color " +
                 "FROM todo_and_category as tc JOIN category c on tc.category_id = c.id " +
@@ -166,6 +167,7 @@ public class TodoDao {
                         rs.getString("target_date"),
                         rs.getBoolean("is_alarm_enabled"),
                         rs.getString("target_time"),
+                        rs.getString("created_at"),
                         this.jdbcTemplate.query(selectCategoriesByTodoIdQuery,
                                 (rs2, rowNum2) -> new Category(
                                         rs2.getLong("category_id"),

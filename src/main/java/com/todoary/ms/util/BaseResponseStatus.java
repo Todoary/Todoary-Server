@@ -32,7 +32,7 @@ public enum BaseResponseStatus {
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
 
     // category 도메인 에러
-    DUPLICATE_CATEGORY(false, 2104, "중복되는 카테고리입니다."),
+    DUPLICATE_CATEGORY(false, 2104, "같은이름의 카테고리가 이미 존재합니다."),
 
     INVALID_PROVIDER(false, 2013, "올바르지 않은 provider입니다. (예: google)"),
 
