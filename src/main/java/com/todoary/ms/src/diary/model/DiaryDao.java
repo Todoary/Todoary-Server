@@ -68,16 +68,10 @@ public class DiaryDao {
     }
 
     public List<GetDiaryByDateRes> selectDiaryListByDate(long userId, String targetDate) {
-        String selectDiaryByDateQuery = "SELECT id, title +
-                "from diary WHERE user_id = ? and target_date = ? " +
-                "ORDER BY target_date";
-        Object[] selectDiaryByDateParams = new Object[]{userId, targetDate};
-        return this.jdbcTemplate.query(selectDiaryByDateQuery,
-                (rs, rowNum) -> new GetDiaryByDateRes(
-                        rs.getLong("diaryId"),
-                        rs.getString("title"),
-                        rs.getString("target_date"),
-                        selectDiaryByDateParams);
+        String selectDiaryByDateQuery =
+
+
+
     }
 
 }
