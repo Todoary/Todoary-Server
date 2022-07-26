@@ -53,6 +53,9 @@ public enum BaseResponseStatus {
     POST_USERS_INVALID_PASSWORD(false, 2031, "비밀번호 형식을 확인해주세요."),
 
 
+    //400
+    USERS_DIARY_NOT_EXISTS(false, 2302, "해당하는 유저와 일치하는 일기가 없습니다."),
+
     POST_USERS_EXISTS_NICKNAME(false, 2032, "중복된 닉네임입니다."),
     /**
      * 3000 : Response 오류
