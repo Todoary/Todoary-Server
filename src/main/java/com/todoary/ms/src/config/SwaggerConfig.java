@@ -1,5 +1,6 @@
 package com.todoary.ms.src.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -23,6 +24,9 @@ import java.util.Set;
 @EnableWebMvc
 public class SwaggerConfig {
 
+    @Value("${swagger.host}")
+    private String hostUrl;
+
     private ApiInfo swaggerInfo() {
         return new ApiInfoBuilder().title("Todoary API")
                 .description("Todoary API Docs").build();
@@ -31,6 +35,7 @@ public class SwaggerConfig {
     @Bean
     public Docket swaggerApi() {
         return new Docket(DocumentationType.SWAGGER_2)
+                .host(hostUrl)
                 .consumes(getConsumeContentTypes())
                 .produces(getProduceContentTypes())
                 .apiInfo(swaggerInfo())

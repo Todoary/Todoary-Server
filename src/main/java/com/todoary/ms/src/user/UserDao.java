@@ -74,13 +74,13 @@ public class UserDao {
     }
 
     public int checkEmail(String email, String provider) {
-        String checkEmailQuery = "select exists(select email, provider from user where email = ? and provider = ? and status = 1)";
+        String checkEmailQuery = "select exists(select email, provider from user where email = ? and provider = ?)";
         Object[] checkEmailParams = new Object[]{email, provider};
         return this.jdbcTemplate.queryForObject(checkEmailQuery, int.class, checkEmailParams);
     }
 
     public int checkNickname(String nickname) {
-        String checkNameQuery = "select exists(select nickname from user where nickname = ? and status = 1)";
+        String checkNameQuery = "select exists(select nickname from user where nickname = ?)";
         String checkNameParam = nickname;
         return this.jdbcTemplate.queryForObject(checkNameQuery, int.class, checkNameParam);
     }
