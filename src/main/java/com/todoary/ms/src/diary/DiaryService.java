@@ -1,8 +1,6 @@
 package com.todoary.ms.src.diary;
 
 
-import com.todoary.ms.src.diary.DiaryDao;
-import com.todoary.ms.src.diary.DiaryProvider;
 import com.todoary.ms.src.diary.dto.PostDiaryReq;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -23,20 +21,9 @@ public class DiaryService {
         this.diaryDao = diaryDao;
     }
 
-    public long createDiary(long userId, PostDiaryReq postDiaryReq) throws BaseException {
+    public void createOrModifyDiary(long userId, PostDiaryReq postDiaryReq) throws BaseException {
         try {
-            long todoId = diaryDao.insertDiary(userId, postDiaryReq.getTitle(), postDiaryReq.getContent());
-            return todoId;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
-        }
-    }
-
-    public void modifyDiary(long userId, long diaryId, PostDiaryReq postDiaryReq) throws BaseException {
-        diaryProvider.assertUsersDiaryValidById(userId, diaryId);
-        try {
-            diaryDao.updateDiary(userId, diaryId, postDiaryReq);
+            diaryDao.insertOrUpdateDiary(userId, postDiaryReq);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
@@ -44,10 +31,11 @@ public class DiaryService {
     }
 
 
-    public void removeDiary(long userId, long diaryId) throws BaseException {
-        diaryProvider.assertUsersDiaryValidById(userId, diaryId);
+
+    public void removeDiary(long userId, String createdDate) throws BaseException {
+        diaryProvider.assertUsersDiaryValidById(userId, createdDate);
         try {
-            diaryDao.deleteDiary(diaryId);
+            diaryDao.deleteDiary(userId, createdDate);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

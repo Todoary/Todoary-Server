@@ -1,8 +1,5 @@
 package com.todoary.ms.src.diary;
 
-import com.todoary.ms.src.diary.DiaryProvider;
-import com.todoary.ms.src.diary.DiaryService;
-import com.todoary.ms.src.diary.dto.*;
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
 import com.todoary.ms.src.diary.dto.PostDiaryReq;
 import com.todoary.ms.src.diary.dto.PostDiaryRes;
@@ -40,30 +37,13 @@ public class DiaryController {
     }
 
     /**
-     * 5.1 일기 생성 api
+     * 5.1 일기 생성/수정 api
      */
     @PostMapping("")
-    public BaseResponse<PostDiaryRes> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postDiaryReq) {
+    public BaseResponse<BaseResponseStatus> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postDiaryReq) {
         try {
             long userId = getUserIdFromRequest(request);
-            long diaryId = diaryService.createDiary(userId, postDiaryReq);
-            return new BaseResponse<>(new PostDiaryRes(diaryId));
-        } catch (BaseException e) {
-            log.warn(e.getMessage());
-            return new BaseResponse<>(e.getStatus());
-        }
-    }
-
-    /**
-     * 5.2 일기 수정 api
-     */
-    @PatchMapping("/{diaryId}")
-    public BaseResponse<BaseResponseStatus> patchDiary(HttpServletRequest request,
-                                                      @PathVariable("diaryId") long diaryId,
-                                                      @RequestBody PostDiaryReq postDiaryReq) {
-        try {
-            long userId = getUserIdFromRequest(request);
-            diaryService.modifyDiary(userId, diaryId, postDiaryReq);
+            diaryService.createOrModifyDiary(userId, postDiaryReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             log.warn(e.getMessage());
@@ -71,14 +51,16 @@ public class DiaryController {
         }
     }
 
+
+
     /**
      * 5.3 일기 삭제 api
      */
-    @DeleteMapping("/{diaryId}")
-    public BaseResponse<BaseResponseStatus> deleteDiaryById(HttpServletRequest request, @PathVariable("diaryId") long diaryId) {
+    @DeleteMapping("/{createdDate}")
+    public BaseResponse<BaseResponseStatus> deleteDiaryById(HttpServletRequest request, @PathVariable("createdDate") String createdDate) {
         try {
             long userId = getUserIdFromRequest(request);
-            diaryService.removeDiary(userId, diaryId);
+            diaryService.removeDiary(userId, createdDate);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             log.warn(e.getMessage());

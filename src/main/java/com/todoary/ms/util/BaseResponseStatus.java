@@ -54,7 +54,7 @@ public enum BaseResponseStatus {
 
 
     //400
-    USERS_DIARY_NOT_EXISTS(false, 2302, "해당하는 유저와 일치하는 일기가 없습니다."),
+    USERS_DIARY_NOT_EXISTS(false, 2402, "해당하는 유저와 일치하는 일기가 없습니다."),
 
     POST_USERS_EXISTS_NICKNAME(false, 2032, "중복된 닉네임입니다."),
     /**

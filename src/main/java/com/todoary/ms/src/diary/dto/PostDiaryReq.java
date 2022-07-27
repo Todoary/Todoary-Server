@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PostDiaryReq {
 
+
     private String title;
     private String content;
 
