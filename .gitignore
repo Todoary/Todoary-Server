@@ -4,6 +4,7 @@ build/
 <<<<<<< HEAD
 =======
 *.properties
+**/firebase/
 **/secret/
 >>>>>>> 54330c111d532d60ae15c2aa000e11619797974f
 !gradle/wrapper/gradle-wrapper.jar
