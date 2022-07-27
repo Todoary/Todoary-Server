@@ -46,6 +46,8 @@ public class TodoController {
         try {
             long userId = getUserIdFromRequest(request);
             long todoId = todoService.createTodo(userId, postTodoReq);
+            String target_time = postTodoReq.getTargetDate()+" "+ postTodoReq.getTargetTime();
+            log.info(target_time);
             return new BaseResponse<>(new PostTodoRes(todoId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
