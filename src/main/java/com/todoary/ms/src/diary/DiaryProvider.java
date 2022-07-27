@@ -4,10 +4,14 @@ import com.todoary.ms.src.diary.DiaryDao;
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
+@Service
 public class DiaryProvider {
 
     private final DiaryDao diaryDao;

@@ -1,5 +1,7 @@
 package com.todoary.ms.src.diary;
 
+import com.todoary.ms.src.diary.DiaryProvider;
+import com.todoary.ms.src.diary.DiaryService;
 import com.todoary.ms.src.diary.dto.*;
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
 import com.todoary.ms.src.diary.dto.PostDiaryReq;

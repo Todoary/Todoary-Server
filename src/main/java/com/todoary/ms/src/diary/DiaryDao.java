@@ -1,6 +1,7 @@
 package com.todoary.ms.src.diary;
 
 
+import com.todoary.ms.src.category.dto.PostCategoryReq;
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
 import com.todoary.ms.src.diary.dto.PostDiaryReq;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,23 +29,16 @@ public class DiaryDao {
     }
 
 
-    @Transactional
+
     public long insertDiary(long userId, String title, String content) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        String insertDiaryQuery = "INSERT INTO diary (user_id, title, content) VALUES(?, ?, ?);";
-        this.jdbcTemplate.update(new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement pstmt = con.prepareStatement(insertDiaryQuery,
-                        new String[]{"id"});
-                pstmt.setLong(1, userId);
-                pstmt.setString(2, title);
-                pstmt.setString(3, content);
-                return pstmt;
-            }
-        }, keyHolder);
-        return Objects.requireNonNull(keyHolder.getKey()).longValue();
+        String insertDiaryQuery = "INSERT INTO diary (user_id, title, content) VALUES(?, ?, ?)";
+        Object[] insertDiaryParams = new Object[]{userId, title, content};
+        this.jdbcTemplate.update(insertDiaryQuery, insertDiaryParams);
+
+        String lastInsertIdQuery = "SELECT last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery, Long.class);
     }
+
 
     public int selectExistsUsersDiaryById(long userId, long diaryId) {
         String selectExistsUsersDiaryByIdQuery = "SELECT EXISTS(SELECT user_id, id FROM diary " +
@@ -56,7 +50,7 @@ public class DiaryDao {
     public void updateDiary(long userId,long diaryId, PostDiaryReq postDiaryReq) {
         String updateDiaryQuery = "UPDATE diary " +
                 "SET title = ?, content = ?" +
-                "WHERE id = ?";
+                "WHERE user_id=? and id = ?";
         Object[] updateDiaryParams = new Object[]{userId, diaryId, postDiaryReq.getTitle(), postDiaryReq.getContent()};
         this.jdbcTemplate.update(updateDiaryQuery, updateDiaryParams);
     }
@@ -73,10 +67,8 @@ public class DiaryDao {
                 "WHERE user_id = ? and id = ? " +
                 "ORDER BY created_at";
 
-
         return this.jdbcTemplate.query(selectDiaryByDateQuery,
                 (rs,rowNum) -> new GetDiaryByDateRes(
-                        rs.getInt("id"),
                         rs.getLong("diaryId"),
                         rs.getString("title"),
                         rs.getString("content"),
