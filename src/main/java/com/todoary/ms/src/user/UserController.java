@@ -189,7 +189,7 @@ public class UserController {
     }
 
     /**
-     * 2.7.3 하루기록 알림 활성화 api
+     * 2.7.3 일기 알림 활성화 api
      */
     @PatchMapping("/alarm/remind")
     public BaseResponse<BaseResponseStatus> patchRemindAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){

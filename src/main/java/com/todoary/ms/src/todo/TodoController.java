@@ -1,5 +1,6 @@
 package com.todoary.ms.src.todo;
 
+import com.todoary.ms.src.alarm.AlarmService;
 import com.todoary.ms.src.todo.dto.*;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
@@ -20,12 +21,14 @@ public class TodoController {
     private final TodoProvider todoProvider;
     private final TodoService todoService;
     private final UserProvider userProvider;
+    private final AlarmService alarmService;
 
     @Autowired
-    public TodoController(TodoProvider todoProvider, TodoService todoService, UserProvider userProvider) {
+    public TodoController(TodoProvider todoProvider, TodoService todoService, UserProvider userProvider, AlarmService alarmService) {
         this.todoProvider = todoProvider;
         this.todoService = todoService;
         this.userProvider = userProvider;
+        this.alarmService = alarmService;
     }
 
     private long getUserIdFromRequest(HttpServletRequest request) throws BaseException {
@@ -46,8 +49,8 @@ public class TodoController {
         try {
             long userId = getUserIdFromRequest(request);
             long todoId = todoService.createTodo(userId, postTodoReq);
-            String target_time = postTodoReq.getTargetDate()+" "+ postTodoReq.getTargetTime();
-            log.info(target_time);
+            if(postTodoReq.isAlarmEnabled())
+                alarmService.createAlarmTodo(userId,todoId);
             return new BaseResponse<>(new PostTodoRes(todoId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
@@ -69,6 +72,8 @@ public class TodoController {
         try {
             long userId = getUserIdFromRequest(request);
             todoService.modifyTodo(userId, todoId, postTodoReq);
+            if(!postTodoReq.isAlarmEnabled())
+                alarmService.modifyAlarmTodo(userId,todoId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             log.warn(e.getMessage());
