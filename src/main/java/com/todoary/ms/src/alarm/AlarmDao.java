@@ -18,6 +18,19 @@ public class AlarmDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    public void insertAlarmTodo(Long userId,Long todoId) {
+        String insertAlarmQuery = "insert into alarm_todo (user_id, todo_id) values (?,?)";
+        Object[] insertAlarmParams = new Object[]{userId,todoId};
+        this.jdbcTemplate.update(insertAlarmQuery, insertAlarmParams);
+
+    }
+    public void updateAlarmTodo(Long userId,Long todoId) {
+        String insertAlarmQuery = "update alarm_todo set status = 0 where user_id = ? and todo_id = ?";
+        Object[] insertAlarmParams = new Object[]{userId,todoId};
+        this.jdbcTemplate.update(insertAlarmQuery, insertAlarmParams);
+
+    }
+
     public List<Alarm> selectByDateTime(String dateTime) {
         String selectByDateTimeQuery = "select * from alarm where alarm_datetime like ?";
         dateTime += "%";

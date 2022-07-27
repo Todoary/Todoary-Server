@@ -46,7 +46,7 @@ public class AlarmController {
             firebaseCloudMessageService.sendMessageTo(
                     alarm.getRegistration_token(),
                     alarm.getTitle(),
-                    alarm.getBody());
+                    alarm.getTarget_date());
         }
     }
 }
