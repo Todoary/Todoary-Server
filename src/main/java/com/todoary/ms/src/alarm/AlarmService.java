@@ -24,31 +24,6 @@ public class AlarmService {
         this.alarmDao = alarmDao;
     }
 
-    @Transactional
-    public void createAlarmTodo(Long userId,Long todoId) throws BaseException {
-
-        try {
-            alarmDao.insertAlarmTodo(userId,todoId);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new BaseException(DATABASE_ERROR);
-        }
-
-    }
-
-    @Transactional
-    public void modifyAlarmTodo(Long userId,Long todoId) throws BaseException {
-
-        try {
-            alarmDao.updateAlarmTodo(userId,todoId);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new BaseException(DATABASE_ERROR);
-        }
-
-    }
 
 
 }
