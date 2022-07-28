@@ -1,6 +1,5 @@
 package com.todoary.ms.src.todo;
 
-import com.todoary.ms.src.alarm.AlarmService;
 import com.todoary.ms.src.todo.dto.*;
 import com.todoary.ms.src.todo.dto.PostTodoReq;
 import com.todoary.ms.src.todo.dto.PostTodoRes;
@@ -23,14 +22,12 @@ public class TodoController {
     private final TodoProvider todoProvider;
     private final TodoService todoService;
     private final UserProvider userProvider;
-    private final AlarmService alarmService;
 
     @Autowired
-    public TodoController(TodoProvider todoProvider, TodoService todoService, UserProvider userProvider, AlarmService alarmService) {
+    public TodoController(TodoProvider todoProvider, TodoService todoService, UserProvider userProvider) {
         this.todoProvider = todoProvider;
         this.todoService = todoService;
         this.userProvider = userProvider;
-        this.alarmService = alarmService;
     }
 
     private long getUserIdFromRequest(HttpServletRequest request) throws BaseException {
