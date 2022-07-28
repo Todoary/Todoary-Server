@@ -31,17 +31,18 @@ public class DiaryProvider {
         }
     }
 
-    public void assertUsersDiaryValidById(long userId, String createdDate) throws BaseException {
+    public void assertUsersDiaryValidByDate(long userId, String createdDate) throws BaseException {
         if (!checkUsersDiaryById(userId, createdDate))
             throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
     }
 
-    public List<GetDiaryByDateRes> retrieveDiaryListByDate(long userId, String created_at) throws BaseException {
+    public GetDiaryByDateRes retrieveDiaryByDate(long userId, String created_at) throws BaseException {
         try {
-            return diaryDao.selectDiaryListByDate(userId, created_at);
+            return diaryDao.selectDiaryByDate(userId, created_at);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+}
 }

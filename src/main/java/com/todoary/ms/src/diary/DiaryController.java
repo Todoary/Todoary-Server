@@ -71,12 +71,12 @@ public class DiaryController {
     /**
      * 5.4 일기 조회 api
      */
-    @GetMapping(value = "", params = "date")
-    public BaseResponse<List<GetDiaryByDateRes>> getDiaryListByDate(HttpServletRequest request,
-                                                                   @RequestParam("date") String created_at) {
+    @GetMapping(value = "", params = "createdDate")
+    public BaseResponse<GetDiaryByDateRes> getDiaryListByDate(HttpServletRequest request,
+                                                                   @RequestParam("createdDate") String created_at) {
         try {
             long userId = getUserIdFromRequest(request);
-            return new BaseResponse<>(diaryProvider.retrieveDiaryListByDate(userId, created_at));
+            return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, created_at));
         } catch (BaseException e) {
             log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());

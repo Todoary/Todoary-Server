@@ -33,7 +33,7 @@ public class DiaryService {
 
 
     public void removeDiary(long userId, String createdDate) throws BaseException {
-        diaryProvider.assertUsersDiaryValidById(userId, createdDate);
+        diaryProvider.assertUsersDiaryValidByDate(userId, createdDate);
         try {
             diaryDao.deleteDiary(userId, createdDate);
         } catch (Exception e) {

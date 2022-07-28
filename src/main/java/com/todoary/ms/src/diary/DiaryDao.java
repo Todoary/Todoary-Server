@@ -45,13 +45,15 @@ public class DiaryDao {
         this.jdbcTemplate.update(deleteDiaryQuery, deleteDiaryParam);
     }
 
-    public List<GetDiaryByDateRes> selectDiaryListByDate(Long userId, String created_date) {
+
+
+    public GetDiaryByDateRes selectDiaryByDate(Long userId, String created_date) {
         String selectDiaryByDateQuery ="SELECT id, title, content, created_date " +
                 "FROM diary " +
                 "WHERE user_id = ? and DATE(?)=DATE(created_date) " +
                 "ORDER BY created_date ";
         Object[] selectDiaryByDateParams = new Object[]{userId, created_date};
-        return this.jdbcTemplate.query(selectDiaryByDateQuery,
+        return this.jdbcTemplate.queryForObject(selectDiaryByDateQuery,
                 (rs,rowNum) -> new GetDiaryByDateRes(
                         rs.getLong("id"),
                         rs.getString("title"),
