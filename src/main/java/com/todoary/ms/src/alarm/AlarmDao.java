@@ -32,17 +32,16 @@ public class AlarmDao {
     }
 
     public List<Alarm> selectByDateTime(String dateTime) {
-        // String selectByDateTimeQuery = "select * from alarm where alarm_datetime like ?";
-        // dateTime += "%";
-        // return this.jdbcTemplate.query(selectByDateTimeQuery,
-        //         (rs, rowNum) -> new Alarm(
-        //                 rs.getLong("user_id"),
-        //                 rs.getString("registration_token"),
-        //                 rs.getString("title"),
-        //                 rs.getString("body"),
-        //                 rs.getDate("alarm_datetime" +
-        //                         "")
-        //         ), dateTime);
-        return null;
+        String selectByDateTimeQuery = "select * from alarm where alarm_datetime like ?";
+        dateTime += "%";
+        return this.jdbcTemplate.query(selectByDateTimeQuery,
+                (rs, rowNum) -> new Alarm(
+                        rs.getLong("user_id"),
+                        rs.getString("registration_token"),
+                        rs.getString("title"),
+                        rs.getString("body"),
+                        rs.getDate("alarm_datetime" +
+                                "")
+                ), dateTime);
     }
 }
