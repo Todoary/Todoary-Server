@@ -18,6 +18,7 @@ public class AlarmController {
 
     private final FireBaseCloudMessageService firebaseCloudMessageService;
     private final AlarmDao alarmDao;
+
     @Autowired
     public AlarmController(FireBaseCloudMessageService firebaseCloudMessageService, AlarmDao alarmDao) {
         this.firebaseCloudMessageService = firebaseCloudMessageService;
@@ -27,7 +28,7 @@ public class AlarmController {
     @PostMapping("/todo")
     public ResponseEntity pushMessage(@RequestBody PostAlarmReq postAlarmReq) throws IOException {
         System.out.println(postAlarmReq.getTargetToken() + " "
-                +postAlarmReq.getTitle() + " " + postAlarmReq.getBody());
+                + postAlarmReq.getTitle() + " " + postAlarmReq.getBody());
 
         firebaseCloudMessageService.sendMessageTo(
                 postAlarmReq.getTargetToken(),
@@ -37,7 +38,7 @@ public class AlarmController {
     }
 
     @Scheduled(cron = "0 0/1 * 1/1 * ?")
-    public void test() throws IOException {
+    public void TodoaryAlarm() throws IOException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String now = dateFormat.format(new Date());
 
@@ -45,12 +46,26 @@ public class AlarmController {
         String target_date = target_datetime[0];
         String target_time = target_datetime[1];
 
-        List<Alarm> alarmsPerMin = alarmDao.selectByDateTime(target_date, target_time);
-        for (Alarm alarm : alarmsPerMin) {
+        List<Alarm> alarms_todo = alarmDao.selectByDateTime_todo(target_date, target_time);
+        for (Alarm alarm : alarms_todo) {
             firebaseCloudMessageService.sendMessageTo(
                     alarm.getRegistration_token(),
                     "Todoary 알림",
                     alarm.getTitle());
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 1/1 * ?")
+    public void RemindAlarm() throws IOException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String target_date = dateFormat.format(new Date());
+
+        List<Alarm> alarms_remind = alarmDao.selectByDateTime_remind(target_date);
+        for (Alarm alarm : alarms_remind) {
+            firebaseCloudMessageService.sendMessageTo(
+                    alarm.getRegistration_token(),
+                    "리마인드 알림",
+                    "하루기록을 작성한 지 일주일이 경과했습니다.");
         }
     }
 }
