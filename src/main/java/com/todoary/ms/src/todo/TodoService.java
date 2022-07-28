@@ -64,10 +64,20 @@ public class TodoService {
         }
     }
 
-    public void modifyTodoStatus(long userId, long todoId, boolean isChecked) throws BaseException {
+    public void modifyTodoCheck(long userId, long todoId, boolean isChecked) throws BaseException {
         todoProvider.assertUsersTodoValidById(userId, todoId);
         try {
-            todoDao.updateTodoStatus(todoId, isChecked);
+            todoDao.updateTodoCheck(todoId, isChecked);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    public void modifyTodoPin(long userId, long todoId, boolean isPinned) throws BaseException {
+        todoProvider.assertUsersTodoValidById(userId, todoId);
+        try {
+            todoDao.updateTodoPin(todoId, isPinned);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

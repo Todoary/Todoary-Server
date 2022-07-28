@@ -124,7 +124,7 @@ public class TodoDao {
     }
 
     public List<GetTodoByDateRes> selectTodoListByDate(long userId, String targetDate) {
-        String selectTodosByDateQuery = "SELECT id, is_checked, title, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at " +
+        String selectTodosByDateQuery = "SELECT id, is_pinned, is_checked, title, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at " +
                 "from todo WHERE user_id = ? and target_date = ? " +
                 "ORDER BY target_date, target_time, created_at";
         Object[] selectTodosByDateParams = new Object[]{userId, targetDate};
@@ -135,6 +135,7 @@ public class TodoDao {
         return this.jdbcTemplate.query(selectTodosByDateQuery,
                 (rs, rowNum) -> new GetTodoByDateRes(
                         rs.getLong("id"),
+                        rs.getBoolean("is_pinned"),
                         rs.getBoolean("is_checked"),
                         rs.getString("title"),
                         rs.getBoolean("is_alarm_enabled"),
@@ -177,9 +178,15 @@ public class TodoDao {
                 ), selectTodosByCategoryParam);
     }
 
-    public void updateTodoStatus(long todoId, boolean isChecked) {
+    public void updateTodoCheck(long todoId, boolean isChecked) {
         String updateTodoStatusQuery = "UPDATE todo SET is_checked = ? WHERE id = ?";
         Object[] updateTodoStatusParams = new Object[]{isChecked, todoId};
+        this.jdbcTemplate.update(updateTodoStatusQuery, updateTodoStatusParams);
+    }
+
+    public void updateTodoPin(long todoId, boolean isPinned) {
+        String updateTodoStatusQuery = "UPDATE todo SET is_pinned = ? WHERE id = ?";
+        Object[] updateTodoStatusParams = new Object[]{isPinned, todoId};
         this.jdbcTemplate.update(updateTodoStatusQuery, updateTodoStatusParams);
     }
 }
