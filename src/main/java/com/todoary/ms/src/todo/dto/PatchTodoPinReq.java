@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PatchTodoStatusReq {
+public class PatchTodoPinReq {
     private long todoId;
-    @JsonProperty("isChecked")
-    private boolean isChecked;
+    @JsonProperty("isPinned")
+    private boolean isPinned;
 }
