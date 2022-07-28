@@ -87,6 +87,8 @@ public class UserService {
 
     public PatchUserRes modifyProfile(Long user_id, PatchUserReq patchUserReq) throws BaseException {
         try {
+            if (userProvider.checkNickname(patchUserReq.getNickname()) == 1)
+                throw new BaseException(POST_USERS_EXISTS_NICKNAME);
             return userDao.updateProfile(user_id, patchUserReq);
         } catch (Exception e) {
             e.printStackTrace();
