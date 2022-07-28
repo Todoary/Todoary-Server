@@ -36,17 +36,17 @@ public class AlarmController {
         return ResponseEntity.ok().build();
     }
 
-    @Scheduled(cron = "0 0/1 * 1/1 * ?")
-    public void test() throws IOException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        String now = dateFormat.format(new Date());
-
-        List<Alarm> alarmsPerMin = alarmDao.selectByDateTime(now);
-        for (Alarm alarm : alarmsPerMin) {
-            firebaseCloudMessageService.sendMessageTo(
-                    alarm.getRegistration_token(),
-                    alarm.getTitle(),
-                    alarm.getTarget_date());
-        }
-    }
+//    @Scheduled(cron = "0 0/1 * 1/1 * ?")
+//    public void test() throws IOException {
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+//        String now = dateFormat.format(new Date());
+//
+//        List<Alarm> alarmsPerMin = alarmDao.selectByDateTime(now);
+//        for (Alarm alarm : alarmsPerMin) {
+//            firebaseCloudMessageService.sendMessageTo(
+//                    alarm.getRegistration_token(),
+//                    alarm.getTitle(),
+//                    alarm.getTarget_date());
+//        }
+//    }
 }
