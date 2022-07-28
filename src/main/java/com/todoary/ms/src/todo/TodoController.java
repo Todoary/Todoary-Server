@@ -51,8 +51,6 @@ public class TodoController {
         try {
             long userId = getUserIdFromRequest(request);
             long todoId = todoService.createTodo(userId, postTodoReq);
-            if (postTodoReq.isAlarmEnabled())
-                alarmService.createAlarmTodo(userId, todoId);
             return new BaseResponse<>(new PostTodoRes(todoId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
@@ -75,8 +73,6 @@ public class TodoController {
         try {
             long userId = getUserIdFromRequest(request);
             todoService.modifyTodo(userId, todoId, postTodoReq);
-            if (!postTodoReq.isAlarmEnabled())
-                alarmService.modifyAlarmTodo(userId, todoId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             log.warn(e.getMessage());
