@@ -49,8 +49,8 @@ public class TodoController {
         try {
             long userId = getUserIdFromRequest(request);
             long todoId = todoService.createTodo(userId, postTodoReq);
-            if(postTodoReq.isAlarmEnabled())
-                alarmService.createAlarmTodo(userId,todoId);
+            if (postTodoReq.isAlarmEnabled())
+                alarmService.createAlarmTodo(userId, todoId);
             return new BaseResponse<>(new PostTodoRes(todoId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
@@ -61,19 +61,20 @@ public class TodoController {
     /**
      * 3.2 투두 수정 api
      * [PATCH] /todo/:todoId
+     *
      * @param request
      * @param postTodoReq
      * @return
      */
     @PatchMapping("/{todoId}")
     public BaseResponse<BaseResponseStatus> patchTodo(HttpServletRequest request,
-                                               @PathVariable("todoId") long todoId,
-                                               @RequestBody PostTodoReq postTodoReq) {
+                                                      @PathVariable("todoId") long todoId,
+                                                      @RequestBody PostTodoReq postTodoReq) {
         try {
             long userId = getUserIdFromRequest(request);
             todoService.modifyTodo(userId, todoId, postTodoReq);
-            if(!postTodoReq.isAlarmEnabled())
-                alarmService.modifyAlarmTodo(userId,todoId);
+            if (!postTodoReq.isAlarmEnabled())
+                alarmService.modifyAlarmTodo(userId, todoId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             log.warn(e.getMessage());
@@ -147,15 +148,28 @@ public class TodoController {
      * [PATCH] /todo/status
      *
      * @param request
-     * @param patchTodoStatusReq
+     * @param patchTodoCheckReq
      * @return
      */
-    @PatchMapping("/status")
-    public BaseResponse<BaseResponseStatus> patchTodoStatus(HttpServletRequest request,
-                                                            @RequestBody PatchTodoStatusReq patchTodoStatusReq) {
+    @PatchMapping("/check")
+    public BaseResponse<BaseResponseStatus> patchTodoCheck(HttpServletRequest request,
+                                                           @RequestBody PatchTodoCheckReq patchTodoCheckReq) {
         try {
             long userId = getUserIdFromRequest(request);
-            todoService.modifyTodoStatus(userId, patchTodoStatusReq.getTodoId(), patchTodoStatusReq.isChecked());
+            todoService.modifyTodoCheck(userId, patchTodoCheckReq.getTodoId(), patchTodoCheckReq.isChecked());
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @PatchMapping("/pin")
+    public BaseResponse<BaseResponseStatus> patchTodoPin(HttpServletRequest request,
+                                                         @RequestBody PatchTodoPinReq patchTodoPinReq) {
+        try {
+            long userId = getUserIdFromRequest(request);
+            todoService.modifyTodoPin(userId, patchTodoPinReq.getTodoId(), patchTodoPinReq.isPinned());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             log.warn(e.getMessage());

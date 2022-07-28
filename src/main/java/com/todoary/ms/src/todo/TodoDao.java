@@ -178,9 +178,15 @@ public class TodoDao {
                 ), selectTodosByCategoryParam);
     }
 
-    public void updateTodoStatus(long todoId, boolean isChecked) {
+    public void updateTodoCheck(long todoId, boolean isChecked) {
         String updateTodoStatusQuery = "UPDATE todo SET is_checked = ? WHERE id = ?";
         Object[] updateTodoStatusParams = new Object[]{isChecked, todoId};
+        this.jdbcTemplate.update(updateTodoStatusQuery, updateTodoStatusParams);
+    }
+
+    public void updateTodoPin(long todoId, boolean isPinned) {
+        String updateTodoStatusQuery = "UPDATE todo SET is_pinned = ? WHERE id = ?";
+        Object[] updateTodoStatusParams = new Object[]{isPinned, todoId};
         this.jdbcTemplate.update(updateTodoStatusQuery, updateTodoStatusParams);
     }
 }
