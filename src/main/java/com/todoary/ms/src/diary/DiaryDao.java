@@ -48,7 +48,7 @@ public class DiaryDao {
 
 
     public GetDiaryByDateRes selectDiaryByDate(Long userId, String created_date) {
-        String selectDiaryByDateQuery ="SELECT id, title, content, created_date " +
+        String selectDiaryByDateQuery = "SELECT id, title, content, created_date " +
                 "FROM diary " +
                 "WHERE user_id = ? and DATE(?)=DATE(created_date) " +
                 "ORDER BY created_date ";
