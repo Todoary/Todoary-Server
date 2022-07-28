@@ -103,15 +103,15 @@ public class TodoController {
 
     /**
      * 3.4 투두 날짜별 조회 api
-     * [GET] /todo?date=
+     * [GET] /todo/date/:date
      *
      * @param request
      * @param targetDate
      * @return
      */
-    @GetMapping(value = "", params = "date")
+    @GetMapping("/date/{date}")
     public BaseResponse<List<GetTodoByDateRes>> getTodoListByDate(HttpServletRequest request,
-                                                                  @RequestParam("date") String targetDate) {
+                                                                  @PathVariable("date") String targetDate) {
         try {
             long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveTodoListByDate(userId, targetDate));
@@ -124,15 +124,15 @@ public class TodoController {
 
     /**
      * 3.5 투두 카테고리별 조회 api
-     * [GET] /todo?categoryId=
+     * [GET] /todo/category/:categoryId
      *
      * @param request
      * @param categoryId
      * @return
      */
-    @GetMapping(value = "", params = "category")
+    @GetMapping("/category/{categoryId}")
     public BaseResponse<List<GetTodoByCategoryRes>> getTodoListByCategory(HttpServletRequest request,
-                                                                          @RequestParam("category") long categoryId) {
+                                                                          @PathVariable("categoryId") long categoryId) {
         try {
             long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveTodoListByCategory(userId, categoryId));

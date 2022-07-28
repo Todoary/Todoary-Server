@@ -124,7 +124,7 @@ public class TodoDao {
     }
 
     public List<GetTodoByDateRes> selectTodoListByDate(long userId, String targetDate) {
-        String selectTodosByDateQuery = "SELECT id, is_checked, title, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at " +
+        String selectTodosByDateQuery = "SELECT id, is_pinned, is_checked, title, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at " +
                 "from todo WHERE user_id = ? and target_date = ? " +
                 "ORDER BY target_date, target_time, created_at";
         Object[] selectTodosByDateParams = new Object[]{userId, targetDate};
@@ -135,6 +135,7 @@ public class TodoDao {
         return this.jdbcTemplate.query(selectTodosByDateQuery,
                 (rs, rowNum) -> new GetTodoByDateRes(
                         rs.getLong("id"),
+                        rs.getBoolean("is_pinned"),
                         rs.getBoolean("is_checked"),
                         rs.getString("title"),
                         rs.getBoolean("is_alarm_enabled"),
