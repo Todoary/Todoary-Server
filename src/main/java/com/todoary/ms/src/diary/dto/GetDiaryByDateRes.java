@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetDiaryByDateRes {
 
-    private long diaryId;
+    private Long diaryId;
     private String title;
     private String content;
     private String created_at;

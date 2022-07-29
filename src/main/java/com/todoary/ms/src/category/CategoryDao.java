@@ -76,7 +76,7 @@ public class CategoryDao {
 
     public void deleteCategory(Long categoryId) {
         String deleteCategoryQuery = "DELETE FROM category WHERE id = ?";
-        long deleteCategoryParam = categoryId;
+        Long deleteCategoryParam = categoryId;
         this.jdbcTemplate.update(deleteCategoryQuery, deleteCategoryParam);
 
     }

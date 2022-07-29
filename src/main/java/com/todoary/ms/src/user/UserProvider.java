@@ -107,7 +107,7 @@ public class UserProvider {
         return (provider.equals("google") || provider.equals("apple"));
     }
 
-    public void assertUserValidById(long userId) throws BaseException {
+    public void assertUserValidById(Long userId) throws BaseException {
         if (checkId(userId) == 0)
             throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
     }

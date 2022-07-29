@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostTodoRes {
-    private long todoId;
+    private Long todoId;
 }

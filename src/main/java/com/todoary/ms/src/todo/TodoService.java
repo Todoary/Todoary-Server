@@ -25,10 +25,10 @@ public class TodoService {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public long createTodo(long userId, PostTodoReq postTodoReq) throws BaseException {
+    public Long createTodo(Long userId, PostTodoReq postTodoReq) throws BaseException {
         categoryProvider.assertUsersCategoriesValidById(userId, postTodoReq.getCategories());
         try {
-            long todoId;
+            Long todoId;
             if (postTodoReq.isAlarmEnabled()) {
                 todoId = todoDao.insertTodo(userId, postTodoReq.getTitle(), postTodoReq.getTargetDate(), postTodoReq.isAlarmEnabled(), postTodoReq.getTargetTime());
             } else {
@@ -43,7 +43,7 @@ public class TodoService {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public void modifyTodo(long userId, long todoId, PostTodoReq postTodoReq) throws BaseException {
+    public void modifyTodo(Long userId, Long todoId, PostTodoReq postTodoReq) throws BaseException {
         todoProvider.assertUsersTodoValidById(userId, todoId);
         try {
             todoDao.updateTodo(todoId, postTodoReq);
@@ -54,7 +54,7 @@ public class TodoService {
         }
     }
 
-    public void removeTodo(long userId, long todoId) throws BaseException {
+    public void removeTodo(Long userId, Long todoId) throws BaseException {
         todoProvider.assertUsersTodoValidById(userId, todoId);
         try {
             todoDao.deleteTodo(todoId);
@@ -64,7 +64,7 @@ public class TodoService {
         }
     }
 
-    public void modifyTodoCheck(long userId, long todoId, boolean isChecked) throws BaseException {
+    public void modifyTodoCheck(Long userId, Long todoId, boolean isChecked) throws BaseException {
         todoProvider.assertUsersTodoValidById(userId, todoId);
         try {
             todoDao.updateTodoCheck(todoId, isChecked);
@@ -74,7 +74,7 @@ public class TodoService {
         }
     }
 
-    public void modifyTodoPin(long userId, long todoId, boolean isPinned) throws BaseException {
+    public void modifyTodoPin(Long userId, Long todoId, boolean isPinned) throws BaseException {
         todoProvider.assertUsersTodoValidById(userId, todoId);
         try {
             todoDao.updateTodoPin(todoId, isPinned);

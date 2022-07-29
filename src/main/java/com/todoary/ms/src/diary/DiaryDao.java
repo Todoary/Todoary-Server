@@ -24,7 +24,7 @@ public class DiaryDao {
 
 
 
-    public void insertOrUpdateDiary(long userId, PostDiaryReq postDiaryReq) {
+    public void insertOrUpdateDiary(Long userId, PostDiaryReq postDiaryReq) {
         String insertDiaryQuery = "INSERT INTO diary (user_id, title, content) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE title=?, content=? ";
         Object[] insertDiaryParams=new Object[]{userId, postDiaryReq.getTitle(), postDiaryReq.getContent(), postDiaryReq.getTitle(), postDiaryReq.getContent()};
         this.jdbcTemplate.update(insertDiaryQuery, insertDiaryParams);
@@ -32,14 +32,14 @@ public class DiaryDao {
 
     }
 
-    public int selectExistsUsersDiaryById(long userId, String createdDate) {
+    public int selectExistsUsersDiaryById(Long userId, String createdDate) {
         String selectExistsUsersDiaryByIdQuery = "SELECT EXISTS(SELECT user_id, id FROM diary " +
                 "WHERE user_id = ? and created_date = ?)";
         Object[] selectExistsUsersDiaryByIdParams = new Object[]{userId, createdDate};
         return this.jdbcTemplate.queryForObject(selectExistsUsersDiaryByIdQuery, int.class, selectExistsUsersDiaryByIdParams);
     }
 
-    public void deleteDiary(long userId, String created_date) {
+    public void deleteDiary(Long userId, String created_date) {
         String deleteDiaryQuery = "DELETE FROM diary "+"WHERE user_id = ? and DATE(?)=DATE(created_date) ";
         Object[] deleteDiaryParam = new Object[]{userId, created_date};
         this.jdbcTemplate.update(deleteDiaryQuery, deleteDiaryParam);
