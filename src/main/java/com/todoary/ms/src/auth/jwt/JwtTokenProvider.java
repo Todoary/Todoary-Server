@@ -20,16 +20,16 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
-    private final long JWT_ACCESS_TOKEN_EXPTIME;
-    private final long JWT_REFRESH_TOKEN_EXPTIME;
+    private final Long JWT_ACCESS_TOKEN_EXPTIME;
+    private final Long JWT_REFRESH_TOKEN_EXPTIME;
     private final String  JWT_ACCESS_SECRET_KEY;
     private final String  JWT_REFRESH_SECRET_KEY;
     private Key accessKey;
     private Key refreshKey;
 
     public JwtTokenProvider(UserDetailsService userDetailsService,
-                            @Value("${jwt.time.access}") long JWT_ACCESS_TOKEN_EXPTIME,
-                            @Value("${jwt.time.refresh}") long JWT_REFRESH_TOKEN_EXPTIME,
+                            @Value("${jwt.time.access}") Long JWT_ACCESS_TOKEN_EXPTIME,
+                            @Value("${jwt.time.refresh}") Long JWT_REFRESH_TOKEN_EXPTIME,
                             @Value("${jwt.secret.access}") String JWT_ACCESS_SECRET_KEY,
                             @Value("${jwt.secret.refresh}") String JWT_REFRESH_SECRET_KEY) {
         this.userDetailsService = userDetailsService;

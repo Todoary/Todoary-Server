@@ -23,13 +23,13 @@ public class CategoryProvider {
         this.userProvider = userProvider;
     }
 
-    public void assertUsersCategoriesValidById(long userId, List<Long> categories) throws BaseException {
-        for (long categoryId : categories) {
+    public void assertUsersCategoriesValidById(Long userId, List<Long> categories) throws BaseException {
+        for (Long categoryId : categories) {
             assertUsersCategoryValidById(userId, categoryId);
         }
     }
 
-    public void assertUsersCategoryValidById(long userId, long categoryId) throws BaseException {
+    public void assertUsersCategoryValidById(Long userId, Long categoryId) throws BaseException {
         if (!checkUsersCategoryById(userId, categoryId))
             throw new BaseException(BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS);
     }

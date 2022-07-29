@@ -16,7 +16,7 @@ import java.util.List;
 @JsonPropertyOrder({"todoId", "isChecked", "title", "targetDate", "isAlarmEnabled", "targetTime", "createdTime", "categories"})
 @JsonIgnoreProperties({"checked", "alarmEnabled"}) // 중복 방지
 public class GetTodoByCategoryRes {
-    private long todoId;
+    private Long todoId;
     @JsonProperty("isChecked")
     private boolean isChecked;
     private String title;

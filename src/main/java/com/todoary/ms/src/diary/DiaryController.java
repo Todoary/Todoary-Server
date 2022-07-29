@@ -30,8 +30,8 @@ public class DiaryController {
         this.userProvider = userProvider;
     }
 
-    private long getUserIdFromRequest(HttpServletRequest request) throws BaseException {
-        long userId = Long.parseLong(request.getAttribute("user_id").toString());
+    private Long getUserIdFromRequest(HttpServletRequest request) throws BaseException {
+        Long userId = Long.parseLong(request.getAttribute("user_id").toString());
         userProvider.assertUserValidById(userId);
         return userId;
     }
@@ -42,7 +42,7 @@ public class DiaryController {
     @PostMapping("")
     public BaseResponse<BaseResponseStatus> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postDiaryReq) {
         try {
-            long userId = getUserIdFromRequest(request);
+            Long userId = getUserIdFromRequest(request);
             diaryService.createOrModifyDiary(userId, postDiaryReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
@@ -59,7 +59,7 @@ public class DiaryController {
     @DeleteMapping("/{createdDate}")
     public BaseResponse<BaseResponseStatus> deleteDiaryById(HttpServletRequest request, @PathVariable("createdDate") String createdDate) {
         try {
-            long userId = getUserIdFromRequest(request);
+            Long userId = getUserIdFromRequest(request);
             diaryService.removeDiary(userId, createdDate);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
@@ -75,7 +75,7 @@ public class DiaryController {
     public BaseResponse<GetDiaryByDateRes> getDiaryListByDate(HttpServletRequest request,
                                                                    @RequestParam("createdDate") String created_at) {
         try {
-            long userId = getUserIdFromRequest(request);
+            Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, created_at));
         } catch (BaseException e) {
             log.warn(e.getMessage());

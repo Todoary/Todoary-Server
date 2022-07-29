@@ -98,7 +98,7 @@ public class CategoryController {
      * @return
      */
     @DeleteMapping("/{categoryId}")
-    public BaseResponse<BaseResponseStatus> deleteCategory(HttpServletRequest request, @PathVariable("categoryId") long categoryId) {
+    public BaseResponse<BaseResponseStatus> deleteCategory(HttpServletRequest request, @PathVariable("categoryId") Long categoryId) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             categoryService.removeCategory(user_id, categoryId);
