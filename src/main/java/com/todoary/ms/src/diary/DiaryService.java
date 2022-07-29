@@ -21,9 +21,9 @@ public class DiaryService {
         this.diaryDao = diaryDao;
     }
 
-    public void createOrModifyDiary(Long userId, PostDiaryReq postDiaryReq) throws BaseException {
+    public void createOrModifyDiary(Long userId, PostDiaryReq postDiaryReq, String createdDate) throws BaseException {
         try {
-            diaryDao.insertOrUpdateDiary(userId, postDiaryReq);
+            diaryDao.insertOrUpdateDiary(userId, postDiaryReq, createdDate);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
