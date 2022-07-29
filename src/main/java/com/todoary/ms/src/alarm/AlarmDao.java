@@ -59,4 +59,13 @@ public class AlarmDao {
                         "00:00:00"
                 ), target_date);
     }
+
+    public void deleteByDateTime_todo() {
+        String deleteByDateTime_todoQuery = "\n" +
+                "delete alarm_todo from alarm_todo\n" +
+                "INNER JOIN todo  ON  todo.id = alarm_todo.todo_id\n" +
+                "where todo.target_date < CURDATE()";
+
+        this.jdbcTemplate.update(deleteByDateTime_todoQuery);
+    }
 }
