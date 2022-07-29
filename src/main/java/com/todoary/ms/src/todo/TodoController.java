@@ -33,8 +33,8 @@ public class TodoController {
         this.alarmService = alarmService;
     }
 
-    private Long getUserIdFromRequest(HttpServletRequest request) throws BaseException {
-        Long userId = Long.parseLong(request.getAttribute("user_id").toString());
+    private long getUserIdFromRequest(HttpServletRequest request) throws BaseException {
+        long userId = Long.parseLong(request.getAttribute("user_id").toString());
         userProvider.assertUserValidById(userId);
         return userId;
     }
@@ -49,8 +49,8 @@ public class TodoController {
     @PostMapping("")
     public BaseResponse<PostTodoRes> postTodo(HttpServletRequest request, @RequestBody PostTodoReq postTodoReq) {
         try {
-            Long userId = getUserIdFromRequest(request);
-            Long todoId = todoService.createTodo(userId, postTodoReq);
+            long userId = getUserIdFromRequest(request);
+            long todoId = todoService.createTodo(userId, postTodoReq);
             if (postTodoReq.isAlarmEnabled())
                 alarmService.createAlarmTodo(userId, todoId);
             return new BaseResponse<>(new PostTodoRes(todoId));
@@ -70,10 +70,10 @@ public class TodoController {
      */
     @PatchMapping("/{todoId}")
     public BaseResponse<BaseResponseStatus> patchTodo(HttpServletRequest request,
-                                                      @PathVariable("todoId") Long todoId,
+                                                      @PathVariable("todoId") long todoId,
                                                       @RequestBody PostTodoReq postTodoReq) {
         try {
-            Long userId = getUserIdFromRequest(request);
+            long userId = getUserIdFromRequest(request);
             todoService.modifyTodo(userId, todoId, postTodoReq);
             if (!postTodoReq.isAlarmEnabled())
                 alarmService.modifyAlarmTodo(userId, todoId);
@@ -93,9 +93,9 @@ public class TodoController {
      * @return
      */
     @DeleteMapping("/{todoId}")
-    public BaseResponse<BaseResponseStatus> deleteTodoById(HttpServletRequest request, @PathVariable("todoId") Long todoId) {
+    public BaseResponse<BaseResponseStatus> deleteTodoById(HttpServletRequest request, @PathVariable("todoId") long todoId) {
         try {
-            Long userId = getUserIdFromRequest(request);
+            long userId = getUserIdFromRequest(request);
             todoService.removeTodo(userId, todoId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
@@ -116,7 +116,7 @@ public class TodoController {
     public BaseResponse<List<GetTodoByDateRes>> getTodoListByDate(HttpServletRequest request,
                                                                   @PathVariable("date") String targetDate) {
         try {
-            Long userId = getUserIdFromRequest(request);
+            long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveTodoListByDate(userId, targetDate));
         } catch (BaseException e) {
             log.warn(e.getMessage());
@@ -135,9 +135,9 @@ public class TodoController {
      */
     @GetMapping("/category/{categoryId}")
     public BaseResponse<List<GetTodoByCategoryRes>> getTodoListByCategory(HttpServletRequest request,
-                                                                          @PathVariable("categoryId") Long categoryId) {
+                                                                          @PathVariable("categoryId") long categoryId) {
         try {
-            Long userId = getUserIdFromRequest(request);
+            long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveTodoListByCategory(userId, categoryId));
         } catch (BaseException e) {
             log.warn(e.getMessage());
@@ -157,7 +157,7 @@ public class TodoController {
     public BaseResponse<BaseResponseStatus> patchTodoCheck(HttpServletRequest request,
                                                            @RequestBody PatchTodoCheckReq patchTodoCheckReq) {
         try {
-            Long userId = getUserIdFromRequest(request);
+            long userId = getUserIdFromRequest(request);
             todoService.modifyTodoCheck(userId, patchTodoCheckReq.getTodoId(), patchTodoCheckReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
@@ -170,7 +170,7 @@ public class TodoController {
     public BaseResponse<BaseResponseStatus> patchTodoPin(HttpServletRequest request,
                                                          @RequestBody PatchTodoPinReq patchTodoPinReq) {
         try {
-            Long userId = getUserIdFromRequest(request);
+            long userId = getUserIdFromRequest(request);
             todoService.modifyTodoPin(userId, patchTodoPinReq.getTodoId(), patchTodoPinReq.isPinned());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {

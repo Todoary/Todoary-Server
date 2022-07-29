@@ -18,30 +18,35 @@ public class AlarmDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void insertAlarmTodo(Long userId,Long todoId) {
-        String insertAlarmQuery = "insert into alarm_todo (user_id, todo_id) values (?,?)";
-        Object[] insertAlarmParams = new Object[]{userId,todoId};
-        this.jdbcTemplate.update(insertAlarmQuery, insertAlarmParams);
+    public List<Alarm> selectByDateTime_todo(String target_date, String target_time) {
+        String selectByDateTime_todoQuery = "select registration_token, title, target_date,target_time\n" +
+                "        from alarm_todo a\n" +
+                "        join (select id, title, target_date,target_time from todo where target_date = ? and target_time like ? and is_checked = 0) t on a.todo_id = t.id\n" +
+                "        join (select id, registration_token from user where status = 1 and alarm_todo = 1) u on a.user_id = u.id;";
 
-    }
-    public void updateAlarmTodo(Long userId,Long todoId) {
-        String insertAlarmQuery = "update alarm_todo set status = 0 where user_id = ? and todo_id = ?";
-        Object[] insertAlarmParams = new Object[]{userId,todoId};
-        this.jdbcTemplate.update(insertAlarmQuery, insertAlarmParams);
+        target_time += "%";
 
-    }
-
-    public List<Alarm> selectByDateTime(String dateTime) {
-        String selectByDateTimeQuery = "select * from alarm where alarm_datetime like ?";
-        dateTime += "%";
-        return this.jdbcTemplate.query(selectByDateTimeQuery,
+        Object[] selectByDateTime_todoParams = new Object[]{target_date, target_time};
+        return this.jdbcTemplate.query(selectByDateTime_todoQuery,
                 (rs, rowNum) -> new Alarm(
-                        rs.getLong("user_id"),
                         rs.getString("registration_token"),
                         rs.getString("title"),
-                        rs.getString("body"),
-                        rs.getDate("alarm_datetime" +
-                                "")
-                ), dateTime);
+                        rs.getDate("target_date").toString(),
+                        rs.getTime("target_time").toString()
+                ), selectByDateTime_todoParams);
+    }
+
+    public List<Alarm> selectByDateTime_remind(String target_date) {
+        String selectByDateTime_remindQuery = "select registration_token, target_date\n" +
+                "from (select user_id, target_date from alarm_remind where target_date = ?) a\n" +
+                "    join (select id , registration_token from user where status = 1 and alarm_remind = 1) u on u.id = a.user_id";
+
+        return this.jdbcTemplate.query(selectByDateTime_remindQuery,
+                (rs, rowNum) -> new Alarm(
+                        rs.getString("registration_token"),
+                        rs.getString("title"),
+                        rs.getDate("target_date").toString(),
+                        "00:00:00"
+                ), target_date);
     }
 }
