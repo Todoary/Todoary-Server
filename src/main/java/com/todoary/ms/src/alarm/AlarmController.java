@@ -86,7 +86,7 @@ public class AlarmController {
         }
     }
 
-    @Scheduled(cron = "0 0 ${fcm.secret.time} ? * ${fcm.secret.day} *")
+    @Scheduled(cron = "0 0 ${fcm.secret.time} ? * ${fcm.secret.day}")
     public void AlarmRemove() throws BaseException {
 
         try {
