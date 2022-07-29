@@ -85,6 +85,12 @@ public class UserDao {
         return this.jdbcTemplate.queryForObject(checkNameQuery, int.class, checkNameParam);
     }
 
+    public int checkOtherUserNickname(Long user_id,String nickname) {
+        String checkOtherUserNicknameQuery = "select exists(select nickname from user where nickname = ? and id != ?)";
+        Object[] checkOtherUserNicknameParams = new Object[]{nickname, user_id};
+        return this.jdbcTemplate.queryForObject(checkOtherUserNicknameQuery, int.class, checkOtherUserNicknameParams);
+    }
+
     public int checkId(Long id) {
         String checkIdQuery = "select exists(select nickname from user where id = ? and status = 1)";
         Long checkIdParam = id;
