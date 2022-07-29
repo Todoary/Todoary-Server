@@ -16,6 +16,6 @@ import java.util.List;
 public class GetCategoryRes {
     private Long id;
     private String title;
-    private String color;
+    private Integer color;
 
 }

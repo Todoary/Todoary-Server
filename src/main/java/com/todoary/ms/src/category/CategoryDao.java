@@ -53,7 +53,7 @@ public class CategoryDao {
                     new GetCategoryRes(
                             rs.getLong("id"),
                             rs.getString("title"),
-                            rs.getString("color")
+                            rs.getInt("color")
                             )
                 ,user_id
                 );
