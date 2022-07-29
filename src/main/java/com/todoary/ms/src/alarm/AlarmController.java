@@ -56,6 +56,19 @@ public class AlarmController {
     }
 
     @Scheduled(cron = "0 0 0 1/1 * ?")
+    public void DailyAlarm() throws IOException {
+
+        List<Alarm> alarms_daily =  alarmDao.selectByDateTime_daily();
+        for (Alarm alarm : alarms_daily) {
+            firebaseCloudMessageService.sendMessageTo(
+                    alarm.getRegistration_token(),
+                    "하루기록 알림",
+                    "하루기록을 작성해보세요.");
+        }
+
+    }
+
+    @Scheduled(cron = "0 0 0 1/1 * ?")
     public void RemindAlarm() throws IOException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String target_date = dateFormat.format(new Date());

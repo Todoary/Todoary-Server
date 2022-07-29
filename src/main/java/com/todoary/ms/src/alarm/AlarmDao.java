@@ -36,6 +36,16 @@ public class AlarmDao {
                 ), selectByDateTime_todoParams);
     }
 
+    public List<Alarm> selectByDateTime_daily() {
+        String selectByDateTime_dailyQuery = "select user.registration_token from user\n" +
+                "where user.alarm_diary = 1";
+        return this.jdbcTemplate.query(selectByDateTime_dailyQuery,
+                (rs, rowNum) -> new Alarm(
+                        rs.getString("registration_token")
+                        )
+                );
+    }
+
     public List<Alarm> selectByDateTime_remind(String target_date) {
         String selectByDateTime_remindQuery = "select registration_token, target_date\n" +
                 "from (select user_id, target_date from alarm_remind where target_date = ?) a\n" +
