@@ -84,6 +84,14 @@ public class UserProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+    public int checkOtherUserNickname(Long user_id,String nickname) throws BaseException {
+        try {
+            return userDao.checkOtherUserNickname(user_id,nickname);
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 
     public int checkId(Long id) throws BaseException {
         try {
