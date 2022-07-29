@@ -23,7 +23,7 @@ public class CategoryDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public Long insertCategory(Long user_id, String title, String color) {
+    public Long insertCategory(Long user_id, String title, Integer color) {
         String insertCategoryQuery = "insert into category (user_id, title, color) values (?,?,?)";
         Object[] insertCategoryParams = new Object[]{user_id, title, color};
         this.jdbcTemplate.update(insertCategoryQuery, insertCategoryParams);

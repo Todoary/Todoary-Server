@@ -145,7 +145,7 @@ public class TodoDao {
                                 (rs2, rowNum2) -> new Category(
                                         rs2.getLong("category_id"),
                                         rs2.getString("title"),
-                                        rs2.getString("color")
+                                        rs2.getInt("color")
                                 ), rs.getLong("id"))
                 ), selectTodosByDateParams);
     }
@@ -173,7 +173,7 @@ public class TodoDao {
                                 (rs2, rowNum2) -> new Category(
                                         rs2.getLong("category_id"),
                                         rs2.getString("title"),
-                                        rs2.getString("color")
+                                        rs2.getInt("color")
                                 ), rs.getLong("todo_id"))
                 ), selectTodosByCategoryParam);
     }

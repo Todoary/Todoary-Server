@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PostCategoryReq {
     private String title;
-    private String color;
+    private Integer color;
 }
