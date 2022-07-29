@@ -22,7 +22,7 @@ public class DiaryProvider {
         this.diaryDao = diaryDao;
     }
 
-    public boolean checkUsersDiaryById(long userId, String createdDate) throws BaseException {
+    public boolean checkUsersDiaryById(Long userId, String createdDate) throws BaseException {
         try {
             return (diaryDao.selectExistsUsersDiaryById(userId, createdDate) == 1);
         } catch (Exception e) {
@@ -31,12 +31,12 @@ public class DiaryProvider {
         }
     }
 
-    public void assertUsersDiaryValidByDate(long userId, String createdDate) throws BaseException {
+    public void assertUsersDiaryValidByDate(Long userId, String createdDate) throws BaseException {
         if (!checkUsersDiaryById(userId, createdDate))
             throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
     }
 
-    public GetDiaryByDateRes retrieveDiaryByDate(long userId, String created_at) throws BaseException {
+    public GetDiaryByDateRes retrieveDiaryByDate(Long userId, String created_at) throws BaseException {
         try {
             return diaryDao.selectDiaryByDate(userId, created_at);
         } catch (Exception e) {

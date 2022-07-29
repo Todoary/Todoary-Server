@@ -21,7 +21,7 @@ public class DiaryService {
         this.diaryDao = diaryDao;
     }
 
-    public void createOrModifyDiary(long userId, PostDiaryReq postDiaryReq) throws BaseException {
+    public void createOrModifyDiary(Long userId, PostDiaryReq postDiaryReq) throws BaseException {
         try {
             diaryDao.insertOrUpdateDiary(userId, postDiaryReq);
         } catch (Exception e) {
@@ -32,7 +32,7 @@ public class DiaryService {
 
 
 
-    public void removeDiary(long userId, String createdDate) throws BaseException {
+    public void removeDiary(Long userId, String createdDate) throws BaseException {
         diaryProvider.assertUsersDiaryValidByDate(userId, createdDate);
         try {
             diaryDao.deleteDiary(userId, createdDate);

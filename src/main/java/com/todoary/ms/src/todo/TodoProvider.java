@@ -23,7 +23,7 @@ public class TodoProvider {
         this.categoryProvider = categoryProvider;
     }
 
-    public boolean checkUsersTodoById(long userId, long todoId) throws BaseException {
+    public boolean checkUsersTodoById(Long userId, Long todoId) throws BaseException {
         try {
             return (todoDao.selectExistsUsersTodoById(userId, todoId) == 1);
         } catch (Exception e) {
@@ -32,12 +32,12 @@ public class TodoProvider {
         }
     }
 
-    public void assertUsersTodoValidById(long userId, long todoId) throws BaseException {
+    public void assertUsersTodoValidById(Long userId, Long todoId) throws BaseException {
         if (!checkUsersTodoById(userId, todoId))
             throw new BaseException(BaseResponseStatus.USERS_TODO_NOT_EXISTS);
     }
 
-    public List<GetTodoByDateRes> retrieveTodoListByDate(long userId, String targetDate) throws BaseException {
+    public List<GetTodoByDateRes> retrieveTodoListByDate(Long userId, String targetDate) throws BaseException {
         try {
             return todoDao.selectTodoListByDate(userId, targetDate);
         } catch (Exception e) {
@@ -46,7 +46,7 @@ public class TodoProvider {
         }
     }
 
-    public List<GetTodoByCategoryRes> retrieveTodoListByCategory(long userId, long categoryId) throws BaseException {
+    public List<GetTodoByCategoryRes> retrieveTodoListByCategory(Long userId, Long categoryId) throws BaseException {
 
         categoryProvider.assertUsersCategoryValidById(userId, categoryId);
         try {
