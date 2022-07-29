@@ -16,7 +16,7 @@ public class Category {
 
     public Category(String title, String color){
         this.title = title;
-        this.color = color;
+        this.color = color; //ffffff -> 0 -17
     }
 
 }

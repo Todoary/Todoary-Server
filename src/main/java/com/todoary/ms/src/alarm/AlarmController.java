@@ -2,6 +2,8 @@ package com.todoary.ms.src.alarm;
 
 import com.todoary.ms.src.alarm.dto.PostAlarmReq;
 import com.todoary.ms.src.alarm.model.Alarm;
+import com.todoary.ms.util.BaseException;
+import com.todoary.ms.util.BaseResponseStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import static com.todoary.ms.util.BaseResponseStatus.DATABASE_ERROR;
 
 @RestController
 @RequestMapping("/alarm")
@@ -56,6 +60,19 @@ public class AlarmController {
     }
 
     @Scheduled(cron = "0 0 0 1/1 * ?")
+    public void DailyAlarm() throws IOException {
+
+        List<Alarm> alarms_daily =  alarmDao.selectByDateTime_daily();
+        for (Alarm alarm : alarms_daily) {
+            firebaseCloudMessageService.sendMessageTo(
+                    alarm.getRegistration_token(),
+                    "하루기록 알림",
+                    "하루기록을 작성해보세요.");
+        }
+
+    }
+
+    @Scheduled(cron = "0 0 0 1/1 * ?")
     public void RemindAlarm() throws IOException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String target_date = dateFormat.format(new Date());
@@ -68,5 +85,18 @@ public class AlarmController {
                     "하루기록을 작성한 지 일주일이 경과했습니다.");
         }
     }
+
+    @Scheduled(cron = "0 0 ${fcm.secret.time} ? * ${fcm.secret.day} *")
+    public void AlarmRemove() throws BaseException {
+
+        try {
+            alarmDao.deleteByDateTime_todo();
+        } catch(Exception e){
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
 }
 
