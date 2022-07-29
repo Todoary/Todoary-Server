@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatchTodoPinReq {
-    private long todoId;
+    private Long todoId;
     @JsonProperty("isPinned")
     private boolean isPinned;
 }

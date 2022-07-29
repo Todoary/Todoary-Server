@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatchTodoCheckReq {
-    private long todoId;
+    private Long todoId;
     @JsonProperty("isChecked")
     private boolean isChecked;
 }
