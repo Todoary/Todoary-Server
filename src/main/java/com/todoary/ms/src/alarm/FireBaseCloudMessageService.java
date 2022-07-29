@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FireBaseCloudMessageService {
 
-    private final String API_URL = "https://fcm.googleapis.com/v1/projects/fcmtest-b1a2e/messages:send";
+    private final String API_URL = "https://fcm.googleapis.com/v1/projects/todoary-1304d/messages:send";
     private final ObjectMapper objectMapper;
 
     public void sendMessageTo(String targetToken, String title, String body) throws IOException { // targetToken : 에 해당하는 device로 보낼 것이다.
