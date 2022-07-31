@@ -159,6 +159,14 @@ public class TodoController {
         }
     }
 
+    /**
+     * 3.7 투두 핀 고정 변경 api
+     * [PATCH] /todo/pin
+     *
+     * @param request
+     * @param patchTodoPinReq
+     * @return
+     */
     @PatchMapping("/pin")
     public BaseResponse<BaseResponseStatus> patchTodoPin(HttpServletRequest request,
                                                          @RequestBody PatchTodoPinReq patchTodoPinReq) {
@@ -166,6 +174,26 @@ public class TodoController {
             Long userId = getUserIdFromRequest(request);
             todoService.modifyTodoPin(userId, patchTodoPinReq.getTodoId(), patchTodoPinReq.isPinned());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 3.8 월별 투두 존재 여부 조회 api
+     * [GET] /days/:year-month
+     *
+     * @param request
+     * @param yearAndMonth
+     * @return
+     */
+    @GetMapping("/days/{yearAndMonth}")
+    public BaseResponse<List<Integer>> getDaysInMonth(HttpServletRequest request,
+                                                               @PathVariable("yearAndMonth") String yearAndMonth) {
+        try {
+            Long userId = getUserIdFromRequest(request);
+            return new BaseResponse<>(todoProvider.retrieveDaysHavingTodoInMonth(userId, yearAndMonth));
         } catch (BaseException e) {
             log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());

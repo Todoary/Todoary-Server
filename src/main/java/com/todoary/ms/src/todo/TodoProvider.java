@@ -56,4 +56,13 @@ public class TodoProvider {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+    public List<Integer> retrieveDaysHavingTodoInMonth(Long userId, String yearAndMonth) throws BaseException {
+        try {
+            return todoDao.selectDaysHavingTodoInMonth(userId, yearAndMonth);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }

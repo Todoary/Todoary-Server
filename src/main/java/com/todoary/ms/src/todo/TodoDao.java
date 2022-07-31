@@ -189,4 +189,13 @@ public class TodoDao {
         Object[] updateTodoStatusParams = new Object[]{isPinned, todoId};
         this.jdbcTemplate.update(updateTodoStatusQuery, updateTodoStatusParams);
     }
+
+    public List<Integer> selectDaysHavingTodoInMonth(Long userId, String yearAndMonth) {
+        String selectDaysHavingTodoInMonthQuery = "SELECT DAY(target_date) as day " +
+                "FROM todo WHERE user_id=? and ? = DATE_FORMAT(target_date, '%Y-%m') " +
+                "GROUP by day ORDER BY day";
+        Object[] selectDaysHavingTodoInMonthParams = new Object[]{userId, yearAndMonth};
+        return this.jdbcTemplate.query(selectDaysHavingTodoInMonthQuery,
+                (rs, rowNum) -> (rs.getInt("day")), selectDaysHavingTodoInMonthParams);
+    }
 }
