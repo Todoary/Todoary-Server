@@ -12,9 +12,9 @@ public class Category {
 
     //private Long categoryImgId;
     private String title;
-    private String color;
+    private Integer color;
 
-    public Category(String title, String color){
+    public Category(String title, Integer color){
         this.title = title;
         this.color = color; //ffffff -> 0 -17
     }

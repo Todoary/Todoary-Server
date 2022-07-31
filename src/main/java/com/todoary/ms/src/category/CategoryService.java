@@ -36,7 +36,7 @@ public class CategoryService {
             throw new BaseException(DUPLICATE_CATEGORY) ;
 
         String title = postCategoryReq.getTitle();
-        String color = postCategoryReq.getColor();
+        Integer color = postCategoryReq.getColor();
 
         try {
             return categoryDao.insertCategory(user_id,title,color);
