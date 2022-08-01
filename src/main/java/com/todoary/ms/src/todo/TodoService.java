@@ -26,15 +26,15 @@ public class TodoService {
 
     @Transactional(rollbackOn = Exception.class)
     public Long createTodo(Long userId, PostTodoReq postTodoReq) throws BaseException {
-        categoryProvider.assertUsersCategoriesValidById(userId, postTodoReq.getCategories());
+        categoryProvider.assertUsersCategoryValidById(userId, postTodoReq.getCategoryId());
         try {
             Long todoId;
             if (postTodoReq.isAlarmEnabled()) {
-                todoId = todoDao.insertTodo(userId, postTodoReq.getTitle(), postTodoReq.getTargetDate(), postTodoReq.isAlarmEnabled(), postTodoReq.getTargetTime());
+                todoId = todoDao.insertTodo(userId,postTodoReq.getCategoryId(), postTodoReq.getTitle(), postTodoReq.getTargetDate(), postTodoReq.isAlarmEnabled(), postTodoReq.getTargetTime());
             } else {
-                todoId = todoDao.insertTodo(userId, postTodoReq.getTitle(), postTodoReq.getTargetDate());
+                todoId = todoDao.insertTodo(userId,postTodoReq.getCategoryId(), postTodoReq.getTitle(), postTodoReq.getTargetDate());
             }
-            todoDao.insertTodoCategories(todoId, postTodoReq.getCategories());
+            //todoDao.insertTodoCategories(todoId, postTodoReq.getCategoryId());
             return todoId;
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,7 +47,6 @@ public class TodoService {
         todoProvider.assertUsersTodoValidById(userId, todoId);
         try {
             todoDao.updateTodo(todoId, postTodoReq);
-            todoDao.deleteAndUpdateTodoCategories(todoId, postTodoReq.getCategories());
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

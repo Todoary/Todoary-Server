@@ -31,20 +31,21 @@ public class TodoDao {
     }
 
     @Transactional
-    public Long insertTodo(Long userId, String title, String targetDate,
+    public Long insertTodo(Long userId, Long categoryId, String title, String targetDate,
                            boolean isAlarmEnabled, String targetTime) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String insertTodoQuery = "INSERT INTO todo (user_id, title, target_date, is_alarm_enabled, target_time) VALUES(?, ?, ?, ?, ?)";
+        String insertTodoQuery = "INSERT INTO todo (user_id,category_id, title, target_date, is_alarm_enabled, target_time) VALUES(?,?, ?, ?, ?, ?)";
         this.jdbcTemplate.update(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement pstmt = con.prepareStatement(insertTodoQuery,
                         new String[]{"id"});
                 pstmt.setLong(1, userId);
-                pstmt.setString(2, title);
-                pstmt.setString(3, targetDate);
-                pstmt.setBoolean(4, isAlarmEnabled);
-                pstmt.setString(5, targetTime);
+                pstmt.setLong(2,categoryId);
+                pstmt.setString(3, title);
+                pstmt.setString(4, targetDate);
+                pstmt.setBoolean(5, isAlarmEnabled);
+                pstmt.setString(6, targetTime);
                 return pstmt;
             }
         }, keyHolder);
@@ -52,44 +53,45 @@ public class TodoDao {
     }
 
     @Transactional
-    public Long insertTodo(Long userId, String title, String targetDate) {
+    public Long insertTodo(Long userId, Long categoryId, String title, String targetDate) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String insertTodoQuery = "INSERT INTO todo (user_id, title, target_date) VALUES(?, ?, ?);";
+        String insertTodoQuery = "INSERT INTO todo (user_id,category_id, title, target_date) VALUES(?, ?, ?, ?);";
         this.jdbcTemplate.update(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement pstmt = con.prepareStatement(insertTodoQuery,
                         new String[]{"id"});
                 pstmt.setLong(1, userId);
-                pstmt.setString(2, title);
-                pstmt.setString(3, targetDate);
+                pstmt.setLong(2, categoryId);
+                pstmt.setString(3, title);
+                pstmt.setString(4, targetDate);
                 return pstmt;
             }
         }, keyHolder);
         return Objects.requireNonNull(keyHolder.getKey()).longValue();
     }
 
-    public void insertTodoCategories(Long todoId, List<Long> categories) {
-        String insertTodoCategoryQuery = "INSERT IGNORE INTO todo_and_category (todo_id, category_id) VALUES(?, ?)";
-        this.jdbcTemplate.batchUpdate(insertTodoCategoryQuery, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setLong(1, todoId);
-                ps.setLong(2, categories.get(i));
-            }
+//    public void insertTodoCategories(Long todoId, List<Long> categories) {
+//        String insertTodoCategoryQuery = "INSERT IGNORE INTO todo_and_category (todo_id, category_id) VALUES(?, ?)";
+//        this.jdbcTemplate.batchUpdate(insertTodoCategoryQuery, new BatchPreparedStatementSetter() {
+//            @Override
+//            public void setValues(PreparedStatement ps, int i) throws SQLException {
+//                ps.setLong(1, todoId);
+//                ps.setLong(2, categories.get(i));
+//            }
+//
+//            @Override
+//            public int getBatchSize() {
+//                return categories.size();
+//            }
+//        });
+//    }
 
-            @Override
-            public int getBatchSize() {
-                return categories.size();
-            }
-        });
-    }
-
-    public void insertTodoCategory(Long todoId, Long categoryId) {
-        String insertTodoCategoryQuery = "INSERT INTO todo_and_category (todo_id, category_id) VALUES(?, ?)";
-        Object[] insertTodoCategoryParams = new Object[]{todoId, categoryId};
-        this.jdbcTemplate.update(insertTodoCategoryQuery, insertTodoCategoryParams);
-    }
+//    public void insertTodoCategory(Long todoId, Long categoryId) {
+//        String insertTodoCategoryQuery = "INSERT INTO todo_and_category (todo_id, category_id) VALUES(?, ?)";
+//        Object[] insertTodoCategoryParams = new Object[]{todoId, categoryId};
+//        this.jdbcTemplate.update(insertTodoCategoryQuery, insertTodoCategoryParams);
+//    }
 
     public int selectExistsUsersTodoById(Long userId, Long todoId) {
         String selectExistsUsersTodoByIdQuery = "SELECT EXISTS(SELECT user_id, id FROM todo " +
@@ -100,22 +102,22 @@ public class TodoDao {
 
     public void updateTodo(Long todoId, PostTodoReq postTodoReq) {
         String updateTodoQuery = "UPDATE todo " +
-                "SET title = ?, target_date = ?,  is_alarm_enabled = ?, target_time = ? " +
+                "SET title = ?, category_id = ?, target_date = ?,  is_alarm_enabled = ?, target_time = ? " +
                 "WHERE id = ?";
-        Object[] updateTodoParams = new Object[]{postTodoReq.getTitle(), postTodoReq.getTargetDate(),
+        Object[] updateTodoParams = new Object[]{postTodoReq.getTitle(),postTodoReq.getCategoryId(), postTodoReq.getTargetDate(),
                 postTodoReq.isAlarmEnabled(), postTodoReq.getTargetTime(), todoId};
         this.jdbcTemplate.update(updateTodoQuery, updateTodoParams);
     }
 
-    @Transactional
-    public void deleteAndUpdateTodoCategories(Long todoId, List<Long> categories) {
-        String inParameter = String.join(",", Collections.nCopies(categories.size(), "?"));
-        String updateTodoCategoriesQuery = String.format("DELETE FROM todo_and_category WHERE todo_id = ? and category_id NOT IN(%s)", inParameter);
-        categories.add(0, todoId);
-        Object[] updateTodoCategoriesParams = categories.toArray();
-        this.jdbcTemplate.update(updateTodoCategoriesQuery, updateTodoCategoriesParams);
-        insertTodoCategories(todoId, categories);
-    }
+//    @Transactional
+//    public void deleteAndUpdateTodoCategories(Long todoId, List<Long> categories) {
+//        String inParameter = String.join(",", Collections.nCopies(categories.size(), "?"));
+//        String updateTodoCategoriesQuery = String.format("DELETE FROM todo_and_category WHERE todo_id = ? and category_id NOT IN(%s)", inParameter);
+//        categories.add(0, todoId);
+//        Object[] updateTodoCategoriesParams = categories.toArray();
+//        this.jdbcTemplate.update(updateTodoCategoriesQuery, updateTodoCategoriesParams);
+//        insertTodoCategories(todoId, categories);
+//    }
 
     public void deleteTodo(Long todoId) {
         String deleteTodoQuery = "DELETE FROM todo WHERE id = ?";
@@ -124,14 +126,11 @@ public class TodoDao {
     }
 
     public List<GetTodoByDateRes> selectTodoListByDate(Long userId, String targetDate) {
-        String selectTodosByDateQuery = "SELECT id, is_pinned, is_checked, title, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at " +
+        String selectTodosByDateQuery = "SELECT id, is_pinned, is_checked, title, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at, category_id " +
                 "from todo WHERE user_id = ? and target_date = ? " +
                 "ORDER BY target_date, target_time, created_at";
         Object[] selectTodosByDateParams = new Object[]{userId, targetDate};
-        String selectCategoriesByTodoIdQuery = "SELECT category_id, c.title, c.color\n" +
-                "FROM todo_and_category as tc JOIN category c on tc.category_id = c.id\n" +
-                "WHERE todo_id = ? " +
-                "ORDER BY category_id";
+
         return this.jdbcTemplate.query(selectTodosByDateQuery,
                 (rs, rowNum) -> new GetTodoByDateRes(
                         rs.getLong("id"),
@@ -141,25 +140,16 @@ public class TodoDao {
                         rs.getBoolean("is_alarm_enabled"),
                         rs.getString("target_time"),
                         rs.getString("created_at"),
-                        this.jdbcTemplate.query(selectCategoriesByTodoIdQuery,
-                                (rs2, rowNum2) -> new Category(
-                                        rs2.getLong("category_id"),
-                                        rs2.getString("title"),
-                                        rs2.getInt("color")
-                                ), rs.getLong("id"))
-                ), selectTodosByDateParams);
+                        rs.getLong("category_id")
+                        )
+                ,selectTodosByDateParams);
     }
 
     public List<GetTodoByCategoryRes> selectTodoListByCategory(Long userId, Long categoryId) {
-        String selectTodosByCategoryQuery = "SELECT todo_id, is_checked, title, target_date, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at " +
-                "FROM todo_and_category JOIN todo t on t.id = todo_and_category.todo_id " +
-                "WHERE category_id = ? " +
+        String selectTodosByCategoryQuery = "SELECT todo_id, is_checked, title, target_date, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at, category_id " +
+                "FROM todo WHERE category_id = ? " +
                 "ORDER BY target_date, target_time, created_at";
         Long selectTodosByCategoryParam = categoryId;
-        String selectCategoriesByTodoIdQuery = "SELECT category_id, c.title, c.color " +
-                "FROM todo_and_category as tc JOIN category c on tc.category_id = c.id " +
-                "WHERE todo_id = ? " +
-                "ORDER BY category_id";
         return this.jdbcTemplate.query(selectTodosByCategoryQuery,
                 (rs, rowNum) -> new GetTodoByCategoryRes(
                         rs.getLong("todo_id"),
@@ -169,12 +159,7 @@ public class TodoDao {
                         rs.getBoolean("is_alarm_enabled"),
                         rs.getString("target_time"),
                         rs.getString("created_at"),
-                        this.jdbcTemplate.query(selectCategoriesByTodoIdQuery,
-                                (rs2, rowNum2) -> new Category(
-                                        rs2.getLong("category_id"),
-                                        rs2.getString("title"),
-                                        rs2.getInt("color")
-                                ), rs.getLong("todo_id"))
+                        rs.getLong("category_id")
                 ), selectTodosByCategoryParam);
     }
 
