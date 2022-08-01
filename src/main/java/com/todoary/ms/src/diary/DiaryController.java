@@ -54,7 +54,7 @@ public class DiaryController {
 
 
     /**
-     * 5.3 일기 삭제 api
+     * 5.2 일기 삭제 api
      */
     @DeleteMapping("/{createdDate}")
     public BaseResponse<BaseResponseStatus> deleteDiaryById(HttpServletRequest request, @PathVariable("createdDate") String createdDate) {
@@ -69,7 +69,7 @@ public class DiaryController {
     }
 
     /**
-     * 5.4 일기 조회 api
+     * 5.3 일기 조회 api
      */
     @GetMapping(value = "", params = "createdDate")
     public BaseResponse<GetDiaryByDateRes> getDiaryListByDate(HttpServletRequest request,
@@ -77,6 +77,21 @@ public class DiaryController {
         try {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, created_at));
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 5.4 월별 일기 존재 여부 조회 api
+     */
+    @GetMapping("/days/{yearAndMonth}")
+    public BaseResponse<List<Integer>> getDiaryInMonth(HttpServletRequest request,
+                                                      @PathVariable("yearAndMonth") String yearAndMonth) {
+        try {
+            Long userId = getUserIdFromRequest(request);
+            return new BaseResponse<>(diaryProvider.retrieveIsDiaryInMonth(userId, yearAndMonth));
         } catch (BaseException e) {
             log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());

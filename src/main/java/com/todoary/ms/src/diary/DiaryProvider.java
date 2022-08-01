@@ -44,5 +44,14 @@ public class DiaryProvider {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+    public List<Integer> retrieveIsDiaryInMonth(Long userId, String yearAndMonth) throws BaseException {
+        try {
+            return diaryDao.selectIsDiaryInMonth(userId, yearAndMonth);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }
 

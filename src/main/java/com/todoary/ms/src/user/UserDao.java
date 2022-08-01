@@ -154,4 +154,19 @@ public class UserDao {
         this.jdbcTemplate.update(deleteRefreshTokenQuery, deleteRefreshTokenParam);
     }
 
+    public void updateProfileImgToDefault(Long user_id) {
+        String updateProfileImgToDefaultQuery = "update user set profile_img_url = 'https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg' where id = ?";
+        this.jdbcTemplate.update(updateProfileImgToDefaultQuery,user_id);
+    }
+
+    public GetAlarmEnabledRes selectAlarmEnabledById (Long user_id){
+        String selectAlarmEnabledByIdQuery="select id, is_todo_alarm_enabled, is_diary_alarm_enabled, is_remind_alarm_enabled from user where id=? and status=1";
+        return this. jdbcTemplate.queryForObject(selectAlarmEnabledByIdQuery,
+                (rs, rowNum) -> new GetAlarmEnabledRes(
+                        rs.getLong("id"),
+                        rs.getBoolean("is_todo_alarm_enabled"),
+                        rs.getBoolean("is_diary_alarm_enabled"),
+                        rs.getBoolean("is_remind_alarm_enabled"))
+                ,user_id);
+    }
 }
