@@ -126,9 +126,9 @@ public class TodoDao {
     }
 
     public List<GetTodoByDateRes> selectTodoListByDate(Long userId, String targetDate) {
-        String selectTodosByDateQuery = "SELECT id, is_pinned, is_checked, title, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at, category_id " +
-                "from todo WHERE user_id = ? and target_date = ? " +
-                "ORDER BY target_date, target_time, created_at";
+        String selectTodosByDateQuery = "SELECT todo.id, todo.is_pinned, todo.is_checked, todo.title, todo.is_alarm_enabled, TIME_FORMAT(todo.target_time, '%H:%i') as target_time, todo.created_at, todo.category_id,  category.title, category.color " +
+                "from todo INNER JOIN category ON todo.category_id = category.id WHERE todo.user_id = ? and todo.target_date = ? " +
+                "ORDER BY todo.target_date, todo.target_time, todo.created_at";
         Object[] selectTodosByDateParams = new Object[]{userId, targetDate};
 
         return this.jdbcTemplate.query(selectTodosByDateQuery,
@@ -136,31 +136,35 @@ public class TodoDao {
                         rs.getLong("id"),
                         rs.getBoolean("is_pinned"),
                         rs.getBoolean("is_checked"),
-                        rs.getString("title"),
+                        rs.getString("todo.title"),
                         rs.getBoolean("is_alarm_enabled"),
                         rs.getString("target_time"),
                         rs.getString("created_at"),
-                        rs.getLong("category_id")
+                        rs.getLong("category_id"),
+                        rs.getString("category.title"),
+                        rs.getInt("color")
                         )
                 ,selectTodosByDateParams);
     }
 
     public List<GetTodoByCategoryRes> selectTodoListByCategory(Long userId, Long categoryId) {
-        String selectTodosByCategoryQuery = "SELECT todo_id, is_checked, title, target_date, is_alarm_enabled, TIME_FORMAT(target_time, '%H:%i') as target_time, created_at, category_id " +
-                "FROM todo WHERE category_id = ? " +
-                "ORDER BY target_date, target_time, created_at";
+        String selectTodosByCategoryQuery = "SELECT todo.id, todo.is_checked, todo.title, todo.target_date, todo.is_alarm_enabled, TIME_FORMAT(todo.target_time, '%H:%i') as target_time, todo.created_at, todo.category_id, category.title, category.color " +
+                "FROM todo INNER JOIN category ON todo.category_id = category.id WHERE category_id = ? " +
+                "ORDER BY todo.target_date, todo.target_time, todo.created_at";
         Long selectTodosByCategoryParam = categoryId;
         return this.jdbcTemplate.query(selectTodosByCategoryQuery,
                 (rs, rowNum) -> new GetTodoByCategoryRes(
-                        rs.getLong("todo_id"),
+                        rs.getLong("id"),
                         rs.getBoolean("is_checked"),
-                        rs.getString("title"),
+                        rs.getString("todo.title"),
                         rs.getString("target_date"),
                         rs.getBoolean("is_alarm_enabled"),
                         rs.getString("target_time"),
                         rs.getString("created_at"),
-                        rs.getLong("category_id")
-                ), selectTodosByCategoryParam);
+                        rs.getLong("category_id"),
+                        rs.getString("category.title"),
+                        rs.getInt("color")
+                        ), selectTodosByCategoryParam);
     }
 
     public void updateTodoCheck(Long todoId, boolean isChecked) {

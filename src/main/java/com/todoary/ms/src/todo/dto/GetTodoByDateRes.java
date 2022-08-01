@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonPropertyOrder({"todoId", "isPinned", "isChecked", "title", "isAlarmEnabled", "targetTime", "createdTime", "categoryId" })
+@JsonPropertyOrder({"todoId", "isPinned", "isChecked", "title", "isAlarmEnabled", "targetTime", "createdTime", "categoryId", "categoryTitle", "color" })
 @JsonIgnoreProperties({"pinned", "checked", "alarmEnabled"}) // 중복 방지
 public class GetTodoByDateRes {
     private Long todoId;
@@ -27,4 +27,6 @@ public class GetTodoByDateRes {
     private String targetTime;
     private String createdTime;
     private Long categoryId;
+    private String categoryTitle;
+    private Integer color;
 }
