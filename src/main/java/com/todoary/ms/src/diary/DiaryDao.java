@@ -62,4 +62,12 @@ public class DiaryDao {
 
     }
 
+    public List<Integer> selectIsDiaryInMonth(Long userId, String yearAndMonth) {
+        String selectIsDiaryInMonthQuery = "SELECT DAY(created_date) as day " +
+                "FROM diary WHERE user_id=? and ? = DATE_FORMAT(created_date, '%Y-%m') " +
+                "GROUP by day ORDER BY day";
+        Object[] selectIsDiaryInMonthParams = new Object[]{userId, yearAndMonth};
+        return this.jdbcTemplate.query(selectIsDiaryInMonthQuery,
+                (rs, rowNum) -> (rs.getInt("day")), selectIsDiaryInMonthParams);
+    }
 }

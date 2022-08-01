@@ -214,8 +214,33 @@ public class UserController {
         }
     }
 
+
+    private Long getUserIdFromRequest(HttpServletRequest request) throws BaseException {
+        Long userId = Long.parseLong(request.getAttribute("user_id").toString());
+        userProvider.assertUserValidById(userId);
+        return userId;
+    }
+
+
     /**
-     * 2.8 마케팅  동의 api
+     * 2.8 알람 활성화 조회 api
+     */
+    @GetMapping("/alarm")
+    public BaseResponse<GetAlarmEnabledRes> getAlarmEnabled(HttpServletRequest request) {
+        try {
+            Long userId = getUserIdFromRequest(request);
+            userProvider.assertUserValidById(userId);
+            return new BaseResponse<>(userProvider.retrieveAlarmEnabled(userId));
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+
+    }
+
+
+    /**
+     * 2.9 마케팅  동의 api
      */
     @PatchMapping("/service/terms")
     public BaseResponse<BaseResponseStatus> patchTermsStatus(HttpServletRequest request, @RequestBody PatchTermsReq patchTermsReq){
@@ -227,6 +252,8 @@ public class UserController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+
 }
 
 
