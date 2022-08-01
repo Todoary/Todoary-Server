@@ -26,6 +26,7 @@ public class UserController {
     private final UserService userService;
     private final UserProvider userProvider;
     private final AwsS3Service awsS3Service;
+    private String default_profile_img_url;
 
     @Autowired
     public UserController(JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, UserService userService, UserProvider userProvider, AwsS3Service awsS3Service) {
@@ -67,6 +68,11 @@ public class UserController {
 
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+
+            String profile_img_fileKey = userProvider.retrieveById(user_id).getProfile_img_url();
+            if(!profile_img_fileKey.equals("https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg"))
+                awsS3Service.fileDelete(profile_img_fileKey.substring(54));
+
             String dirName = "todoary/users/info/" + user_id + "/profile-img";
             String profile_img_url = awsS3Service.upload(multipartFile, dirName);
             return new BaseResponse<>(userService.setProfileImg(user_id, profile_img_url));
@@ -83,13 +89,19 @@ public class UserController {
      */
 
     // ToDo: 유저의 프로필 사진을 삭제한다는 것은 회원 탈퇴를 의미 (프로필 사진 변경 != 삭제) >>> 논의 필요
-    @DeleteMapping("/profile-img")
-    public BaseResponse<String> deleteProfileImg(@RequestParam("filekey") String filekey,HttpServletRequest request) throws BaseException {
+    @PatchMapping("/profile-img/default")
+    public BaseResponse<String> deleteProfileImg(HttpServletRequest request) throws BaseException {
         Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
 
         int result = 0;
         try {
+            String filekey = userProvider.retrieveById(user_id).getProfile_img_url();
+            if(filekey.equals("https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg"))
+                return new BaseResponse<>("삭제에 성공하였습니다.");
+
+            filekey = userProvider.retrieveById(user_id).getProfile_img_url().substring(54);
             result = awsS3Service.fileDelete(filekey);
+            userService.modifyProfileImgToDefault(user_id);
             return new BaseResponse<>("삭제에 성공하였습니다.");
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());

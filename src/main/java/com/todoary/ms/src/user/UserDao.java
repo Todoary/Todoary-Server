@@ -9,8 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-
 @Repository
 public class UserDao {
 
@@ -154,17 +152,6 @@ public class UserDao {
         String deleteRefreshTokenQuery = "delete from token where user_id = ?";
         Long deleteRefreshTokenParam = user_id;;
         this.jdbcTemplate.update(deleteRefreshTokenQuery, deleteRefreshTokenParam);
-    }
-
-    public GetAlarmEnabledRes selectAlarmEnabledById(Long user_id) {
-        String selectAlarmEnabledByIdQuery = "select id, is_todo_alarm_enabled, is_diary_alarm_enabled, is_remind_alarm_enabled from user where id = ? and status = 1";
-        return this.jdbcTemplate.queryForObject(selectAlarmEnabledByIdQuery,
-                (rs, rowNum) -> new GetAlarmEnabledRes(
-                        rs.getLong("id"),
-                        rs.getBoolean("is_todo_alarm_enabled"),
-                        rs.getBoolean("is_diary_alarm_enabled"),
-                        rs.getBoolean("is_remind_alarm_enabled")),
-                user_id);
     }
 
 }

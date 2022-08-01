@@ -82,6 +82,15 @@ public class UserService {
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    public void modifyProfileImgToDefault(Long user_id) throws BaseException {
+        try {
+            this.userDao.updateProfileImgToDefault(user_id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
 
     }
 
@@ -94,7 +103,6 @@ public class UserService {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
-
     }
 
     public void removeUser(Long user_id) throws BaseException {
