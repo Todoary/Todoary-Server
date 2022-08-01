@@ -1,5 +1,6 @@
 package com.todoary.ms.src.user;
 
+import com.todoary.ms.src.user.dto.GetAlarmEnabledRes;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -118,5 +119,14 @@ public class UserProvider {
     public void assertUserValidById(Long userId) throws BaseException {
         if (checkId(userId) == 0)
             throw new BaseException(BaseResponseStatus.USERS_EMPTY_USER_ID);
+    }
+
+    public GetAlarmEnabledRes retrieveAlarmEnabled(Long user_id) throws BaseException {
+        try {
+            return userDao.selectAlarmEnabledById(user_id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }
