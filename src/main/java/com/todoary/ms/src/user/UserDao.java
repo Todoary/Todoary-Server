@@ -160,13 +160,13 @@ public class UserDao {
     }
 
     public GetAlarmEnabledRes selectAlarmEnabledById (Long user_id){
-        String selectAlarmEnabledByIdQuery="select id, is_todo_alarm_enabled, is_diary_alarm_enabled, is_remind_alarm_enabled from user where id=? and status=1";
+        String selectAlarmEnabledByIdQuery="select id, alarm_todo, alarm_diary, alarm_remind from user where id=? and status=1";
         return this. jdbcTemplate.queryForObject(selectAlarmEnabledByIdQuery,
                 (rs, rowNum) -> new GetAlarmEnabledRes(
                         rs.getLong("id"),
-                        rs.getBoolean("is_todo_alarm_enabled"),
-                        rs.getBoolean("is_diary_alarm_enabled"),
-                        rs.getBoolean("is_remind_alarm_enabled"))
+                        rs.getBoolean("alarm_todo"),
+                        rs.getBoolean("alarm_diary"),
+                        rs.getBoolean("alarm_remind"))
                 ,user_id);
     }
 }
