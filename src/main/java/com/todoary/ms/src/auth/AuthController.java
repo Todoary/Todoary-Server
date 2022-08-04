@@ -72,7 +72,12 @@ public class AuthController {
         }
 
 
-        Authentication authentication = attemptAuthentication(user);
+        Authentication authentication = null;
+        try {
+            authentication = attemptAuthentication(user);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Long user_id = userEntity.getUser().getId();
@@ -99,7 +104,12 @@ public class AuthController {
         } catch (BaseException e) {
             return new BaseResponse(e.getStatus());
         }
-        Authentication authentication = attemptAuthentication(user);
+        Authentication authentication = null;
+        try {
+            authentication = attemptAuthentication(user);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
 
         Long user_id = userEntity.getUser().getId();
@@ -257,7 +267,7 @@ public class AuthController {
             throw new BaseException(DIFFERENT_REFRESH_TOKEN);
     }
 
-    public Authentication attemptAuthentication(User user) {
+    public Authentication attemptAuthentication(User user) throws BaseException {
         Collection<GrantedAuthority> userAuthorities = new ArrayList<>();
         userAuthorities.add(new GrantedAuthority() {
             @Override
@@ -266,6 +276,10 @@ public class AuthController {
             }
         });
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), userAuthorities);
-        return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        try{
+            return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        } catch (Exception e){
+            throw new BaseException(USERS_DISACCORD_PASSWORD);
+        }
     }
 }
