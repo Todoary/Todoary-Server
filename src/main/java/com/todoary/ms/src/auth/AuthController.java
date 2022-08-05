@@ -256,7 +256,7 @@ public class AuthController {
     public void AssertRefreshTokenEqualAndValid(String token) throws BaseException {
         try {
             Jwts
-                    .parserBuilder().setSigningKey(jwtTokenProvider.getAccessKey()).build()
+                    .parserBuilder().setSigningKey(jwtTokenProvider.getRefreshKey()).build()
                     .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
             throw new BaseException(EXPIRED_JWT);
