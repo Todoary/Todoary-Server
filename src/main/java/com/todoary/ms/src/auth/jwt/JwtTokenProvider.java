@@ -73,7 +73,7 @@ public class JwtTokenProvider {
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + JWT_REFRESH_TOKEN_EXPTIME)) // set Expire Time
-                .signWith(accessKey, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘과
+                .signWith(refreshKey, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘과
                 // signature 에 들어갈 secret값 세팅
                 .compact();
     }
