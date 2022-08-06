@@ -20,10 +20,10 @@ public class AuthService {
     }
 
     public Long registerRefreshToken(Long userid, String refreshToken) {
-        if(authDao.checkUser(userid))
+        if (authDao.checkUser(userid))
             authDao.updateRefreshToken(userid, refreshToken);
         else
-            authDao.insertRefreshToken(userid,refreshToken);
+            authDao.insertRefreshToken(userid, refreshToken);
 
         return userid;
     }
@@ -34,16 +34,18 @@ public class AuthService {
 //        return userid;
 //    }
 
-    public Token createAccess(String refreshToken) throws BaseException {
+    public Token registerNewTokenFromRefreshToken(String refreshToken) throws BaseException {
+        Long userId = Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshToken));
+        return registerNewTokenForUser(userId);
+    }
 
-        Long userid = Long.parseLong(jwtTokenProvider.getUseridFromRef(refreshToken));
+    public Token registerNewTokenForUser(Long userId) throws BaseException {
+        String newAccessToken = jwtTokenProvider.createAccessToken(userId);
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(userId);
 
-        String newAccessToken = jwtTokenProvider.createAccessToken(userid);
-        String newRefreshToken = jwtTokenProvider.createRefreshToken(userid);
-
-        try{
-            authDao.updateRefreshToken(userid, newRefreshToken);
-        }catch(Exception e){
+        try {
+            registerRefreshToken(userId, newRefreshToken);
+        } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }

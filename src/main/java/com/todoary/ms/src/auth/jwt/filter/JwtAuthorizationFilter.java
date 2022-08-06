@@ -51,7 +51,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         .parserBuilder().setSigningKey(jwtTokenProvider.getAccessKey()).build()
                         .parseClaimsJws(jwtHeader);
 
-                Long user_id = Long.parseLong(jwtTokenProvider.getUseridFromAcs(jwtHeader));
+                Long user_id = Long.parseLong(jwtTokenProvider.getUserIdFromAccessToken(jwtHeader));
 //                log.info("인증 완료, uri: " + requestUri + " 인증 정보: " + authentication.getName());
 
 
