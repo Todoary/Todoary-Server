@@ -102,26 +102,27 @@ public class AuthController {
             user = userProvider.retrieveByEmail(postAutoSigninReq.getEmail());
             user.setPassword(postAutoSigninReq.getPassword());
         } catch (BaseException e) {
+            log.warn(e.getMessage());
             return new BaseResponse(e.getStatus());
         }
+
         Authentication authentication = null;
         try {
             authentication = attemptAuthentication(user);
         } catch (BaseException e) {
+            log.warn(e.getMessage());
             return new BaseResponse<>(e.getStatus());
         }
         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
 
-        Long user_id = userEntity.getUser().getId();
-
-        String accessToken = jwtTokenProvider.createAccessToken(user_id);
-        String refreshToken = jwtTokenProvider.createRefreshToken(user_id);
-
-        authService.registerRefreshToken(user_id, refreshToken);
-
-        Token token = new Token(accessToken, refreshToken);
+        Token token = null;
+        try {
+            token = authService.registerNewTokenForUser(userEntity.getUser().getId());
+        } catch (BaseException e) {
+            log.warn(e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
         PostAutoSigninRes postAutoSigninRes = new PostAutoSigninRes(token);
-
         return new BaseResponse<>(postAutoSigninRes);
     }
 
@@ -142,7 +143,7 @@ public class AuthController {
         }
 
         try {
-            Token newTokens = authService.createAccess(refreshToken);
+            Token newTokens = authService.registerNewTokenFromRefreshToken(refreshToken);
             PostAccessRes postAccessRes = new PostAccessRes(newTokens);
             return new BaseResponse<>(postAccessRes);
         } catch (BaseException exception) {
@@ -188,10 +189,10 @@ public class AuthController {
      */
     @PostMapping("/signup/oauth2")
     public BaseResponse<BaseResponseStatus> PostSignupOauth2(@RequestBody PostSignupOauth2Req postSignupOauth2Req) {
-        try{
+        try {
             userService.createOauth2User(postSignupOauth2Req);
             return new BaseResponse<>(SUCCESS);
-        }catch(BaseException exception){
+        } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
     }
@@ -276,9 +277,9 @@ public class AuthController {
             }
         });
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), userAuthorities);
-        try{
+        try {
             return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new BaseException(USERS_DISACCORD_PASSWORD);
         }
     }

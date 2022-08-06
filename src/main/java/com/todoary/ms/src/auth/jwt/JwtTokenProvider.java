@@ -85,17 +85,20 @@ public class JwtTokenProvider {
 //    }
 
     // 토큰에서 회원 정보 추출
-    public String getUseridFromAcs(String token) {
-        return Jwts.parserBuilder().setSigningKey(accessKey).build()
+    public String getUserIdFromAccessToken(String token) {
+        return getUserIdFromTokenUsingKey(token, accessKey);
+    }
+
+    public String getUserIdFromRefreshToken(String token) {
+        return getUserIdFromTokenUsingKey(token, refreshKey);
+    }
+
+    private String getUserIdFromTokenUsingKey(String token, Key key){
+        return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
-    public String getUseridFromRef(String token) {
-        return Jwts.parserBuilder().setSigningKey(accessKey).build()
-                .parseClaimsJws(token).getBody().getSubject();
-    }
-
-    public Long getExpiration(String accessToken) {
+    public Long getExpirationOfAccessToken(String accessToken) {
         // accessToken 남은 유효시간
         Date expiration = Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(accessToken).getBody().getExpiration();
         // 현재 시간
