@@ -1,11 +1,9 @@
 package com.todoary.ms.src.todo;
 
-import com.todoary.ms.src.category.model.Category;
 import com.todoary.ms.src.todo.dto.GetTodoByCategoryRes;
 import com.todoary.ms.src.todo.dto.GetTodoByDateRes;
 import com.todoary.ms.src.todo.dto.PostTodoReq;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -17,7 +15,6 @@ import javax.transaction.Transactional;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -126,7 +123,7 @@ public class TodoDao {
     }
 
     public List<GetTodoByDateRes> selectTodoListByDate(Long userId, String targetDate) {
-        String selectTodosByDateQuery = "SELECT todo.id, todo.is_pinned, todo.is_checked, todo.title, todo.is_alarm_enabled, TIME_FORMAT(todo.target_time, '%H:%i') as target_time, todo.created_at, todo.category_id,  category.title, category.color " +
+        String selectTodosByDateQuery = "SELECT todo.id, todo.is_pinned, todo.is_checked, todo.title, target_date, todo.is_alarm_enabled, TIME_FORMAT(todo.target_time, '%H:%i') as target_time, todo.created_at, todo.category_id,  category.title, category.color " +
                 "from todo INNER JOIN category ON todo.category_id = category.id WHERE todo.user_id = ? and todo.target_date = ? " +
                 "ORDER BY todo.target_date, todo.target_time, todo.created_at";
         Object[] selectTodosByDateParams = new Object[]{userId, targetDate};
@@ -137,6 +134,7 @@ public class TodoDao {
                         rs.getBoolean("is_pinned"),
                         rs.getBoolean("is_checked"),
                         rs.getString("todo.title"),
+                        rs.getString("target_date"),
                         rs.getBoolean("is_alarm_enabled"),
                         rs.getString("target_time"),
                         rs.getString("created_at"),

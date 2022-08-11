@@ -35,6 +35,9 @@ public class UserProvider {
     }
 
     public User retrieveByEmail(String email, String provider) throws BaseException {
+        if (isDeleted(email,provider)) {
+            throw new BaseException(USERS_DELETED_USER);
+        }
         if (checkEmail(email, provider) == 0)
             throw new BaseException(USERS_EMPTY_USER_EMAIL);
         try {
@@ -126,6 +129,17 @@ public class UserProvider {
             return userDao.selectAlarmEnabledById(user_id);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public boolean isDeleted(String email, String provider) throws BaseException {
+        try {
+            if (userDao.isDeleted(email, provider) == 0)
+                return false;
+            else
+                return true;
+        } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
     }

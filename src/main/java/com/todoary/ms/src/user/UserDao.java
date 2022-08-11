@@ -169,4 +169,10 @@ public class UserDao {
                         rs.getBoolean("alarm_remind"))
                 ,user_id);
     }
+
+    public int isDeleted(String email, String provider) {
+        String isDeletedQuery = "select exists(select id from user where email = ? and provider = ? and status = 0)";
+        Object[] isDeletedParams = new Object[]{email, provider};
+        return this.jdbcTemplate.queryForObject(isDeletedQuery, int.class, isDeletedParams);
+    }
 }

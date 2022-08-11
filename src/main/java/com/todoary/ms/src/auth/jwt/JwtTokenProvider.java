@@ -73,7 +73,7 @@ public class JwtTokenProvider {
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + JWT_REFRESH_TOKEN_EXPTIME)) // set Expire Time
-                .signWith(accessKey, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘과
+                .signWith(refreshKey, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘과
                 // signature 에 들어갈 secret값 세팅
                 .compact();
     }
@@ -85,17 +85,20 @@ public class JwtTokenProvider {
 //    }
 
     // 토큰에서 회원 정보 추출
-    public String getUseridFromAcs(String token) {
-        return Jwts.parserBuilder().setSigningKey(accessKey).build()
+    public String getUserIdFromAccessToken(String token) {
+        return getUserIdFromTokenUsingKey(token, accessKey);
+    }
+
+    public String getUserIdFromRefreshToken(String token) {
+        return getUserIdFromTokenUsingKey(token, refreshKey);
+    }
+
+    private String getUserIdFromTokenUsingKey(String token, Key key){
+        return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
-    public String getUseridFromRef(String token) {
-        return Jwts.parserBuilder().setSigningKey(accessKey).build()
-                .parseClaimsJws(token).getBody().getSubject();
-    }
-
-    public Long getExpiration(String accessToken) {
+    public Long getExpirationOfAccessToken(String accessToken) {
         // accessToken 남은 유효시간
         Date expiration = Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(accessToken).getBody().getExpiration();
         // 현재 시간

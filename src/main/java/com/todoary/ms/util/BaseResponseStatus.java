@@ -28,8 +28,8 @@ public enum BaseResponseStatus {
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     USERS_EMPTY_USER_EMAIL(false, 2011, "유저 이메일 값을 확인해주세요."),
-
-    USERS_DISCARD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
+    USERS_DELETED_USER(false,2012,"삭제된 유저입니다."),
+    USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
 
     // category 도메인 에러
     DUPLICATE_CATEGORY(false, 2104, "같은이름의 카테고리가 이미 존재합니다."),
