@@ -39,7 +39,7 @@ public class DiaryController {
     /**
      * 5.1 일기 생성/수정 api
      */
-    @PostMapping("")
+    @PostMapping("/{createdDate}")
     public BaseResponse<BaseResponseStatus> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postDiaryReq, @PathVariable("createdDate") String createdDate) {
         try {
             Long userId = getUserIdFromRequest(request);
