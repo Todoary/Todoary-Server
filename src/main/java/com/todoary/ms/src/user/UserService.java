@@ -167,4 +167,12 @@ public class UserService {
         }
     }
 
+    public void removeUserExpired(String targetDate) throws BaseException {
+        try {
+            userDao.deleteByUserStatus(targetDate);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

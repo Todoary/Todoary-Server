@@ -150,7 +150,7 @@ public class UserDao {
 
     public void deleteRefreshToken(Long user_id) {
         String deleteRefreshTokenQuery = "delete from token where user_id = ?";
-        Long deleteRefreshTokenParam = user_id;;
+        Long deleteRefreshTokenParam = user_id;
         this.jdbcTemplate.update(deleteRefreshTokenQuery, deleteRefreshTokenParam);
     }
 
@@ -174,5 +174,12 @@ public class UserDao {
         String isDeletedQuery = "select exists(select id from user where email = ? and provider = ? and status = 0)";
         Object[] isDeletedParams = new Object[]{email, provider};
         return this.jdbcTemplate.queryForObject(isDeletedQuery, int.class, isDeletedParams);
+    }
+
+    public void deleteByUserStatus(String target_date) {
+        String deleteByUserStatusQuery = "\n" +
+                "delete from user where status = 0 and DATE_FORMAT(DATE_ADD(created_at, INTERVAL 30 DAY), '%Y-%m-%d') = ?";
+
+        this.jdbcTemplate.update(deleteByUserStatusQuery,target_date);
     }
 }
