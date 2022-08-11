@@ -10,12 +10,17 @@ import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static com.todoary.ms.util.BaseResponseStatus.DATABASE_ERROR;
 
 @Slf4j
 @RestController
@@ -25,16 +30,18 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final UserProvider userProvider;
+    private final UserDao userDao;
     private final AwsS3Service awsS3Service;
     private String default_profile_img_url;
 
     @Autowired
-    public UserController(JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, UserService userService, UserProvider userProvider, AwsS3Service awsS3Service) {
+    public UserController(JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, UserService userService, UserProvider userProvider, UserDao userDao, AwsS3Service awsS3Service) {
 
         this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.userProvider = userProvider;
+        this.userDao = userDao;
         this.awsS3Service = awsS3Service;
     }
 
@@ -251,6 +258,20 @@ public class UserController {
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
+    }
+
+    @Scheduled(cron = "0 0 0 1/1 * ?")
+    public void UserRemove() throws BaseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String target_date = dateFormat.format(new Date());
+
+        try {
+            userDao.deleteByUserStatus(target_date);
+        } catch(Exception e){
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+
     }
 
 
