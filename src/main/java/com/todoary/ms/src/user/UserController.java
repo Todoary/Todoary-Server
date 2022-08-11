@@ -223,7 +223,7 @@ public class UserController {
 
 
     /**
-     * 2.8 알람 활성화 조회 api
+     * 2.8 알람 활성화 여부 조회 api
      */
     @GetMapping("/alarm")
     public BaseResponse<GetAlarmEnabledRes> getAlarmEnabled(HttpServletRequest request) {
