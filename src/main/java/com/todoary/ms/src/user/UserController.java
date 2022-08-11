@@ -263,13 +263,13 @@ public class UserController {
     @Scheduled(cron = "0 0 0 1/1 * ?")
     public void UserRemove() throws BaseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String target_date = dateFormat.format(new Date());
+        String targetDate = dateFormat.format(new Date());
 
         try {
-            userDao.deleteByUserStatus(target_date);
-        } catch(Exception e){
-            e.printStackTrace();
-            throw new BaseException(DATABASE_ERROR);
+            userService.removeUserExpired(targetDate);
+            log.info("보관기간이 만료된 비활성화 계정들을 삭제하는데 성공했습니다.");
+        } catch (BaseException e) {
+            log.info(e.getMessage());
         }
 
     }
