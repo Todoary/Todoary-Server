@@ -53,3 +53,13 @@ fcm:
   secret:
     time:
     day:
+
+apple:
+  token-url:
+  publickey-url:
+  website-url:
+  iss:
+  aud:
+  team-id:
+  key-id:
+  key-path:
