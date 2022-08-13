@@ -1,18 +1,19 @@
 package com.todoary.ms.src.todo;
 
 import com.todoary.ms.src.todo.dto.*;
-import com.todoary.ms.src.todo.dto.PostTodoReq;
-import com.todoary.ms.src.todo.dto.PostTodoRes;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.util.ErrorLogWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithAuthorizedRequest;
 
 @Slf4j
 @RestController
@@ -50,10 +51,11 @@ public class TodoController {
             Long todoId = todoService.createTodo(userId, postTodoReq);
             return new BaseResponse<>(new PostTodoRes(todoId));
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request, postTodoReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
+
 
     /**
      * 3.2 투두 수정 api
@@ -72,7 +74,7 @@ public class TodoController {
             todoService.modifyTodo(userId, todoId, postTodoReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request, postTodoReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -92,7 +94,7 @@ public class TodoController {
             todoService.removeTodo(userId, todoId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -112,7 +114,7 @@ public class TodoController {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveTodoListByDate(userId, targetDate));
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -133,7 +135,7 @@ public class TodoController {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveTodoListByCategory(userId, categoryId));
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -154,7 +156,7 @@ public class TodoController {
             todoService.modifyTodoCheck(userId, patchTodoCheckReq.getTodoId(), patchTodoCheckReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithAuthorizedRequest(e, request, patchTodoCheckReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -175,7 +177,7 @@ public class TodoController {
             todoService.modifyTodoPin(userId, patchTodoPinReq.getTodoId(), patchTodoPinReq.isPinned());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithAuthorizedRequest(e, request, patchTodoPinReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -195,7 +197,7 @@ public class TodoController {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveDaysHavingTodoInMonth(userId, yearAndMonth));
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }

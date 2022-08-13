@@ -2,9 +2,7 @@ package com.todoary.ms.src.category;
 
 import com.todoary.ms.src.category.dto.GetCategoryRes;
 import com.todoary.ms.src.category.dto.PostCategoryReq;
-import com.todoary.ms.src.category.model.Category;
 import com.todoary.ms.src.category.dto.PostCategoryRes;
-import com.todoary.ms.src.todo.dto.PostTodoReq;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -13,8 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithAuthorizedRequest;
 
 @Slf4j
 @RestController
@@ -44,7 +43,7 @@ public class CategoryController {
             Long categoryId = categoryService.createCategory(user_id, postCategoryReq);
             return new BaseResponse<>(new PostCategoryRes(categoryId));
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithAuthorizedRequest(e, request, postCategoryReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -66,7 +65,7 @@ public class CategoryController {
             categoryService.modifyCategory(user_id, categoryId, postCategoryReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithAuthorizedRequest(e, request, postCategoryReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -85,6 +84,7 @@ public class CategoryController {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             return new BaseResponse<>(categoryProvider.retrieveById(user_id));
         } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
 
@@ -104,7 +104,7 @@ public class CategoryController {
             categoryService.removeCategory(user_id, categoryId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }

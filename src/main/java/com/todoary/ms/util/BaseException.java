@@ -9,4 +9,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class BaseException extends Exception {
     private BaseResponseStatus status;
+
+    @Override
+    public String getMessage() {
+        return status.getMessage();
+    }
 }
