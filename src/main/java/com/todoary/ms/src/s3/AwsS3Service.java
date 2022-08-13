@@ -3,7 +3,6 @@ package com.todoary.ms.src.s3;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -19,7 +18,8 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.util.BaseResponseStatus.AWS_ACCESS_DENIED;
+import static com.todoary.ms.util.BaseResponseStatus.AWS_FILE_NOT_FOUND;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,11 +31,15 @@ public class AwsS3Service {
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
 
-    public String upload(MultipartFile multipartFile, String dirName) throws IOException {
-        File uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
-                .orElseThrow(() -> new IllegalArgumentException("error: MultipartFile -> File convert fail"));
-
-        return upload(uploadFile, dirName);
+    public String upload(MultipartFile multipartFile, String dirName) throws BaseException {
+        try {
+            File uploadFile = null;
+            uploadFile = convert(multipartFile)  // 파일 변환할 수 없으면 에러
+                    .orElseThrow(() -> new IllegalArgumentException("error: MultipartFile -> File convert fail"));
+            return upload(uploadFile, dirName);
+        } catch (IOException e) {
+            throw new BaseException(BaseResponseStatus.AWS_FILE_CONVERT_FAIL);
+        }
     }
 
     // S3로 파일 업로드하기

@@ -1,13 +1,14 @@
 package com.todoary.ms.src.user;
 
+import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.s3.AwsS3Service;
 import com.todoary.ms.src.s3.dto.PostProfileImgRes;
 import com.todoary.ms.src.user.dto.*;
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.user.model.User;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.util.ErrorLogWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,11 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.todoary.ms.util.BaseResponseStatus.DATABASE_ERROR;
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithMessage;
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithAuthorizedRequest;
 
 @Slf4j
 @RestController
@@ -53,15 +54,15 @@ public class UserController {
      */
 
     @PatchMapping("/profile")
-    public BaseResponse<PatchUserRes> patchProfile(HttpServletRequest request, @RequestBody PatchUserReq patchUserReq) throws BaseException {
+    public BaseResponse<PatchUserRes> patchProfile(HttpServletRequest request, @RequestBody PatchUserReq patchUserReq) {
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             PatchUserRes patchUserRes = userService.modifyProfile(user_id, patchUserReq);
             return new BaseResponse<>(patchUserRes);
         } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request, patchUserReq.toString());
             return new BaseResponse(e.getStatus());
         }
-
     }
 
     /**
@@ -71,19 +72,20 @@ public class UserController {
      * @return
      */
     @PatchMapping("/profile-img")
-    public BaseResponse<PostProfileImgRes> uploadProfileImg(@RequestParam("profile-img") MultipartFile multipartFile, HttpServletRequest request) throws BaseException,IOException {
+    public BaseResponse<PostProfileImgRes> uploadProfileImg(@RequestParam("profile-img") MultipartFile multipartFile, HttpServletRequest request) {
 
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
 
             String profile_img_fileKey = userProvider.retrieveById(user_id).getProfile_img_url();
-            if(!profile_img_fileKey.equals("https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg"))
+            if (!profile_img_fileKey.equals("https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg"))
                 awsS3Service.fileDelete(profile_img_fileKey.substring(54));
 
             String dirName = "todoary/users/info/" + user_id + "/profile-img";
             String profile_img_url = awsS3Service.upload(multipartFile, dirName);
             return new BaseResponse<>(userService.setProfileImg(user_id, profile_img_url));
         } catch (BaseException e) {
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse(e.getStatus());
         }
     }
@@ -103,7 +105,7 @@ public class UserController {
         int result = 0;
         try {
             String filekey = userProvider.retrieveById(user_id).getProfile_img_url();
-            if(filekey.equals("https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg"))
+            if (filekey.equals("https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg"))
                 return new BaseResponse<>("삭제에 성공하였습니다.");
 
             filekey = userProvider.retrieveById(user_id).getProfile_img_url().substring(54);
@@ -111,6 +113,7 @@ public class UserController {
             userService.modifyProfileImgToDefault(user_id);
             return new BaseResponse<>("삭제에 성공하였습니다.");
         } catch (BaseException e) {
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -131,6 +134,7 @@ public class UserController {
             GetUserRes getUserRes = new GetUserRes(user.getProfile_img_url(), user.getNickname(), user.getIntroduce(), user.getEmail());
             return new BaseResponse<>(getUserRes);
         } catch (BaseException e) {
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
 
@@ -149,6 +153,7 @@ public class UserController {
             userService.removeUser(user_id);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -175,6 +180,7 @@ public class UserController {
             //userService.signOutUser(jwtHeader, expiration);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -183,12 +189,13 @@ public class UserController {
      * 2.7.1 Todoary 알림 활성화 api
      */
     @PatchMapping("/alarm/todo")
-    public BaseResponse<BaseResponseStatus> patchTodoAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){
-        try{
+    public BaseResponse<BaseResponseStatus> patchTodoAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq) {
+        try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             userService.modifyAlarm(user_id, "alarm_todo", patchAlarmReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request, patchAlarmReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -197,12 +204,13 @@ public class UserController {
      * 2.7.2 하루기록 알림 활성화 api
      */
     @PatchMapping("/alarm/diary")
-    public BaseResponse<BaseResponseStatus> patchDiaryAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){
-        try{
+    public BaseResponse<BaseResponseStatus> patchDiaryAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq) {
+        try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             userService.modifyAlarm(user_id, "alarm_diary", patchAlarmReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request, patchAlarmReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -211,12 +219,13 @@ public class UserController {
      * 2.7.3 일기 알림 활성화 api
      */
     @PatchMapping("/alarm/remind")
-    public BaseResponse<BaseResponseStatus> patchRemindAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq){
-        try{
+    public BaseResponse<BaseResponseStatus> patchRemindAlarmStatus(HttpServletRequest request, @RequestBody PatchAlarmReq patchAlarmReq) {
+        try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             userService.modifyAlarm(user_id, "alarm_remind", patchAlarmReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request, patchAlarmReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -239,7 +248,7 @@ public class UserController {
             userProvider.assertUserValidById(userId);
             return new BaseResponse<>(userProvider.retrieveAlarmEnabled(userId));
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
 
@@ -250,12 +259,13 @@ public class UserController {
      * 2.9 마케팅  동의 api
      */
     @PatchMapping("/service/terms")
-    public BaseResponse<BaseResponseStatus> patchTermsStatus(HttpServletRequest request, @RequestBody PatchTermsReq patchTermsReq){
-        try{
+    public BaseResponse<BaseResponseStatus> patchTermsStatus(HttpServletRequest request, @RequestBody PatchTermsReq patchTermsReq) {
+        try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             userService.serviceTerms(user_id, "terms", patchTermsReq.isChecked());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request, patchTermsReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -269,12 +279,9 @@ public class UserController {
             userService.removeUserExpired(targetDate);
             log.info("보관기간이 만료된 비활성화 계정들을 삭제하는데 성공했습니다.");
         } catch (BaseException e) {
-            log.info(e.getMessage());
+            writeExceptionWithMessage(e, "유저 삭제 실패 | UserController/UserRemove()");
         }
-
     }
-
-
 }
 
 

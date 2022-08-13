@@ -2,7 +2,6 @@ package com.todoary.ms.src.diary;
 
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
 import com.todoary.ms.src.diary.dto.PostDiaryReq;
-import com.todoary.ms.src.diary.dto.PostDiaryRes;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
@@ -13,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithAuthorizedRequest;
 
 @Slf4j
 @RestController
@@ -46,7 +47,7 @@ public class DiaryController {
             diaryService.createOrModifyDiary(userId, postDiaryReq, createdDate);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithAuthorizedRequest(e, request, postDiaryReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -63,7 +64,7 @@ public class DiaryController {
             diaryService.removeDiary(userId, createdDate);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -78,7 +79,7 @@ public class DiaryController {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, created_at));
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -93,7 +94,7 @@ public class DiaryController {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(diaryProvider.retrieveIsDiaryInMonth(userId, yearAndMonth));
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }

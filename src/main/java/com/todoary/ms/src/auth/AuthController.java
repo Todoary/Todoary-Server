@@ -24,10 +24,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithMessage;
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithRequest;
 
 @Slf4j
 @RestController
@@ -62,13 +65,14 @@ public class AuthController {
      * @return
      */
     @PostMapping("/signin")
-    public BaseResponse<PostSigninRes> login(@RequestBody PostSigninReq postSigninReq) {
+    public BaseResponse<PostSigninRes> login(HttpServletRequest request, @RequestBody PostSigninReq postSigninReq) {
         User user = null;
         try {
             user = userProvider.retrieveByEmail(postSigninReq.getEmail());
             user.setPassword(postSigninReq.getPassword());
         } catch (BaseException e) {
-            return new BaseResponse(e.getStatus());
+            writeExceptionWithRequest(e, request, postSigninReq.toString());
+            return new BaseResponse<>(e.getStatus());
         }
 
 
@@ -76,6 +80,7 @@ public class AuthController {
         try {
             authentication = attemptAuthentication(user);
         } catch (BaseException e) {
+            writeExceptionWithRequest(e, request, postSigninReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
@@ -96,13 +101,13 @@ public class AuthController {
      * @return
      */
     @PostMapping("/signin/auto")
-    public BaseResponse<PostAutoSigninRes> autoLogin(@RequestBody PostAutoSigninReq postAutoSigninReq) {
+    public BaseResponse<PostAutoSigninRes> autoLogin(HttpServletRequest request, @RequestBody PostAutoSigninReq postAutoSigninReq) {
         User user = null;
         try {
             user = userProvider.retrieveByEmail(postAutoSigninReq.getEmail());
             user.setPassword(postAutoSigninReq.getPassword());
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
             return new BaseResponse(e.getStatus());
         }
 
@@ -110,7 +115,7 @@ public class AuthController {
         try {
             authentication = attemptAuthentication(user);
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
@@ -119,7 +124,7 @@ public class AuthController {
         try {
             token = authService.registerNewTokenForUser(userEntity.getUser().getId());
         } catch (BaseException e) {
-            log.warn(e.getMessage());
+            writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
         PostAutoSigninRes postAutoSigninRes = new PostAutoSigninRes(token);
@@ -134,11 +139,12 @@ public class AuthController {
      * @return
      */
     @PostMapping("/jwt")
-    public BaseResponse<PostAccessRes> postAccess(@RequestBody PostAccessReq postAccessReq) {
+    public BaseResponse<PostAccessRes> postAccess(HttpServletRequest request, @RequestBody PostAccessReq postAccessReq) {
         String refreshToken = postAccessReq.getRefreshToken();
         try {
             AssertRefreshTokenEqualAndValid(refreshToken);
         } catch (BaseException exception) {
+            writeExceptionWithRequest(exception, request, postAccessReq.toString());
             return new BaseResponse<>(exception.getStatus());
         }
 
@@ -147,6 +153,7 @@ public class AuthController {
             PostAccessRes postAccessRes = new PostAccessRes(newTokens);
             return new BaseResponse<>(postAccessRes);
         } catch (BaseException exception) {
+            writeExceptionWithRequest(exception, request, postAccessReq.toString());
             return new BaseResponse<>(exception.getStatus());
         }
     }
@@ -170,13 +177,14 @@ public class AuthController {
      * @return 결과 메세지
      */
     @PostMapping("/signup")
-    public BaseResponse<String> postUser(@RequestBody PostUserReq postUserReq) {
+    public BaseResponse<String> postUser(HttpServletRequest request, @RequestBody PostUserReq postUserReq) {
         try {
             String encodedPassword = passwordEncoder.encode(postUserReq.getPassword());
             User user = new User(postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none");
             userService.createUser(user, postUserReq.isTermsEnable());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
+            writeExceptionWithRequest(e, request, postUserReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -188,11 +196,12 @@ public class AuthController {
      * 이 api 호출하여 최종 회원가입
      */
     @PostMapping("/signup/oauth2")
-    public BaseResponse<BaseResponseStatus> PostSignupOauth2(@RequestBody PostSignupOauth2Req postSignupOauth2Req) {
+    public BaseResponse<BaseResponseStatus> PostSignupOauth2(HttpServletRequest request, @RequestBody PostSignupOauth2Req postSignupOauth2Req) {
         try {
             userService.createOauth2User(postSignupOauth2Req);
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException exception) {
+            writeExceptionWithRequest(exception, request, postSignupOauth2Req.toString());
             return new BaseResponse<>(exception.getStatus());
         }
     }
@@ -205,7 +214,7 @@ public class AuthController {
      * @return
      */
     @GetMapping("/email/duplication")
-    public BaseResponse<String> checkEmail(@RequestParam(required = true) String email) {
+    public BaseResponse<String> checkEmail(HttpServletRequest request, @RequestParam(required = true) String email) {
         try {
             if (userProvider.checkEmail(email) == 0) { // 새 user
                 return new BaseResponse<>("가능한 이메일입니다.");
@@ -213,6 +222,7 @@ public class AuthController {
                 return new BaseResponse<>(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
             }
         } catch (BaseException exception) {
+            writeExceptionWithRequest(exception, request);
             return new BaseResponse<>(exception.getStatus());
         }
     }
@@ -225,7 +235,7 @@ public class AuthController {
      * @return
      */
     @GetMapping("/email/existence")
-    public BaseResponse<String> checkEmailExistence(@RequestParam(required = true) String email) {
+    public BaseResponse<String> checkEmailExistence(HttpServletRequest request, @RequestParam(required = true) String email) {
         try {
             if (userProvider.checkEmail(email) == 1) { // email 확인
                 return new BaseResponse<>("존재하는 일반 이메일 입니다.");
@@ -233,6 +243,7 @@ public class AuthController {
                 return new BaseResponse<>(BaseResponseStatus.USERS_EMPTY_USER_EMAIL);
             }
         } catch (BaseException exception) {
+            writeExceptionWithRequest(exception, request);
             return new BaseResponse<>(exception.getStatus());
         }
     }
@@ -245,11 +256,12 @@ public class AuthController {
      * @return
      */
     @PatchMapping("/password")
-    public BaseResponse<BaseResponseStatus> patchUserPassword(@RequestBody PatchPasswordReq patchPasswordReq) {
+    public BaseResponse<BaseResponseStatus> patchUserPassword(HttpServletRequest request, @RequestBody PatchPasswordReq patchPasswordReq) {
         try {
             userService.changePassword(patchPasswordReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
+            writeExceptionWithRequest(e, request, patchPasswordReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -260,8 +272,10 @@ public class AuthController {
                     .parserBuilder().setSigningKey(jwtTokenProvider.getRefreshKey()).build()
                     .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
+            writeExceptionWithMessage(e, "Refresh Token 만료 | "+ token);
             throw new BaseException(EXPIRED_JWT);
         } catch (Exception e) {
+            writeExceptionWithMessage(e, "Refresh Token 에러 | "+ token);
             throw new BaseException(INVALID_JWT);
         }
         if (!authProvider.isRefreshTokenEqual(token))

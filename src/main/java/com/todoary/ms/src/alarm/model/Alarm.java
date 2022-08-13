@@ -2,11 +2,11 @@ package com.todoary.ms.src.alarm.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.Date;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
+@ToString
 public class Alarm {
     private String registration_token;
     private String title;
