@@ -95,16 +95,11 @@ public class AppleUtil {
     }
 
     private PrivateKey getPrivateKey() throws IOException {
-        PEMParser pemParser = null;
         ClassPathResource resource = new ClassPathResource(KEY_PATH);
-        try (FileReader keyReader = new FileReader(resource.getFile());
-             PemReader pemReader = new PemReader(keyReader)) {
-            {
-                pemParser = new PEMParser(pemReader);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
+
+        Reader pemReader = new StringReader(privateKey);
+        PEMParser pemParser = new PEMParser(pemReader);
         JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
         PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
         return converter.getPrivateKey(object);
