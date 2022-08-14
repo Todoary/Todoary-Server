@@ -75,8 +75,6 @@ public enum BaseResponseStatus {
      * 4000 : Database, Server 오류
      */
     DATABASE_ERROR(false, 4000, "데이터베이스 연결에 실패하였습니다."),
-    APPLE_Client_SECRET_ERROR(false, 4101, "애플 클라이언트 시크릿 정보조회에 실패하였습니다."),
-    INVALID_APPLE_AUTH(false, 4102, "애플 정보조회에 실패하였습니다."),
     SERVER_ERROR(false, 4001, "서버와의 연결에 실패하였습니다."),
 
     //[PATCH] /users/{userIdx}

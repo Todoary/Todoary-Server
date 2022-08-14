@@ -1,7 +1,5 @@
 package com.todoary.ms.src.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.json.Json;
 import com.todoary.ms.src.auth.dto.*;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.auth.model.PrincipalDetails;
@@ -17,7 +15,6 @@ import com.todoary.ms.util.BaseResponseStatus;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -28,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -48,10 +44,9 @@ public class AuthController {
     private final AuthService authService;
     private final AuthProvider authProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final AppleUtil appleUtil;
 
     @Autowired
-    public AuthController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserService userService, UserProvider userProvider, AuthService authService, AuthProvider authProvider, AuthenticationManagerBuilder authenticationManagerBuilder, AppleUtil appleUtil) {
+    public AuthController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserService userService, UserProvider userProvider, AuthService authService, AuthProvider authProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
@@ -59,7 +54,6 @@ public class AuthController {
         this.authService = authService;
         this.authProvider = authProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.appleUtil = appleUtil;
     }
 
 
@@ -270,50 +264,6 @@ public class AuthController {
             writeExceptionWithRequest(e, request, patchPasswordReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
-    }
-
-    @RequestMapping("/apple/redirect")
-    public BaseResponse<BaseResponseStatus> Oauth2AppleLoginRedirect(HttpServletRequest request, PostSignupAppleReq postSignupAppleReq){
-        String client_secret = null;
-        String provider = "apple";
-
-        try {
-            client_secret = appleUtil.createClientSecret();
-        } catch (IOException e) {
-            writeExceptionWithRequest(e, request, postSignupAppleReq.toString());
-            return new BaseResponse<>(APPLE_Client_SECRET_ERROR);
-        }
-
-        JSONObject tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret,postSignupAppleReq.getCode());
-
-        if (tokenResponse.get("error") == null ) {
-            JSONObject payload = appleUtil.decodeFromIdToken(tokenResponse.getAsString("id_token"));
-            String appleUniqueNo = payload.getAsString("sub");
-            String email = payload.getAsString("email");
-            User user = null;
-
-            try {
-                if (userProvider.checkEmail(email, provider) == 1)
-                    user = userProvider.retrieveByEmail(email, provider);
-            } catch (BaseException e) {
-                throw new RuntimeException(e);
-            }
-
-            // TODO: 로그인 회원가입 로직 처리
-            if (user == null) {
-                log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
-                user = new User("", "", email, "", "", provider, appleUniqueNo);
-
-            } else {
-                log.info("애플 로그인 기록이 있습니다. 로그인을 진행합니다.");
-            }
-
-        }
-        else {
-            return new BaseResponse<>(INVALID_APPLE_AUTH);
-        }
-
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
     public void AssertRefreshTokenEqualAndValid(String token) throws BaseException {
