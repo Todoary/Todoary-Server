@@ -34,10 +34,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
@@ -95,16 +94,12 @@ public class AppleUtil {
     }
 
     private PrivateKey getPrivateKey() throws IOException {
-        PEMParser pemParser = null;
         ClassPathResource resource = new ClassPathResource(KEY_PATH);
-        try (FileReader keyReader = new FileReader(resource.getFile());
-             PemReader pemReader = new PemReader(keyReader)) {
-            {
-                pemParser = new PEMParser(pemReader);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        InputStream is = resource.getInputStream();
+        Reader pemReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+        PEMParser pemParser = new PEMParser(pemReader);
+
         JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
         PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
         return converter.getPrivateKey(object);
