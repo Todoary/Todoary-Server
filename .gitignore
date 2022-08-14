@@ -4,8 +4,10 @@ build/
 <<<<<<< HEAD
 =======
 *.properties
+kanu-keystore.p12
 **/firebase/
 **/secret/
+**/apple/
 >>>>>>> 54330c111d532d60ae15c2aa000e11619797974f
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
