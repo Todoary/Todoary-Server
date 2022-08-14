@@ -80,9 +80,7 @@ public class SecurityConfig {
                 .and()
                 .oauth2Login()
                 // .redirectionEndpoint().baseUri("/auth/token")
-                .redirectionEndpoint()
-                .baseUri("/*/oauth2/code/*")
-                .and()
+                // .and()
                 .userInfoEndpoint().userService(principalOAuth2UserService)
                 .and()
                 .successHandler(new OAuth2SuccessHandler(jwtTokenProvider, authService));
