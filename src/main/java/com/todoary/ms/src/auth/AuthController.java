@@ -273,7 +273,7 @@ public class AuthController {
     }
 
     @RequestMapping("/apple/redirect")
-    public BaseResponse<BaseResponseStatus> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestBody PostSignupAppleReq postSignupAppleReq){
+    public BaseResponse<BaseResponseStatus> Oauth2AppleLoginRedirect(HttpServletRequest request, PostSignupAppleReq postSignupAppleReq){
         String client_secret = null;
         String provider = "apple";
 
