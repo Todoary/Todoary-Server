@@ -6,7 +6,7 @@ name: deploy
 on:
   # Triggers the workflow on push or pull request events but only for the "Develop" branch
   push:
-    branches: [ "Develop", "Feature/*" ]
+    branches: [ "Develop"]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -65,8 +65,8 @@ jobs:
             echo -e "\
              +------- git pull... "
             cd "/home/ubuntu/Todoary-Server" || exit 1
-            git reset --hard origin/Feature/CICD
-            git pull origin Feature/CICD
+            git reset --hard origin/Develop
+            git pull origin Develop
 
             ./scripts/build.sh
             ./scripts/stop.sh
