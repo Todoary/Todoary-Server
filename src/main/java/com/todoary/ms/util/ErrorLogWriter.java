@@ -34,7 +34,7 @@ public class ErrorLogWriter {
     }
 
     /**
-     * 로그에 request 정보, exception 메세지, body를 남긴다.
+     * 로그에 request 정보, exception 메세지를 남긴다.
      *
      * @param exception
      * @param request
@@ -44,6 +44,13 @@ public class ErrorLogWriter {
                 request.getMethod(), request.getRequestURI(), parameterMapToString(request.getParameterMap()));
     }
 
+    /**
+     * 로그에 request 정보, exception 메세지, body를 남긴다.
+     *
+     * @param exception
+     * @param request
+     * @param messageBody
+     */
     public static void writeExceptionWithRequest(Exception exception, HttpServletRequest request, String messageBody) {
         log.error("{} - Authorization: {} | uri: {} {} | query string: {} | body: {}", exception.getMessage(), request.getHeader("Authorization"),
                 request.getMethod(), request.getRequestURI(), parameterMapToString(request.getParameterMap()), messageBody);
