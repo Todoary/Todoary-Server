@@ -28,6 +28,18 @@ jobs:
           java-version: '11'
           distribution: 'temurin' # https://github.com/actions/setup-java
 
+      - name: Hi
+        run: |
+          echo "\
+            _____   U  ___ u  ____      U  ___ u    _       ____     __   __
+           |_ \" _|   \\/\"_ \/ |  _\"\\      \\/\"_ \/U  /\"\\  uU |  _\"\\ u  \\ \\ / /
+             | |     | | | |/| | | |     | | | | \\/ _ \\/  \\| |_) |/   \\ V /
+            /| |\\.-,_| |_| |U| |_| |\\.-,_| |_| | / ___ \\   |  _ <    U_|\"|_u
+           u |_|U \\_)-\\___/  |____/ u \\_)-\\___/ /_/   \\_\\  |_| \\_\\     |_|
+           _// \\\\_     \\\\     |||_         \\\\    \\\\    >>  //   \\\\_.-,//|(_
+          (__) (__)   (__)   (__)_)       (__)  (__)  (__)(__)  (__)\_) (__)"
+        shell: bash
+        
       ## create application-secret.yml
       - name: make application-secret.yml
         #if: contains(github.ref, 'develop')
