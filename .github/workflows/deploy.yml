@@ -65,8 +65,8 @@ jobs:
             echo -e "\
              +------- git pull... "
             cd "/home/ubuntu/Todoary-Server" || exit 1
-            git reset --hard origin/Develop
-            git pull origin Develop
+            git reset --hard origin/Feature/CICD
+            git pull origin Feature/CICD
 
             ./scripts/build.sh
             ./scripts/stop.sh
