@@ -55,8 +55,19 @@ jobs:
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             whoami
-            cd /var/www/Todoary-Server/
+            cd /home/ubuntu/Todoary-Server
             echo "${{ secrets.SECRET_YML }}" > ./src/main/resources/application-secret.yml
+            echo -e "\
+             +------------------------------------+
+             |              1. build              |
+             +------------------------------------+"
+            
+            echo -e "\
+             +------- git pull... "
+            cd "/home/ubuntu/Todoary-Server" || exit 1
+            git reset --hard origin/Develop
+            git pull origin Develop
+
             ./scripts/build.sh
             ./scripts/stop.sh
             ./scripts/start.sh

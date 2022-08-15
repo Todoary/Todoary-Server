@@ -5,7 +5,7 @@ echo -e "\
  |              2. stop               |
  +------------------------------------+"
 
-PROJECT_ROOT="/var/www/Todoary-Server"
+PROJECT_ROOT="/home/ubuntu/Todoary-Server"
 JAR_FILE="$PROJECT_ROOT/build/libs/todoary-0.0.1-SNAPSHOT.jar"
 
 DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
