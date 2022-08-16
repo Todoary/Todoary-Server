@@ -45,7 +45,7 @@ public class StickerController {
      * 6.1 스티커 조회 api
      */
     @GetMapping(value = "", params = "createdDate")
-    public BaseResponse<List<GetStickerRes>> getDiaryListByDate(HttpServletRequest request,
+    public BaseResponse<List<GetStickerRes>> getStickerListByDate(HttpServletRequest request,
                                                           @RequestParam("createdDate") String created_at) {
         try {
             Long diaryId = getDiaryIdFromRequest(request);
