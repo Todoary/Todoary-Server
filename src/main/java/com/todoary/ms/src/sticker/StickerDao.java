@@ -22,7 +22,7 @@ public class StickerDao {
 
 
     public List<GetStickerRes> selectStickerListByDate(Long diaryId) {
-        String selectStickerByDateQuery = "SELECT id, user_id, diary_id,sticker_id,x,y, created_date " +
+        String selectStickerByDateQuery = "SELECT id, user_id, diary_id,sticker_id,locationX,locationY, created_date " +
                 "FROM diary_sticker " +
                 "WHERE diary_id = ? and DATE(?)=DATE(created_date) " +
                 "ORDER BY created_date ";
@@ -33,8 +33,8 @@ public class StickerDao {
                         rs.getLong("userId"),
                         rs.getLong("diaryId"),
                         rs.getInt("stickerId"),
-                        rs.getDouble("x"),
-                        rs.getDouble("y"),
+                        rs.getString("locationX"),
+                        rs.getString("locationY"),
                         rs.getString("created_date")
                 ),selectStickerByDateParams);
 

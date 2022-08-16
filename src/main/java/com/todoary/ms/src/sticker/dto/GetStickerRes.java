@@ -15,8 +15,8 @@ public class GetStickerRes {
     private Long userId;
     private Long diaryId;
     private Integer stickerId;
-    private Double x;
-    private Double y;
+    private String locationX;
+    private String locationY;
     private String created_at;
 
 }
