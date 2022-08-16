@@ -58,6 +58,14 @@ public class UserProvider {
         }
     }
 
+    public User retrieveByAppleUniqueNo(String provider_id) throws BaseException {
+        try {
+            return userDao.selectByProviderId(provider_id);
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     /**
      * 기본적으로 email로 유저를 확인할 때는 항상 provider와 같이 확인해야 한다.
      * email을 이용하여 확인할 때 provider 파라미터가 주어지지 않는다면
@@ -109,6 +117,15 @@ public class UserProvider {
     public int checkRefreshToken(Long id) throws BaseException {
         try {
             return userDao.checkRefreshToken(id);
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkAppleUniqueNo(String provider_id) throws BaseException {
+        try {
+            return userDao.checkAppleUniqueNo(provider_id);
         } catch (Exception exception) {
             log.warn(exception.getMessage());
             throw new BaseException(DATABASE_ERROR);
