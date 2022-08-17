@@ -19,7 +19,7 @@ public class User {
     private String role;
     private String provider;
     private String provider_id;
-
+    private String fcm_token;
 
     public User(String name, String nickname, String email, String password, String role, String provider, String provider_id){
         this.name = name;
@@ -29,5 +29,15 @@ public class User {
         this.role = role;
         this.provider = provider;
         this.provider_id = provider_id;
+    }
+    public User(String name, String nickname, String email, String password, String role, String provider, String provider_id, String fcm_token){
+        this.name = name;
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.provider = provider;
+        this.provider_id = provider_id;
+        this.fcm_token = fcm_token;
     }
 }

@@ -8,12 +8,12 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class Alarm {
-    private String registration_token;
+    private String fcm_token;
     private String title;
     private String target_date;
     private String target_time;
 
-    public Alarm(String registration_token) {
-        this.registration_token = registration_token;
+    public Alarm(String fcm_token) {
+        this.fcm_token = fcm_token;
     }
 }

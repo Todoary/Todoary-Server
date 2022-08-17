@@ -15,4 +15,5 @@ public class PostUserReq {
     private String password;
     @JsonProperty("isTermsEnable")
     private boolean isTermsEnable;
+    private String fcm_token;
 }

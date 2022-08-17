@@ -15,4 +15,5 @@ public class PostSignupOauth2Req {
     private String providerId;
     @JsonProperty("isTermsEnable")
     private boolean isTermsEnable;
+    private String fcm_token;
 }

@@ -21,8 +21,8 @@ public class FireBaseCloudMessageService {
     private final String API_URL = "https://fcm.googleapis.com/v1/projects/todoary-1304d/messages:send";
     private final ObjectMapper objectMapper;
 
-    public void sendMessageTo(String targetToken, String title, String body) throws IOException { // targetToken : 에 해당하는 device로 보낼 것이다.
-        String message = makeMessage(targetToken, title, body);
+    public void sendMessageTo(String fcm_token, String title, String body) throws IOException { // targetToken : 에 해당하는 device로 보낼 것이다.
+        String message = makeMessage(fcm_token, title, body);
 
         OkHttpClient client = new OkHttpClient(); // okhttp3를 이용해 Http post request 생성
         RequestBody requestBody = RequestBody.create(message,
@@ -42,7 +42,7 @@ public class FireBaseCloudMessageService {
     private String makeMessage(String targetToken, String title, String body) throws JsonParseException, JsonProcessingException {
         FcmMessage fcmMessage = FcmMessage.builder()
                 .message(FcmMessage.Message.builder()
-                        .token(targetToken)
+                        .fcm_token(targetToken)
                         .notification(FcmMessage.Notification.builder()
                                 .title(title)
                                 .body(body)
