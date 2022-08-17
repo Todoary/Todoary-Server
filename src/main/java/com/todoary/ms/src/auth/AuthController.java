@@ -319,12 +319,12 @@ public class AuthController {
                 if (userInfo != null) {
                     log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
                     appleUserInfo = authService.parseUser(userInfo);
-                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),null);
+                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null);
                 }
                 // 약관동의 취소 후 가입시
                 else{
                     log.info("약관동의가 필요합니다.");
-                    getAppleUserRes = new GetAppleUserRes(true, "","",null);
+                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null);
                 }
             } catch (BaseException e) {
                 writeExceptionWithMessage(e, e.getMessage());
@@ -341,9 +341,26 @@ public class AuthController {
                 writeExceptionWithMessage(e, e.getMessage());
                 return new BaseResponse<>(e.getStatus());
             }
-            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),token);
+            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token);
         }
         return new BaseResponse<>(getAppleUserRes);
+    }
+
+    /**
+     * 1.9.3 애플 회원가입 api
+     * [POST] /auth/signup/apple
+     * 소셜 로그인 시도 후 새로운 유저라면 클라이언트가 약관 동의 후에
+     * 이 api 호출하여 최종 회원가입
+     */
+    @PostMapping("/signup/apple")
+    public BaseResponse<BaseResponseStatus> PostSignupApple(HttpServletRequest request, @RequestBody PostSignupOauth2Req postSignupOauth2Req) {
+        try {
+            userService.createOauth2User(postSignupOauth2Req);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException exception) {
+            writeExceptionWithRequest(exception, request, postSignupOauth2Req.toString());
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     public void AssertRefreshTokenEqualAndValid(String token) throws BaseException {
