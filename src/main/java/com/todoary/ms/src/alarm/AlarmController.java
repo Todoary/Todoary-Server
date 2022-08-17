@@ -32,12 +32,12 @@ public class AlarmController {
 
     @PostMapping("/todo")
     public ResponseEntity pushMessage(@RequestBody PostAlarmReq postAlarmReq) {
-        System.out.println(postAlarmReq.getTargetToken() + " "
+        System.out.println(postAlarmReq.getFcm_token() + " "
                 + postAlarmReq.getTitle() + " " + postAlarmReq.getBody());
 
         try {
             firebaseCloudMessageService.sendMessageTo(
-                    postAlarmReq.getTargetToken(),
+                    postAlarmReq.getFcm_token(),
                     postAlarmReq.getTitle(),
                     postAlarmReq.getBody());
             return ResponseEntity.ok().build();
@@ -60,7 +60,7 @@ public class AlarmController {
         for (Alarm alarm : alarms_todo) {
             try {
                 firebaseCloudMessageService.sendMessageTo(
-                        alarm.getRegistration_token(),
+                        alarm.getFcm_token(),
                         "Todoary 알림",
                         alarm.getTitle());
             } catch (IOException e) {
@@ -77,7 +77,7 @@ public class AlarmController {
         for (Alarm alarm : alarms_daily) {
             try {
                 firebaseCloudMessageService.sendMessageTo(
-                        alarm.getRegistration_token(),
+                        alarm.getFcm_token(),
                         "하루기록 알림",
                         "하루기록을 작성해보세요.");
             } catch (IOException e) {
@@ -97,7 +97,7 @@ public class AlarmController {
         for (Alarm alarm : alarms_remind) {
             try {
                 firebaseCloudMessageService.sendMessageTo(
-                        alarm.getRegistration_token(),
+                        alarm.getFcm_token(),
                         "리마인드 알림",
                         "하루기록을 작성한 지 일주일이 경과했습니다.");
             } catch (IOException e) {

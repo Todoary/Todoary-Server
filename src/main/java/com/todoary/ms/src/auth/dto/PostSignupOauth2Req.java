@@ -15,4 +15,13 @@ public class PostSignupOauth2Req {
     private String providerId;
     @JsonProperty("isTermsEnable")
     private boolean isTermsEnable;
+    private String fcm_token;
+
+    public PostSignupOauth2Req(String name, String email, String provider, String providerId, boolean isTermsEnable) {
+        this.name = name;
+        this.email = email;
+        this.provider = provider;
+        this.providerId = providerId;
+        this.isTermsEnable = isTermsEnable;
+    }
 }

@@ -10,7 +10,8 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+resources/static/*.p8
+kanu-keystore.p12
 ### STS ###
 .apt_generated
 .classpath

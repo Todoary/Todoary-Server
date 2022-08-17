@@ -57,7 +57,7 @@ public class UserService {
         }
         String password = passwordEncoder.encode(postSignupOauth2Req.getProviderId());
         User user = new User(postSignupOauth2Req.getName(), nickname, postSignupOauth2Req.getEmail(),
-                password, "ROLE_USER", postSignupOauth2Req.getProvider(), postSignupOauth2Req.getProviderId());
+                password, "ROLE_USER", postSignupOauth2Req.getProvider(), postSignupOauth2Req.getProviderId(), postSignupOauth2Req.getFcm_token());
         createUser(user, postSignupOauth2Req.isTermsEnable());
     }
 
@@ -127,6 +127,14 @@ public class UserService {
         }
     }
 
+    public void modifyFcmToken(Long user_id, String fcm_token) throws BaseException {
+        try {
+            userDao.updateFcmToken(user_id, fcm_token);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 
     public void serviceTerms(Long user_id, String terms, boolean isChecked) throws BaseException {
         if (userProvider.checkId(user_id) == 0)
@@ -175,4 +183,5 @@ public class UserService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
 }

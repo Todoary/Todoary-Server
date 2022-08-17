@@ -2,6 +2,7 @@ package com.todoary.ms.src.auth;
 
 import com.todoary.ms.src.auth.dto.*;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
+import com.todoary.ms.src.auth.model.AppleUserInfo;
 import com.todoary.ms.src.auth.model.PrincipalDetails;
 import com.todoary.ms.src.auth.model.Token;
 import com.todoary.ms.src.user.UserProvider;
@@ -15,6 +16,7 @@ import com.todoary.ms.util.BaseResponseStatus;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -25,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -44,9 +47,10 @@ public class AuthController {
     private final AuthService authService;
     private final AuthProvider authProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final AppleUtil appleUtil;
 
     @Autowired
-    public AuthController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserService userService, UserProvider userProvider, AuthService authService, AuthProvider authProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
+    public AuthController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserService userService, UserProvider userProvider, AuthService authService, AuthProvider authProvider, AuthenticationManagerBuilder authenticationManagerBuilder, AppleUtil appleUtil) {
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
@@ -54,6 +58,7 @@ public class AuthController {
         this.authService = authService;
         this.authProvider = authProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.appleUtil = appleUtil;
     }
 
 
@@ -66,6 +71,10 @@ public class AuthController {
      */
     @PostMapping("/signin")
     public BaseResponse<PostSigninRes> login(HttpServletRequest request, @RequestBody PostSigninReq postSigninReq) {
+        if (postSigninReq.getFcm_token() == null) {
+            return new BaseResponse<>(EMPTY_FCMTOKEN);
+        }
+
         User user = null;
         try {
             user = userProvider.retrieveByEmail(postSigninReq.getEmail());
@@ -79,10 +88,13 @@ public class AuthController {
         Authentication authentication = null;
         try {
             authentication = attemptAuthentication(user);
+            checkFCMToken(user.getId(), user.getFcm_token(), postSigninReq.getFcm_token());
         } catch (BaseException e) {
             writeExceptionWithRequest(e, request, postSigninReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
+
+
         PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Long user_id = userEntity.getUser().getId();
@@ -102,6 +114,10 @@ public class AuthController {
      */
     @PostMapping("/signin/auto")
     public BaseResponse<PostAutoSigninRes> autoLogin(HttpServletRequest request, @RequestBody PostAutoSigninReq postAutoSigninReq) {
+        if (postAutoSigninReq.getFcm_token() == null) {
+            return new BaseResponse<>(EMPTY_FCMTOKEN);
+        }
+
         User user = null;
         try {
             user = userProvider.retrieveByEmail(postAutoSigninReq.getEmail());
@@ -114,6 +130,7 @@ public class AuthController {
         Authentication authentication = null;
         try {
             authentication = attemptAuthentication(user);
+            checkFCMToken(user.getId(), user.getFcm_token(), postAutoSigninReq.getFcm_token());
         } catch (BaseException e) {
             writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
             return new BaseResponse<>(e.getStatus());
@@ -140,12 +157,26 @@ public class AuthController {
      */
     @PostMapping("/jwt")
     public BaseResponse<PostAccessRes> postAccess(HttpServletRequest request, @RequestBody PostAccessReq postAccessReq) {
+        if (postAccessReq.getFcm_token() == null) {
+            return new BaseResponse<>(EMPTY_FCMTOKEN);
+        }
+
         String refreshToken = postAccessReq.getRefreshToken();
         try {
             AssertRefreshTokenEqualAndValid(refreshToken);
         } catch (BaseException exception) {
             writeExceptionWithRequest(exception, request, postAccessReq.toString());
             return new BaseResponse<>(exception.getStatus());
+        }
+
+        User user = null;
+        try {
+            Long user_id = Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshToken));
+            user = userProvider.retrieveById(user_id);
+            checkFCMToken(user_id, user.getFcm_token(), postAccessReq.getFcm_token());
+        } catch (BaseException e) {
+            writeExceptionWithRequest(e, request, postAccessReq.toString());
+            return new BaseResponse<>(e.getStatus());
         }
 
         try {
@@ -178,9 +209,12 @@ public class AuthController {
      */
     @PostMapping("/signup")
     public BaseResponse<String> postUser(HttpServletRequest request, @RequestBody PostUserReq postUserReq) {
+        if (postUserReq.getFcm_token() == null) {
+            return new BaseResponse<>(EMPTY_FCMTOKEN);
+        }
         try {
             String encodedPassword = passwordEncoder.encode(postUserReq.getPassword());
-            User user = new User(postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none");
+            User user = new User(postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none", postUserReq.getFcm_token());
             userService.createUser(user, postUserReq.isTermsEnable());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
@@ -197,6 +231,10 @@ public class AuthController {
      */
     @PostMapping("/signup/oauth2")
     public BaseResponse<BaseResponseStatus> PostSignupOauth2(HttpServletRequest request, @RequestBody PostSignupOauth2Req postSignupOauth2Req) {
+        if (postSignupOauth2Req.getFcm_token() == null) {
+            return new BaseResponse<>(EMPTY_FCMTOKEN);
+        }
+
         try {
             userService.createOauth2User(postSignupOauth2Req);
             return new BaseResponse<>(SUCCESS);
@@ -266,6 +304,72 @@ public class AuthController {
         }
     }
 
+    /**
+     * 애플 로그인 리다이렉트 API
+     * /auth/apple/redirect
+     *
+     * @param request, code, id_token, userInfo
+     * @return token
+     */
+    @RequestMapping("/apple/redirect")
+    public BaseResponse<PostAutoSigninRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestParam("code")String code, @RequestParam("id_token")String id_token,@RequestParam(value= "user", required = false)String userInfo){
+        PostSignupAppleReq postSignupAppleReq = new PostSignupAppleReq(code, id_token);
+        AppleUserInfo appleUserInfo = null;
+        String provider = "apple";
+        String provider_id = null; //appleUniqueNo
+        JSONObject tokenResponse = null;
+        User user = null;
+        Token token = null;
+
+        /* create client_secret */
+        try {
+            String client_secret = appleUtil.createClientSecret();
+            tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret,postSignupAppleReq.getCode());
+        } catch (IOException e) {
+            writeExceptionWithMessage(e, e.getMessage());
+            return new BaseResponse<>(APPLE_Client_SECRET_ERROR);
+        }
+
+        /* decode id_token */
+        if (tokenResponse.get("error") == null ) {
+            JSONObject payload = appleUtil.decodeFromIdToken(tokenResponse.getAsString("id_token"));
+            provider_id = payload.getAsString("sub");
+        }
+        else return new BaseResponse<>(INVALID_APPLE_AUTH);
+
+        /* 유저확인 */
+        try {
+            if (userProvider.checkAppleUniqueNo(provider_id) == 1)
+                user = userProvider.retrieveByAppleUniqueNo(provider_id);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+
+        if (user == null) {
+            try {
+                log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
+                appleUserInfo = authService.parseUser(userInfo);
+                PostSignupOauth2Req postSignupOauth2Req = new PostSignupOauth2Req(appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,true);
+                userService.createOauth2User(postSignupOauth2Req);
+            } catch (BaseException e) {
+                writeExceptionWithMessage(e, e.getMessage());
+                return new BaseResponse<>(e.getStatus());
+            }
+        }
+        else log.info("애플 로그인 기록이 있습니다. 로그인을 진행합니다.");
+
+        /* token 발급 */
+        try {
+            user = userProvider.retrieveByAppleUniqueNo(provider_id);
+            token = authService.registerNewTokenForUser(user.getId());
+        } catch (BaseException e) {
+            writeExceptionWithMessage(e, e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+        PostAutoSigninRes postAutoSigninRes = new PostAutoSigninRes(token);
+        return new BaseResponse<>(postAutoSigninRes);
+    }
+
     public void AssertRefreshTokenEqualAndValid(String token) throws BaseException {
         try {
             Jwts
@@ -295,6 +399,16 @@ public class AuthController {
             return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         } catch (Exception e) {
             throw new BaseException(USERS_DISACCORD_PASSWORD);
+        }
+    }
+
+    public void checkFCMToken(Long user_id, String fcm_token, String input_fcm_token) throws BaseException {
+        if (!fcm_token.equals(input_fcm_token)) {
+            try {
+                userService.modifyFcmToken(user_id, input_fcm_token);
+            } catch (BaseException e) {
+                throw new BaseException(MODIFY_FAIL_FCMTOKEN);
+            }
         }
     }
 }

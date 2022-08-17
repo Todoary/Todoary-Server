@@ -24,6 +24,10 @@ public enum BaseResponseStatus {
     INVALID_USER_JWT(false,2004,"권한이 없는 유저의 접근입니다."),
     INVALID_AUTH(false, 2005, "유효하지 않은 회원 정보입니다."),
     DIFFERENT_REFRESH_TOKEN(false, 2006, "유저 정보와 일치하지 않는 refresh token입니다."),
+    APPLE_Client_SECRET_ERROR(false, 2007, "클라이언트 시크릿 생성에 실패하였습니다."),
+    INVALID_APPLE_AUTH(false, 2008, "유효하지 않은 토큰 입니다."),
+    PARSE_USER_ERROR(false, 2009, "애플 유저 조회에 실패하였습니다."),
+
 
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
@@ -79,6 +83,8 @@ public enum BaseResponseStatus {
 
     //[PATCH] /users/{userIdx}
     MODIFY_FAIL_USERNAME(false,4014,"유저네임 수정 실패"),
+    MODIFY_FAIL_FCMTOKEN(false,4015,"FCM Token 수정 실패"),
+    EMPTY_FCMTOKEN(false,4016,"FCM Token을 입력해주세요."),
 
 
     DELETE_USER_FAIL(false, 4008, "유저 정보 삭제에 실패하였습니다."),
