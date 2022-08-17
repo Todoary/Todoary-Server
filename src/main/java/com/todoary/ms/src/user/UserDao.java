@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import javax.sql.DataSource;
 
 @Repository
@@ -21,9 +20,9 @@ public class UserDao {
 
 
     public User insertUser(User user, boolean isTermsEnable) {
-        String insertUserQuery = "insert into user (name,nickname,email,password,role,provider,provider_id, terms) values (?,?,?,?,?,?,?, ?)";
+        String insertUserQuery = "insert into user (name,nickname,email,password,role,provider,provider_id, terms, fcm_token) values (?,?,?,?,?,?,?,?,?)";
         Object[] insertUserParams = new Object[]{user.getName(), user.getNickname(), user.getEmail(), user.getPassword(),
-                user.getRole(), user.getProvider(), user.getProvider_id(), isTermsEnable};
+                user.getRole(), user.getProvider(), user.getProvider_id(), isTermsEnable, user.getFcm_token()};
 
         this.jdbcTemplate.update(insertUserQuery, insertUserParams);
 
@@ -35,7 +34,7 @@ public class UserDao {
     }
 
     public User selectByEmail(String email, String provider) {
-        String selectByEmailQuery = "select id, name, nickname,email, password,profile_img_url, introduce, role, provider, provider_id from user where email = ? and provider = ? and status = 1";
+        String selectByEmailQuery = "select id, name, nickname,email, password,profile_img_url, introduce, role, provider, provider_id,fcm_token from user where email = ? and provider = ? and status = 1";
         Object[] selectByEmailParams = new Object[]{email, provider};
         try {
             return this.jdbcTemplate.queryForObject(selectByEmailQuery,
@@ -49,7 +48,8 @@ public class UserDao {
                             rs.getString("introduce"),
                             rs.getString("role"),
                             rs.getString("provider"),
-                            rs.getString("provider_id")),
+                            rs.getString("provider_id"),
+                            rs.getString("fcm_token")),
                     selectByEmailParams);
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -57,7 +57,7 @@ public class UserDao {
     }
 
     public User selectById(Long user_id) {
-        String selectByIdQuery = "select id, name,nickname,email,password,profile_img_url,introduce,role, provider, provider_id from user where id = ? and status = 1";
+        String selectByIdQuery = "select id, name,nickname,email,password,profile_img_url,introduce,role, provider, provider_id, fcm_token from user where id = ? and status = 1";
         return this.jdbcTemplate.queryForObject(selectByIdQuery,
                 (rs, rowNum) -> new User(
                         rs.getLong("id"),
@@ -69,12 +69,13 @@ public class UserDao {
                         rs.getString("introduce"),
                         rs.getString("role"),
                         rs.getString("provider"),
-                        rs.getString("provider_id")),
+                        rs.getString("provider_id"),
+                        rs.getString("fcm_token")),
                 user_id);
     }
 
     public User selectByProviderId(String provider_id) {
-        String selectByIdQuery = "select id, name,nickname,email,password,profile_img_url,introduce,role, provider, provider_id from user where provider_id = ? and status = 1";
+        String selectByIdQuery = "select id, name,nickname,email,password,profile_img_url,introduce,role, provider, provider_id, fcm_token from user where provider_id = ? and status = 1";
         return this.jdbcTemplate.queryForObject(selectByIdQuery,
                 (rs, rowNum) -> new User(
                         rs.getLong("id"),
@@ -86,7 +87,8 @@ public class UserDao {
                         rs.getString("introduce"),
                         rs.getString("role"),
                         rs.getString("provider"),
-                        rs.getString("provider_id")),
+                        rs.getString("provider_id"),
+                        rs.getString("fcm_token")),
                 provider_id);
     }
 
@@ -166,6 +168,12 @@ public class UserDao {
         this.jdbcTemplate.update(updatePasswordQuery, updatePasswordParams);
     }
 
+    public void updateFcmToken(Long user_id, String fcm_token) {
+        String updateFcmTokenQuery = "update user set fcm_token = ? where id = ?";
+        Object[] updateFcmTokenParams = new Object[]{fcm_token, user_id};
+        this.jdbcTemplate.update(updateFcmTokenQuery, updateFcmTokenParams);
+    }
+
     public int checkRefreshToken(Long id) {
         String checkRefreshTokenQuery = "select exists(select user_id from token where user_id = ?)";
         Long checkRefreshTokenParam = id;
@@ -206,4 +214,5 @@ public class UserDao {
 
         this.jdbcTemplate.update(deleteByUserStatusQuery,target_date);
     }
+
 }
