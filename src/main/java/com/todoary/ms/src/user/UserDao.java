@@ -73,6 +73,24 @@ public class UserDao {
                 user_id);
     }
 
+    public User selectByProviderId(String provider_id) {
+        String selectByIdQuery = "select id, name,nickname,email,password,profile_img_url,introduce,role, provider, provider_id from user where provider_id = ? and status = 1";
+        return this.jdbcTemplate.queryForObject(selectByIdQuery,
+                (rs, rowNum) -> new User(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getString("nickname"),
+                        rs.getString("email"),
+                        rs.getString("password"),
+                        rs.getString("profile_img_url"),
+                        rs.getString("introduce"),
+                        rs.getString("role"),
+                        rs.getString("provider"),
+                        rs.getString("provider_id")),
+                provider_id);
+    }
+
+
     public int checkEmail(String email, String provider) {
         String checkEmailQuery = "select exists(select email, provider from user where email = ? and provider = ?)";
         Object[] checkEmailParams = new Object[]{email, provider};
@@ -95,6 +113,12 @@ public class UserDao {
         String checkIdQuery = "select exists(select nickname from user where id = ? and status = 1)";
         Long checkIdParam = id;
         return this.jdbcTemplate.queryForObject(checkIdQuery, int.class, checkIdParam);
+    }
+
+    public int checkAppleUniqueNo(String provider_id) {
+        String checkAppleUniqueNoQuery = "select exists(select email, provider from user where provider_id = ?)";
+        String checkAppleUniqueNoParams = provider_id;
+        return this.jdbcTemplate.queryForObject(checkAppleUniqueNoQuery, int.class, checkAppleUniqueNoParams);
     }
 
     public String updateProfileImg(Long user_id, String profile_img_url) {
