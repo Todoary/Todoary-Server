@@ -75,7 +75,7 @@ public class UserDao {
     }
 
     public User selectByProviderId(String provider_id) {
-        String selectByIdQuery = "select id, name,nickname,email,password,profile_img_url,introduce,role, provider, provider_id from user where provider_id = ? and status = 1";
+        String selectByIdQuery = "select id, name,nickname,email,password,profile_img_url,introduce,role, provider, provider_id, fcm_token from user where provider_id = ? and status = 1";
         return this.jdbcTemplate.queryForObject(selectByIdQuery,
                 (rs, rowNum) -> new User(
                         rs.getLong("id"),
@@ -87,7 +87,8 @@ public class UserDao {
                         rs.getString("introduce"),
                         rs.getString("role"),
                         rs.getString("provider"),
-                        rs.getString("provider_id")),
+                        rs.getString("provider_id"),
+                        rs.getString("fcm_token")),
                 provider_id);
     }
 
