@@ -11,6 +11,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 resources/static/*.p8
+*.p8
 kanu-keystore.p12
 ### STS ###
 .apt_generated

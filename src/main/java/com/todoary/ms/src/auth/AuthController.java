@@ -279,7 +279,7 @@ public class AuthController {
      * @return token
      */
     @RequestMapping("/apple/redirect")
-    public BaseResponse<PostAutoSigninRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestParam("code")String code, @RequestParam("id_token")String id_token,@RequestParam(value= "user", required = false)String userInfo){
+    public BaseResponse<GetAppleUserRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestParam("code")String code, @RequestParam("id_token")String id_token,@RequestParam(value= "user", required = false)String userInfo){
         PostSignupAppleReq postSignupAppleReq = new PostSignupAppleReq(code, id_token);
         AppleUserInfo appleUserInfo = null;
         String provider = "apple";
@@ -287,6 +287,7 @@ public class AuthController {
         JSONObject tokenResponse = null;
         User user = null;
         Token token = null;
+        GetAppleUserRes getAppleUserRes = null;
 
         /* create client_secret */
         try {
@@ -304,7 +305,7 @@ public class AuthController {
         }
         else return new BaseResponse<>(INVALID_APPLE_AUTH);
 
-        /* 유저확인 */
+        /* DB 유저확인 */
         try {
             if (userProvider.checkAppleUniqueNo(provider_id) == 1)
                 user = userProvider.retrieveByAppleUniqueNo(provider_id);
@@ -314,27 +315,35 @@ public class AuthController {
 
         if (user == null) {
             try {
-                log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
-                appleUserInfo = authService.parseUser(userInfo);
-                PostSignupOauth2Req postSignupOauth2Req = new PostSignupOauth2Req(appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,true);
-                userService.createOauth2User(postSignupOauth2Req);
+                // 약관동의 처음
+                if (userInfo != null) {
+                    log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
+                    appleUserInfo = authService.parseUser(userInfo);
+                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),null);
+                }
+                // 약관동의 취소 후 가입시
+                else{
+                    log.info("약관동의가 필요합니다.");
+                    getAppleUserRes = new GetAppleUserRes(true, "","",null);
+                }
             } catch (BaseException e) {
                 writeExceptionWithMessage(e, e.getMessage());
                 return new BaseResponse<>(e.getStatus());
             }
         }
-        else log.info("애플 로그인 기록이 있습니다. 로그인을 진행합니다.");
-
-        /* token 발급 */
-        try {
-            user = userProvider.retrieveByAppleUniqueNo(provider_id);
-            token = authService.registerNewTokenForUser(user.getId());
-        } catch (BaseException e) {
-            writeExceptionWithMessage(e, e.getMessage());
-            return new BaseResponse<>(e.getStatus());
+        else
+        {
+            log.info("애플 로그인 기록이 있습니다. 로그인을 진행합니다.");
+            try {
+                user = userProvider.retrieveByAppleUniqueNo(provider_id);
+                token = authService.registerNewTokenForUser(user.getId());
+            } catch (BaseException e) {
+                writeExceptionWithMessage(e, e.getMessage());
+                return new BaseResponse<>(e.getStatus());
+            }
+            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),token);
         }
-        PostAutoSigninRes postAutoSigninRes = new PostAutoSigninRes(token);
-        return new BaseResponse<>(postAutoSigninRes);
+        return new BaseResponse<>(getAppleUserRes);
     }
 
     public void AssertRefreshTokenEqualAndValid(String token) throws BaseException {
