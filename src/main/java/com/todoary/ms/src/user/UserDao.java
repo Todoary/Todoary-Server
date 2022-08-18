@@ -118,7 +118,7 @@ public class UserDao {
     }
 
     public int checkAppleUniqueNo(String provider_id) {
-        String checkAppleUniqueNoQuery = "select exists(select email, provider from user where provider_id = ?)";
+        String checkAppleUniqueNoQuery = "select exists(select email, provider from user where provider_id = ?and status = 1)";
         String checkAppleUniqueNoParams = provider_id;
         return this.jdbcTemplate.queryForObject(checkAppleUniqueNoQuery, int.class, checkAppleUniqueNoParams);
     }
