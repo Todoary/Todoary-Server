@@ -2,6 +2,7 @@ package com.todoary.ms.src.diary;
 
 
 import com.todoary.ms.src.diary.dto.PostDiaryReq;
+import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +15,13 @@ public class DiaryService {
 
     private final DiaryDao diaryDao;
     private final DiaryProvider diaryProvider;
+    private final UserProvider userProvider;
 
     @Autowired
-    public DiaryService(DiaryProvider diaryProvider, DiaryDao diaryDao) {
+    public DiaryService(DiaryProvider diaryProvider, DiaryDao diaryDao, UserProvider userProvider) {
         this.diaryProvider = diaryProvider;
         this.diaryDao = diaryDao;
+        this.userProvider=userProvider;
     }
 
     public void createOrModifyDiary(Long userId, PostDiaryReq postDiaryReq, String createdDate) throws BaseException {
@@ -41,4 +44,8 @@ public class DiaryService {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+
+
+
 }
