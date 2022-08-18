@@ -35,15 +35,6 @@ jobs:
           echo "${{ secrets.SECRET_YML }}" > ./application-secret.yml
         shell: bash
 
-      ## create AuthKey_Q97Q56DJS6.p8
-      - name: make AuthKey_Q97Q56DJS6.p8
-        #if: contains(github.ref, 'develop')
-        run: |
-          cd ./src/main/resources/static
-          touch ./AuthKey_Q97Q56DJS6.p8
-          echo "${{ secrets.AUTH_KEY }}" > ./AuthKey_Q97Q56DJS6.p8
-        shell: bash
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
@@ -65,14 +56,19 @@ jobs:
           script: |
             whoami
             cd /home/ubuntu/Todoary-Server
-            echo "${{ secrets.SECRET_YML }}" > ./src/main/resources/application-secret.yml
-            echo -e "\
+             echo -e "\
              +------------------------------------+
              |              1. build              |
              +------------------------------------+"
             
+            echo ">>>>>> making secret yml..."
+            echo "${{ secrets.SECRET_YML }}" > ./src/main/resources/application-secret.yml
+           
+            echo ">>>>>> making auth key..."
+            echo "${{ secrets.AUTH_KEY }}" > ./src/main/resources/static/AuthKey_Q97Q56DJS6.p8
+            
             echo -e "\
-             +------- git pull... "
+             >>>>>> git pull... "
             cd "/home/ubuntu/Todoary-Server" || exit 1
             git reset --hard origin/Develop
             git pull origin Develop
