@@ -27,9 +27,11 @@ public class DiaryProvider {
             return (diaryDao.selectExistsUsersDiaryById(userId, createdDate) == 1);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
         }
     }
+
+
 
     public void assertUsersDiaryValidByDate(Long userId, String createdDate) throws BaseException {
         if (!checkUsersDiaryById(userId, createdDate))

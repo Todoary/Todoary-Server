@@ -23,7 +23,6 @@ public class DiaryDao {
     }
 
 
-
     public void insertOrUpdateDiary(long userId, PostDiaryReq postDiaryReq, String createdDate) {
         String insertDiaryQuery = "INSERT INTO diary (user_id, title, content, created_date) VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE title=?, content=?";
         Object[] insertDiaryParams=new Object[]{userId, postDiaryReq.getTitle(), postDiaryReq.getContent(), createdDate, postDiaryReq.getTitle(), postDiaryReq.getContent()};
@@ -70,4 +69,7 @@ public class DiaryDao {
         return this.jdbcTemplate.query(selectIsDiaryInMonthQuery,
                 (rs, rowNum) -> (rs.getInt("day")), selectIsDiaryInMonthParams);
     }
+
+
+
 }
