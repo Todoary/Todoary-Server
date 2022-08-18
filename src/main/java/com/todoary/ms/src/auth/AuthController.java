@@ -352,12 +352,12 @@ public class AuthController {
                 if (userInfo != null) {
                     log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
                     appleUserInfo = authService.parseUser(userInfo);
-                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null);
+                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null,"");
                 }
                 // 약관동의 취소 후 가입시
                 else{
                     log.info("약관동의가 필요합니다.");
-                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null);
+                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null,"");
                 }
             } catch (BaseException e) {
                 writeExceptionWithMessage(e, e.getMessage());
@@ -374,7 +374,7 @@ public class AuthController {
                 writeExceptionWithMessage(e, e.getMessage());
                 return new BaseResponse<>(e.getStatus());
             }
-            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token);
+            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token,code);
         }
         return new BaseResponse<>(getAppleUserRes);
     }
@@ -386,13 +386,42 @@ public class AuthController {
      * 이 api 호출하여 최종 회원가입
      */
     @PostMapping("/signup/apple")
-    public BaseResponse<BaseResponseStatus> PostSignupApple(HttpServletRequest request, @RequestBody PostSignupOauth2Req postSignupOauth2Req) {
+    public BaseResponse<BaseResponseStatus> PostSignupApple(@RequestBody PostSignupOauth2Req postSignupOauth2Req) {
         try {
             userService.createOauth2User(postSignupOauth2Req);
             return new BaseResponse<>(SUCCESS);
-        } catch (BaseException exception) {
-            writeExceptionWithRequest(exception, request, postSignupOauth2Req.toString());
-            return new BaseResponse<>(exception.getStatus());
+        } catch (BaseException e) {
+            writeExceptionWithMessage(e, e.getMessage());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 1.9.4 애플 회원 탈퇴 api
+     * [POST] /auth/revoke/apple
+     * @param request, code
+     * @return token
+     */
+    @PostMapping("/revoke/apple")
+    public BaseResponse<BaseResponseStatus> PostRevokeApple(HttpServletRequest request, @RequestBody String code) {
+        JSONObject tokenResponse = null;
+        String appleAccessToken = null;
+        /* create client_secret */
+        try {
+            String client_secret = appleUtil.createClientSecret();
+            tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret,code);
+            /* decode id_token */
+            if (tokenResponse.get("error") == null ) {
+                appleAccessToken = tokenResponse.getAsString("access_token");
+                appleUtil.revokeUser(client_secret,appleAccessToken);
+                return new BaseResponse<>(SUCCESS);
+            }
+            else {
+                return new BaseResponse<>(INVALID_APPLE_AUTH);
+            }
+        } catch (IOException e) {
+            writeExceptionWithMessage(e, e.getMessage());
+            return new BaseResponse<>(APPLE_Client_SECRET_ERROR);
         }
     }
 
