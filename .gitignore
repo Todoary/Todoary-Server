@@ -1,16 +1,13 @@
 HELP.md
 .gradle
 build/
-<<<<<<< HEAD
-=======
-*.properties
 **/firebase/
 **/secret/
->>>>>>> 54330c111d532d60ae15c2aa000e11619797974f
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 resources/static/*.p8
+AuthKey_Q97Q56DJS6.p8
 *.p8
 kanu-keystore.p12
 ### STS ###
@@ -19,10 +16,6 @@ kanu-keystore.p12
 .factorypath
 .project
 .settings
-<<<<<<< HEAD
-=======
-
->>>>>>> 54330c111d532d60ae15c2aa000e11619797974f
 .springBeans
 .sts4-cache
 bin/
@@ -47,8 +40,4 @@ out/
 
 ### VS Code ###
 .vscode/
-<<<<<<< HEAD
-
-=======
->>>>>>> 54330c111d532d60ae15c2aa000e11619797974f
 src/main/resources/application-secret.yml
