@@ -73,6 +73,6 @@ jobs:
             git reset --hard origin/Test
             git pull origin Test
 
-            ./scripts/build.sh
-            ./scripts/stop.sh
-            ./scripts/start.sh
+            ./test-scripts/build.sh
+            ./test-scripts/stop.sh
+            ./test-scripts/start.sh
