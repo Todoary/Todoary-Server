@@ -2,7 +2,6 @@ package com.todoary.ms.src.diary;
 
 import com.todoary.ms.src.diary.DiaryDao;
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
-import com.todoary.ms.src.diary.dto.GetStickerRes;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -32,34 +31,23 @@ public class DiaryProvider {
         }
     }
 
-
-
     public void assertUsersDiaryValidByDate(Long userId, String createdDate) throws BaseException {
         if (!checkUsersDiaryById(userId, createdDate))
             throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
     }
 
-    public GetDiaryByDateRes retrieveDiaryByDate(Long userId, String createdDate) throws BaseException {
+    public GetDiaryByDateRes retrieveDiaryByDate(Long userId, String created_at) throws BaseException {
         try {
-            return diaryDao.selectDiaryByDate(userId, createdDate);
+            return diaryDao.selectDiaryByDate(userId, created_at);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
     public List<Integer> retrieveIsDiaryInMonth(Long userId, String yearAndMonth) throws BaseException {
         try {
             return diaryDao.selectIsDiaryInMonth(userId, yearAndMonth);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
-        }
-    }
-
-    public List<GetStickerRes> retrieveStickerListByDiary(Long diaryId) throws BaseException {
-        try {
-            return diaryDao.selectStickerListByDate(diaryId);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

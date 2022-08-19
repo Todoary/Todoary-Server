@@ -1,4 +1,4 @@
-package com.todoary.ms.src.diary.dto;
+package com.todoary.ms.src.sticker.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
@@ -15,12 +15,8 @@ public class GetStickerRes {
     private Long userId;
     private Long diaryId;
     private Integer stickerId;
-    private Double locationX;
-    private Double locationY;
-    private Double width;
-    private Double height;
-    private Double rotation;
-    private boolean flipped;
-    private String created_date;
+    private String locationX;
+    private String locationY;
+    private String created_at;
 
 }
