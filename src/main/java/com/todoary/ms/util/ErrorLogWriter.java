@@ -16,8 +16,8 @@ public class ErrorLogWriter {
      * @param request
      */
     public static void writeExceptionWithAuthorizedRequest(Exception exception, HttpServletRequest request) {
-        log.error("{} - user id: {} | query string: {} | uri: {} {}", exception.getMessage(), request.getAttribute("user_id").toString(),
-                request.getMethod(), parameterMapToString(request.getParameterMap()), request.getRequestURI());
+        log.error("{} - user id: {} | uri: {} {} | query string: {}", exception.getMessage(), request.getAttribute("user_id").toString(),
+                request.getMethod(), request.getRequestURI(), parameterMapToString(request.getParameterMap()));
     }
 
     /**

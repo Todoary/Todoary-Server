@@ -29,6 +29,7 @@ public class DiaryService {
             diaryDao.insertOrUpdateDiary(userId, postDiaryReq, createdDate);
         } catch (Exception e) {
             e.printStackTrace();
+            log.warn(e.getMessage());
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
