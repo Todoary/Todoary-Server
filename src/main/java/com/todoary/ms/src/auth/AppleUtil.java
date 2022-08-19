@@ -172,6 +172,18 @@ public class AppleUtil {
         return getTokenResponse(tokenRequest);
     }
 
+    public JSONObject  validateAppleRefreshToken(String client_secret, String appleRefreshToken) {
+
+        Map<String, String> tokenRequest = new HashMap<>();
+
+        tokenRequest.put("client_id", AUD);
+        tokenRequest.put("client_secret", client_secret);
+        tokenRequest.put("refresh_token", appleRefreshToken);
+        tokenRequest.put("grant_type", "refresh_token");
+
+        return getTokenResponse(tokenRequest);
+    }
+
     private JSONObject  getTokenResponse(Map<String, String> tokenRequest) {
 
         try {

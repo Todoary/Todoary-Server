@@ -321,6 +321,7 @@ public class AuthController {
         User user = null;
         Token token = null;
         GetAppleUserRes getAppleUserRes = null;
+        String appleRefreshToken = null;
 
         /* create client_secret */
         try {
@@ -335,6 +336,7 @@ public class AuthController {
         if (tokenResponse.get("error") == null ) {
             JSONObject payload = appleUtil.decodeFromIdToken(tokenResponse.getAsString("id_token"));
             provider_id = payload.getAsString("sub");
+            appleRefreshToken = tokenResponse.getAsString("refresh_token");
         }
         else return new BaseResponse<>(INVALID_APPLE_AUTH);
 
@@ -352,12 +354,12 @@ public class AuthController {
                 if (userInfo != null) {
                     log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
                     appleUserInfo = authService.parseUser(userInfo);
-                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null,"");
+                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null,"",appleRefreshToken);
                 }
                 // 약관동의 취소 후 가입시
                 else{
                     log.info("약관동의가 필요합니다.");
-                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null,"");
+                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null,"",appleRefreshToken);
                 }
             } catch (BaseException e) {
                 writeExceptionWithMessage(e, e.getMessage());
@@ -374,7 +376,7 @@ public class AuthController {
                 writeExceptionWithMessage(e, e.getMessage());
                 return new BaseResponse<>(e.getStatus());
             }
-            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token,code);
+            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token,code,appleRefreshToken);
         }
         return new BaseResponse<>(getAppleUserRes);
     }
@@ -403,13 +405,14 @@ public class AuthController {
      * @return token
      */
     @PostMapping("/revoke/apple")
-    public BaseResponse<BaseResponseStatus> PostRevokeApple(HttpServletRequest request, @RequestBody String code) {
+    public BaseResponse<BaseResponseStatus> PostRevokeApple(HttpServletRequest request, @RequestBody String appleRefreshToken) {
         JSONObject tokenResponse = null;
         String appleAccessToken = null;
+
         /* create client_secret */
         try {
             String client_secret = appleUtil.createClientSecret();
-            tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret,code);
+            tokenResponse = appleUtil.validateAppleRefreshToken(client_secret,appleRefreshToken);
             /* decode id_token */
             if (tokenResponse.get("error") == null ) {
                 appleAccessToken = tokenResponse.getAsString("access_token");
