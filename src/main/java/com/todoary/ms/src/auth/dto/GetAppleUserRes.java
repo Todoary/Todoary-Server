@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@JsonPropertyOrder({"isNewUser", "name", "email","provider","providerId","token"})
+@JsonPropertyOrder({"isNewUser", "name", "email","provider","providerId","token", "code", "appleRefreshToken"})
 @JsonIgnoreProperties({"newUser", "deleted"}) // newUser/isNewUser 중복 방지
 public class GetAppleUserRes {
 
@@ -20,4 +20,6 @@ public class GetAppleUserRes {
     private String provider;
     private String providerId;
     private Token token;
+    private String code;
+    private String appleRefreshToken;
 }

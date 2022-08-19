@@ -2,16 +2,8 @@ package com.todoary.ms.src.auth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.crypto.ECDSASigner;
-import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.todoary.ms.util.BaseException;
-import com.todoary.ms.util.BaseResponseStatus;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
@@ -28,20 +20,19 @@ import org.apache.http.util.EntityUtils;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.InvalidKeyException;
 import java.security.PrivateKey;
-import java.security.interfaces.ECPrivateKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -181,6 +172,18 @@ public class AppleUtil {
         return getTokenResponse(tokenRequest);
     }
 
+    public JSONObject  validateAppleRefreshToken(String client_secret, String appleRefreshToken) {
+
+        Map<String, String> tokenRequest = new HashMap<>();
+
+        tokenRequest.put("client_id", AUD);
+        tokenRequest.put("client_secret", client_secret);
+        tokenRequest.put("refresh_token", appleRefreshToken);
+        tokenRequest.put("grant_type", "refresh_token");
+
+        return getTokenResponse(tokenRequest);
+    }
+
     private JSONObject  getTokenResponse(Map<String, String> tokenRequest) {
 
         try {
@@ -196,5 +199,32 @@ public class AppleUtil {
         }
 
         return null;
+    }
+
+    public void revokeUser(String client_secret,String appleAccessToken) throws IOException {
+
+        if (appleAccessToken != null) {
+            RestTemplate restTemplate = new RestTemplateBuilder().build();
+            String revokeUrl = "https://appleid.apple.com/auth/revoke";
+
+            Map<String, String> tokenRequest = new HashMap<>();
+
+            tokenRequest.put("client_id", AUD);
+            tokenRequest.put("client_secret", client_secret);
+            tokenRequest.put("token", appleAccessToken);
+
+            try {
+                String response = doPost(revokeUrl, tokenRequest);
+                ObjectMapper objectMapper = new ObjectMapper();
+                JSONObject  tokenResponse = objectMapper.readValue(response, JSONObject .class);
+
+                if (tokenRequest != null) {
+                    System.out.println(tokenResponse);
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }
