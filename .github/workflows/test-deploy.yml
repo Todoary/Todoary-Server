@@ -6,7 +6,7 @@ name: deploy
 on:
   # Triggers the workflow on push or pull request events but only for the "Develop" branch
   push:
-    branches: [ "Develop"]
+    branches: [ "Test"]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -32,7 +32,7 @@ jobs:
         run: |
           cd ./src/main/resources
           touch ./application-secret.yml
-          echo "${{ secrets.SECRET_YML }}" > ./application-secret.yml
+          echo "${{ secrets.TEST_SECRET_YML }}" > ./application-secret.yml
         shell: bash
 
       - name: Grant execute permission for gradlew
@@ -55,23 +55,23 @@ jobs:
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             whoami
-            cd /home/ubuntu/Todoary-Server
+            cd /home/ubuntu/Test-Todoary-Server
              echo -e "\
              +------------------------------------+
              |              1. build              |
              +------------------------------------+"
             
             echo ">>>>>> making secret yml..."
-            echo "${{ secrets.SECRET_YML }}" > ./src/main/resources/application-secret.yml
+            echo "${{ secrets.TEST_SECRET_YML }}" > ./src/main/resources/application-secret.yml
            
             echo ">>>>>> making auth key..."
             echo "${{ secrets.AUTH_KEY }}" > ./src/main/resources/static/AuthKey_Q97Q56DJS6.p8
             
             echo -e "\
              >>>>>> git pull... "
-            cd "/home/ubuntu/Todoary-Server" || exit 1
-            git reset --hard origin/Develop
-            git pull origin Develop
+            cd "/home/ubuntu/Test-Todoary-Server" || exit 1
+            git reset --hard origin/Test
+            git pull origin Test
 
             ./scripts/build.sh
             ./scripts/stop.sh
