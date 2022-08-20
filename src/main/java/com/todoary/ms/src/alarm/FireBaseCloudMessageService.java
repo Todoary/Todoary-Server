@@ -39,10 +39,10 @@ public class FireBaseCloudMessageService {
         System.out.println(response.body().string());
     }
 
-    private String makeMessage(String targetToken, String title, String body) throws JsonParseException, JsonProcessingException {
+    private String makeMessage(String fcm_token, String title, String body) throws JsonParseException, JsonProcessingException {
         FcmMessage fcmMessage = FcmMessage.builder()
                 .message(FcmMessage.Message.builder()
-                        .fcm_token(targetToken)
+                        .token(fcm_token)
                         .notification(FcmMessage.Notification.builder()
                                 .title(title)
                                 .body(body)

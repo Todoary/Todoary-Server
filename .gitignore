@@ -10,6 +10,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+**/apple/AuthKey_Q97Q56DJS6.p8
 resources/static/*.p8
 kanu-keystore.p12
 ### STS ###
