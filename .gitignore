@@ -6,6 +6,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+**/apple/AuthKey_Q97Q56DJS6.p8
 resources/static/*.p8
 AuthKey_Q97Q56DJS6.p8
 *.p8

@@ -17,7 +17,7 @@ public class FcmMessage { // Request를 보낼 때 FCM에서 정해준 형식에
     @Getter
     public static class Message {
         private Notification notification; // 모든 mobile os 를 아우를 수 있다
-        private String fcm_token; // 특정 device에 알림을 보내기 위해 사용 (token / topic / condition 으로 구분 무조건 하나만 선택해야함.)
+        private String token; // 특정 device에 알림을 보내기 위해 사용 (token / topic / condition 으로 구분 무조건 하나만 선택해야함.)
     }
 
     @Builder
