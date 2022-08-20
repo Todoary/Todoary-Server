@@ -68,7 +68,7 @@ jobs:
             echo "${{ secrets.AUTH_KEY }}" > ./src/main/resources/static/AuthKey_Q97Q56DJS6.p8
             
             echo ">>>>>> making firebase key..."
-            echo "${{ secrets.FB_KEY }}" > ./src/main/resources/firebase/firebase_service_key.json
+            echo "${{ secrets.FB_KEY }}" > ./src/main/resources/static/firebase/firebase_service_key.json
             
             echo -e "\
              >>>>>> git pull... "
