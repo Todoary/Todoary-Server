@@ -67,12 +67,12 @@ public class AwsS3Service {
 
             amazonS3Client.deleteObject(this.bucket, (fileName).replace(File.separatorChar, '/'));
         } catch (AmazonServiceException e) {
-            System.err.println(e.getErrorMessage());
+            log.error(e.getMessage());
             throw new BaseException(AWS_ACCESS_DENIED);
         } catch (BaseException e) {
             throw new BaseException(AWS_FILE_NOT_FOUND);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
         return 1;
     }
