@@ -57,7 +57,7 @@ public class UserService {
         }
         String password = passwordEncoder.encode(postSignupOauth2Req.getProviderId());
         User user = new User(postSignupOauth2Req.getName(), nickname, postSignupOauth2Req.getEmail(),
-                password, "ROLE_USER", postSignupOauth2Req.getProvider(), postSignupOauth2Req.getProviderId(), postSignupOauth2Req.getFcm_token());
+                password, "ROLE_USER", postSignupOauth2Req.getProvider(), postSignupOauth2Req.getProviderId());
         createUser(user, postSignupOauth2Req.isTermsEnable());
     }
 
@@ -132,7 +132,7 @@ public class UserService {
             userDao.updateFcmToken(user_id, fcm_token);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(DATABASE_ERROR);
+            throw new BaseException(MODIFY_FAIL_FCMTOKEN);
         }
     }
 

@@ -71,10 +71,6 @@ public class AuthController {
      */
     @PostMapping("/signin")
     public BaseResponse<PostSigninRes> login(HttpServletRequest request, @RequestBody PostSigninReq postSigninReq) {
-        if (postSigninReq.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
-
         User user = null;
         try {
             user = userProvider.retrieveByEmail(postSigninReq.getEmail());
@@ -88,7 +84,6 @@ public class AuthController {
         Authentication authentication = null;
         try {
             authentication = attemptAuthentication(user);
-            checkFCMToken(user.getId(), user.getFcm_token(), postSigninReq.getFcm_token());
         } catch (BaseException e) {
             writeExceptionWithRequest(e, request, postSigninReq.toString());
             return new BaseResponse<>(e.getStatus());
@@ -114,10 +109,6 @@ public class AuthController {
      */
     @PostMapping("/signin/auto")
     public BaseResponse<PostAutoSigninRes> autoLogin(HttpServletRequest request, @RequestBody PostAutoSigninReq postAutoSigninReq) {
-        if (postAutoSigninReq.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
-
         User user = null;
         try {
             user = userProvider.retrieveByEmail(postAutoSigninReq.getEmail());
@@ -130,7 +121,6 @@ public class AuthController {
         Authentication authentication = null;
         try {
             authentication = attemptAuthentication(user);
-            checkFCMToken(user.getId(), user.getFcm_token(), postAutoSigninReq.getFcm_token());
         } catch (BaseException e) {
             writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
             return new BaseResponse<>(e.getStatus());
@@ -157,9 +147,6 @@ public class AuthController {
      */
     @PostMapping("/jwt")
     public BaseResponse<PostAccessRes> postAccess(HttpServletRequest request, @RequestBody PostAccessReq postAccessReq) {
-        if (postAccessReq.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
 
         String refreshToken = postAccessReq.getRefreshToken();
         try {
@@ -173,7 +160,6 @@ public class AuthController {
         try {
             Long user_id = Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshToken));
             user = userProvider.retrieveById(user_id);
-            checkFCMToken(user_id, user.getFcm_token(), postAccessReq.getFcm_token());
         } catch (BaseException e) {
             writeExceptionWithRequest(e, request, postAccessReq.toString());
             return new BaseResponse<>(e.getStatus());
@@ -209,12 +195,9 @@ public class AuthController {
      */
     @PostMapping("/signup")
     public BaseResponse<String> postUser(HttpServletRequest request, @RequestBody PostUserReq postUserReq) {
-        if (postUserReq.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
         try {
             String encodedPassword = passwordEncoder.encode(postUserReq.getPassword());
-            User user = new User(postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none", postUserReq.getFcm_token());
+            User user = new User(postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none");
             userService.createUser(user, postUserReq.isTermsEnable());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
@@ -231,9 +214,6 @@ public class AuthController {
      */
     @PostMapping("/signup/oauth2")
     public BaseResponse<BaseResponseStatus> PostSignupOauth2(HttpServletRequest request, @RequestBody PostSignupOauth2Req postSignupOauth2Req) {
-        if (postSignupOauth2Req.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
 
         try {
             userService.createOauth2User(postSignupOauth2Req);
@@ -311,7 +291,7 @@ public class AuthController {
      * @param request, code, id_token, userInfo
      * @return token
      */
-    @RequestMapping("/apple/redirect")
+    @GetMapping("/apple/redirect")
     public BaseResponse<GetAppleUserRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestParam("code")String code, @RequestParam("id_token")String id_token,@RequestParam(value= "user", required = false)String userInfo){
         PostSignupAppleReq postSignupAppleReq = new PostSignupAppleReq(code, id_token);
         AppleUserInfo appleUserInfo = null;
@@ -354,12 +334,12 @@ public class AuthController {
                 if (userInfo != null) {
                     log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
                     appleUserInfo = authService.parseUser(userInfo);
-                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null,"",appleRefreshToken);
+                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null,appleRefreshToken);
                 }
                 // 약관동의 취소 후 가입시
                 else{
                     log.info("약관동의가 필요합니다.");
-                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null,"",appleRefreshToken);
+                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null,appleRefreshToken);
                 }
             } catch (BaseException e) {
                 writeExceptionWithMessage(e, e.getMessage());
@@ -376,26 +356,9 @@ public class AuthController {
                 writeExceptionWithMessage(e, e.getMessage());
                 return new BaseResponse<>(e.getStatus());
             }
-            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token,code,appleRefreshToken);
+            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token,appleRefreshToken);
         }
         return new BaseResponse<>(getAppleUserRes);
-    }
-
-    /**
-     * 1.9.3 애플 회원가입 api
-     * [POST] /auth/signup/apple
-     * 소셜 로그인 시도 후 새로운 유저라면 클라이언트가 약관 동의 후에
-     * 이 api 호출하여 최종 회원가입
-     */
-    @PostMapping("/signup/apple")
-    public BaseResponse<BaseResponseStatus> PostSignupApple(@RequestBody PostSignupOauth2Req postSignupOauth2Req) {
-        try {
-            userService.createOauth2User(postSignupOauth2Req);
-            return new BaseResponse<>(SUCCESS);
-        } catch (BaseException e) {
-            writeExceptionWithMessage(e, e.getMessage());
-            return new BaseResponse<>(e.getStatus());
-        }
     }
 
     /**
@@ -460,13 +423,4 @@ public class AuthController {
         }
     }
 
-    public void checkFCMToken(Long user_id, String fcm_token, String input_fcm_token) throws BaseException {
-        if (!fcm_token.equals(input_fcm_token)) {
-            try {
-                userService.modifyFcmToken(user_id, input_fcm_token);
-            } catch (BaseException e) {
-                throw new BaseException(MODIFY_FAIL_FCMTOKEN);
-            }
-        }
-    }
 }

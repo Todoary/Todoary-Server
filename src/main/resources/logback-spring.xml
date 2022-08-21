@@ -4,17 +4,17 @@
     <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
         <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %msg %n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS, ${logback.timezone:-Asia/Seoul}} %-5level %logger{35} %msg %n</pattern>
         </layout>
         <username>Todoary Server Log</username>
         <iconEmoji>:face_with_rolling_eyes:</iconEmoji>
         <colorCoding>true</colorCoding>
     </appender>
 
-    <!-- Consol appender 설정 -->
+    <!-- Console appender 설정 -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <Pattern>%d %-5level %logger{35} - %msg%n</Pattern>
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS, ${logback.timezone:-Asia/Seoul}} %-5level %logger{35} - %msg%n</Pattern>
         </encoder>
     </appender>
 
