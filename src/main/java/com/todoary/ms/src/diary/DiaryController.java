@@ -147,16 +147,16 @@ public class DiaryController {
     /**
      * 5.8 일기 스티커 삭제 api
      */
-    @DeleteMapping("/sticker/{stickerId}")
-    public BaseResponse<BaseResponseStatus> deleteSticker(HttpServletRequest request, @PathVariable("stickerId") Long stickerId) {
+    @DeleteMapping("/{createdDate}/sticker/{stickerId}")
+    public BaseResponse<BaseResponseStatus> deleteSticker(HttpServletRequest request, @PathVariable("createdDate") String createdDate, @PathVariable("stickerId") Integer stickerId) {
         try {
-            Long diaryId = Long.parseLong(request.getAttribute("diary_id").toString());
-            diaryService.removeSticker(diaryId, stickerId);
+            diaryService.removeSticker(createdDate, stickerId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
+
 
 }

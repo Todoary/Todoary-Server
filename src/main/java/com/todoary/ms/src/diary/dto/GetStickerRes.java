@@ -8,11 +8,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonPropertyOrder({"id", "userId", "diaryId","sticker","created_at"})
+@JsonPropertyOrder({"id", "diaryId","stickerId","locationX","locationY","width","height","rotation","flipped","created_date"})
 public class GetStickerRes {
 
     private Long id;
-    private Long userId;
     private Long diaryId;
     private Integer stickerId;
     private Double locationX;

@@ -75,9 +75,10 @@ public class DiaryService {
         }
     }
 
-    public void removeSticker(Long diary_id, Long stickerId) throws BaseException {
+    public void removeSticker(String createdDate, Integer stickerId) throws BaseException {
         try {
-            diaryDao.deleteSticker(stickerId);
+            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
+            diaryDao.deleteSticker(diaryId,stickerId);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);

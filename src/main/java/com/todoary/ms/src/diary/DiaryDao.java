@@ -99,16 +99,14 @@ public class DiaryDao {
         this.jdbcTemplate.update(updateStickerQuery, updateStickerParams);
     }
 
-    public List<GetStickerRes> selectStickerListByDate(String created_date) {
-        String selectStickerByDateQuery = "SELECT id, diary_id,sticker_id,locationX,locationY, rotation, flipped, created_date " +
+    public List<GetStickerRes> selectStickerListByDate(int diaryId) {
+        String selectStickerByDateQuery = "SELECT id, diary_id, sticker_id,locationX,locationY, width, height, rotation, flipped, created_date " +
                 "FROM diary_sticker " +
-                "WHERE diary_id = ? and DATE(?)=DATE(created_date) " +
-                "ORDER BY created_date ";
-        Object[] selectStickerByDateParams = new Object[]{created_date};
+                "WHERE diary_id = ? ";
+        Object[] selectStickerByDateParams = new Object[]{diaryId};
         return this.jdbcTemplate.query(selectStickerByDateQuery,
                 (rs,rowNum) -> new GetStickerRes(
                         rs.getLong("id"),
-                        rs.getLong("userId"),
                         rs.getLong("diaryId"),
                         rs.getInt("stickerId"),
                         rs.getDouble("locationX"),
@@ -119,12 +117,11 @@ public class DiaryDao {
                         rs.getBoolean("flipped"),
                         rs.getString("created_date")
                 ),selectStickerByDateParams);
-
     }
 
-    public void deleteSticker(Long stickerId) {
-        String deleteStickerQuery = "DELETE FROM diary_sticker WHERE DATE(?)=DATE(created_date) = ?";
-        Long deleteStickerParam = stickerId;
+    public void deleteSticker(int diaryId, int stickerId) {
+        String deleteStickerQuery = "DELETE FROM diary_sticker WHERE diary_id = ? and sticker_id=?";
+        Object[] deleteStickerParam = new Object[]{diaryId, stickerId};
         this.jdbcTemplate.update(deleteStickerQuery, deleteStickerParam);
     }
 }

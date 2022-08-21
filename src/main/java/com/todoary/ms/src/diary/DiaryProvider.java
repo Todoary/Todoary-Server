@@ -57,7 +57,8 @@ public class DiaryProvider {
 
     public List<GetStickerRes> retrieveStickerListByDiary(String createdDate) throws BaseException {
         try {
-            return diaryDao.selectStickerListByDate(createdDate);
+            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
+            return diaryDao.selectStickerListByDate(diaryId);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
