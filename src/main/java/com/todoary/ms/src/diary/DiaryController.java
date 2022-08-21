@@ -78,6 +78,7 @@ public class DiaryController {
                                                                    @RequestParam("createdDate") String createdDate) {
         try {
             Long userId = getUserIdFromRequest(request);
+            diaryProvider.assertUsersDiaryValidByDate(userId, createdDate);
             return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, createdDate));
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request);
