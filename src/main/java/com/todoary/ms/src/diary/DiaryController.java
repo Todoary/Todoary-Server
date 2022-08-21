@@ -37,8 +37,6 @@ public class DiaryController {
         return userId;
     }
 
-
-
     /**
      * 5.1 일기 생성/수정 api
      */
@@ -53,8 +51,6 @@ public class DiaryController {
             return new BaseResponse<>(e.getStatus());
         }
     }
-
-
 
     /**
      * 5.2 일기 삭제 api
@@ -76,10 +72,11 @@ public class DiaryController {
      */
     @GetMapping(value = "", params = "createdDate")
     public BaseResponse<GetDiaryByDateRes> getDiaryListByDate(HttpServletRequest request,
-                                                                   @RequestParam("createdDate") String created_at) {
+                                                              @RequestParam("createdDate") String createdDate) {
         try {
             Long userId = getUserIdFromRequest(request);
-            return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, created_at));
+            diaryProvider.assertUsersDiaryValidByDate(userId, createdDate);
+            return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, createdDate));
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
@@ -91,7 +88,7 @@ public class DiaryController {
      */
     @GetMapping("/days/{yearAndMonth}")
     public BaseResponse<List<Integer>> getDiaryInMonth(HttpServletRequest request,
-                                                      @PathVariable("yearAndMonth") String yearAndMonth) {
+                                                       @PathVariable("yearAndMonth") String yearAndMonth) {
         try {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(diaryProvider.retrieveIsDiaryInMonth(userId, yearAndMonth));
@@ -100,9 +97,4 @@ public class DiaryController {
             return new BaseResponse<>(e.getStatus());
         }
     }
-
-
-
-
-
 }
