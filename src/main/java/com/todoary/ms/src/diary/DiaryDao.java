@@ -92,10 +92,10 @@ public class DiaryDao {
     }
 
 
-    public void updateSticker(Long diaryId, Long stickerId, PostStickerReq postStickerReq) {
-        String updateStickerQuery = "update diary_sticker set locationX=?, locationY=?, width=?, height=?, rotation=?, flipped=? where diary_id = ? and sticker_id = ?";
-        Object[] updateStickerParams = new Object[]{postStickerReq.getLocationX(), postStickerReq.getLocationY(), postStickerReq.getWidth(), postStickerReq.getHeight(),
-                postStickerReq.getRotation(), postStickerReq.isFlipped(), diaryId,stickerId};
+    public void updateSticker(int diaryId,  PostStickerReq postStickerReq) {
+        String updateStickerQuery = "update diary_sticker set sticker_id=?, locationX=?, locationY=?, width=?, height=?, rotation=?, flipped=? where diary_id = ?";
+        Object[] updateStickerParams = new Object[]{postStickerReq.getStickerId(),postStickerReq.getLocationX(), postStickerReq.getLocationY(), postStickerReq.getWidth(), postStickerReq.getHeight(),
+                postStickerReq.getRotation(), postStickerReq.isFlipped(), diaryId};
         this.jdbcTemplate.update(updateStickerQuery, updateStickerParams);
     }
 

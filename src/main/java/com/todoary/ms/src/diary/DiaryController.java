@@ -118,13 +118,11 @@ public class DiaryController {
     /**
      * 5.6 일기 스티커 수정 api
      */
-    @PatchMapping("/sticker/{stickerId}")
+    @PatchMapping("/{createdDate}/sticker/{stickerId}")
     public BaseResponse<BaseResponseStatus> patchSticker(HttpServletRequest request,
-                                                          @PathVariable("stickerId") Long stickerId,
-                                                          @RequestBody PostStickerReq postStickerReq) {
+                                                         @PathVariable("createdDate") String createdDate, @RequestBody PostStickerReq postStickerReq) {
         try {
-            Long diaryId = Long.parseLong(request.getAttribute("diary_id").toString());
-            diaryService.modifySticker(diaryId,stickerId, postStickerReq);
+            diaryService.modifySticker(createdDate, postStickerReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request, postStickerReq.toString());
