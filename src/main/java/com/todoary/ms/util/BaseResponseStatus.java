@@ -84,7 +84,6 @@ public enum BaseResponseStatus {
     //[PATCH] /users/{userIdx}
     MODIFY_FAIL_USERNAME(false,4014,"유저네임 수정 실패"),
     MODIFY_FAIL_FCMTOKEN(false,4015,"FCM Token 수정 실패"),
-    EMPTY_FCMTOKEN(false,4016,"FCM Token을 입력해주세요."),
 
 
     DELETE_USER_FAIL(false, 4008, "유저 정보 삭제에 실패하였습니다."),

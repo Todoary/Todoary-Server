@@ -71,10 +71,6 @@ public class AuthController {
      */
     @PostMapping("/signin")
     public BaseResponse<PostSigninRes> login(HttpServletRequest request, @RequestBody PostSigninReq postSigninReq) {
-        if (postSigninReq.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
-
         User user = null;
         try {
             user = userProvider.retrieveByEmail(postSigninReq.getEmail());
@@ -88,7 +84,6 @@ public class AuthController {
         Authentication authentication = null;
         try {
             authentication = attemptAuthentication(user);
-            checkFCMToken(user.getId(), user.getFcm_token(), postSigninReq.getFcm_token());
         } catch (BaseException e) {
             writeExceptionWithRequest(e, request, postSigninReq.toString());
             return new BaseResponse<>(e.getStatus());
@@ -114,10 +109,6 @@ public class AuthController {
      */
     @PostMapping("/signin/auto")
     public BaseResponse<PostAutoSigninRes> autoLogin(HttpServletRequest request, @RequestBody PostAutoSigninReq postAutoSigninReq) {
-        if (postAutoSigninReq.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
-
         User user = null;
         try {
             user = userProvider.retrieveByEmail(postAutoSigninReq.getEmail());
@@ -130,7 +121,6 @@ public class AuthController {
         Authentication authentication = null;
         try {
             authentication = attemptAuthentication(user);
-            checkFCMToken(user.getId(), user.getFcm_token(), postAutoSigninReq.getFcm_token());
         } catch (BaseException e) {
             writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
             return new BaseResponse<>(e.getStatus());
@@ -157,9 +147,6 @@ public class AuthController {
      */
     @PostMapping("/jwt")
     public BaseResponse<PostAccessRes> postAccess(HttpServletRequest request, @RequestBody PostAccessReq postAccessReq) {
-        if (postAccessReq.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
 
         String refreshToken = postAccessReq.getRefreshToken();
         try {
@@ -173,7 +160,6 @@ public class AuthController {
         try {
             Long user_id = Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshToken));
             user = userProvider.retrieveById(user_id);
-            checkFCMToken(user_id, user.getFcm_token(), postAccessReq.getFcm_token());
         } catch (BaseException e) {
             writeExceptionWithRequest(e, request, postAccessReq.toString());
             return new BaseResponse<>(e.getStatus());
@@ -209,12 +195,9 @@ public class AuthController {
      */
     @PostMapping("/signup")
     public BaseResponse<String> postUser(HttpServletRequest request, @RequestBody PostUserReq postUserReq) {
-        if (postUserReq.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
         try {
             String encodedPassword = passwordEncoder.encode(postUserReq.getPassword());
-            User user = new User(postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none", postUserReq.getFcm_token());
+            User user = new User(postUserReq.getName(), postUserReq.getNickname(), postUserReq.getEmail(), encodedPassword, "ROLE_USER", "none", "none");
             userService.createUser(user, postUserReq.isTermsEnable());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
@@ -231,9 +214,6 @@ public class AuthController {
      */
     @PostMapping("/signup/oauth2")
     public BaseResponse<BaseResponseStatus> PostSignupOauth2(HttpServletRequest request, @RequestBody PostSignupOauth2Req postSignupOauth2Req) {
-        if (postSignupOauth2Req.getFcm_token() == null) {
-            return new BaseResponse<>(EMPTY_FCMTOKEN);
-        }
 
         try {
             userService.createOauth2User(postSignupOauth2Req);
@@ -443,13 +423,4 @@ public class AuthController {
         }
     }
 
-    public void checkFCMToken(Long user_id, String fcm_token, String input_fcm_token) throws BaseException {
-        if (!fcm_token.equals(input_fcm_token)) {
-            try {
-                userService.modifyFcmToken(user_id, input_fcm_token);
-            } catch (BaseException e) {
-                throw new BaseException(MODIFY_FAIL_FCMTOKEN);
-            }
-        }
-    }
 }
