@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum FormatInfo {
-    CATEGORY_TITLE_LENGTH(10),
+    CATEGORY_TITLE_LENGTH(5),
     DIARY_TITLE_LENGTH(20),
     TODO_TITLE_LENGTH(20);
 
