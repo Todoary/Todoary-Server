@@ -72,14 +72,25 @@ public class DiaryDao {
                 (rs, rowNum) -> (rs.getInt("day")), selectIsDiaryInMonthParams);
     }
 
-    public Long insertSticker(Long userId, PostStickerReq postStickerReq ) {
-        String insertStickerQuery = "INSERT INTO diary_sticker(user_id,locationX,locationY,width,height, rotation, flipped) VALUES(?, ?, ?, ?,?,?,?) " +
-                "ON DUPLICATE KEY UPDATE locationX=?, locationY=?, width=?, height=?";
-        Object[] insertStickerParams=new Object[]{userId,
-                postStickerReq.getLocationX(), postStickerReq.getLocationY(), postStickerReq.getWidth(), postStickerReq.getHeight(), postStickerReq.getRotation(), postStickerReq.isFlipped(),
-                postStickerReq.getLocationX(), postStickerReq.getLocationY(), postStickerReq.getWidth(), postStickerReq.getHeight(), postStickerReq.getRotation(), postStickerReq.isFlipped()};
-        this.jdbcTemplate.update(insertStickerQuery, insertStickerParams);
+    public int selectDiaryIdExist(String created_date){
+        String selectDiaryIdExistQuery = "SELECT id FROM diary WHERE created_date=?";
+        Object[] selectDiaryIdExistParams = new Object[]{created_date};
+        return this.jdbcTemplate.queryForObject(selectDiaryIdExistQuery,
+                int.class,
+                selectDiaryIdExistParams);
+
     }
+
+    public Long insertSticker(int diaryId, PostStickerReq postStickerReq ) {
+        String insertStickerQuery = "INSERT INTO diary_sticker(diary_id,sticker_id,locationX,locationY,width,height, rotation, flipped) VALUES(?, ?,?, ?, ?,?,?,?) ";
+        Object[] insertStickerParams=new Object[]{diaryId,postStickerReq.getStickerId(),postStickerReq.getLocationX(), postStickerReq.getLocationY(),
+                postStickerReq.getWidth(), postStickerReq.getHeight(), postStickerReq.getRotation(), postStickerReq.isFlipped()};
+        this.jdbcTemplate.update(insertStickerQuery, insertStickerParams);
+
+        String lastInsertIdQuery = "SELECT last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery, Long.class);
+    }
+
 
     public void updateSticker(Long diaryId, Long stickerId, PostStickerReq postStickerReq) {
         String updateStickerQuery = "update diary_sticker set locationX=?, locationY=?, width=?, height=?, rotation=?, flipped=? where diary_id = ? and sticker_id = ?";
@@ -88,12 +99,12 @@ public class DiaryDao {
         this.jdbcTemplate.update(updateStickerQuery, updateStickerParams);
     }
 
-    public List<GetStickerRes> selectStickerListByDate(Long diaryId) {
-        String selectStickerByDateQuery = "SELECT id, user_id, diary_id,sticker_id,locationX,locationY, rotation, flipped, created_date " +
+    public List<GetStickerRes> selectStickerListByDate(String created_date) {
+        String selectStickerByDateQuery = "SELECT id, diary_id,sticker_id,locationX,locationY, rotation, flipped, created_date " +
                 "FROM diary_sticker " +
                 "WHERE diary_id = ? and DATE(?)=DATE(created_date) " +
                 "ORDER BY created_date ";
-        Long selectStickerByDateParams=diaryId;
+        Object[] selectStickerByDateParams = new Object[]{created_date};
         return this.jdbcTemplate.query(selectStickerByDateQuery,
                 (rs,rowNum) -> new GetStickerRes(
                         rs.getLong("id"),
@@ -112,7 +123,7 @@ public class DiaryDao {
     }
 
     public void deleteSticker(Long stickerId) {
-        String deleteStickerQuery = "DELETE FROM diary_sticker WHERE diary_id = ?";
+        String deleteStickerQuery = "DELETE FROM diary_sticker WHERE DATE(?)=DATE(created_date) = ?";
         Long deleteStickerParam = stickerId;
         this.jdbcTemplate.update(deleteStickerQuery, deleteStickerParam);
     }

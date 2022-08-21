@@ -53,11 +53,12 @@ public class DiaryService {
     }
 
 
-    public Long createSticker(Long userId, PostStickerReq postStickerReq) throws BaseException {
+
+    public void createSticker(String createdDate, PostStickerReq postStickerReq) throws BaseException {
+
         try {
-            Long stickerId;
-            stickerId=diaryDao.insertSticker(userId, postStickerReq);
-            return stickerId;
+            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
+            diaryDao.insertSticker(diaryId, postStickerReq);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

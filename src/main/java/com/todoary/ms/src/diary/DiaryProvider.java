@@ -32,8 +32,6 @@ public class DiaryProvider {
         }
     }
 
-
-
     public void assertUsersDiaryValidByDate(Long userId, String createdDate) throws BaseException {
         if (!checkUsersDiaryById(userId, createdDate))
             throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
@@ -57,13 +55,15 @@ public class DiaryProvider {
         }
     }
 
-    public List<GetStickerRes> retrieveStickerListByDiary(Long diaryId) throws BaseException {
+    public List<GetStickerRes> retrieveStickerListByDiary(String createdDate) throws BaseException {
         try {
-            return diaryDao.selectStickerListByDate(diaryId);
+            return diaryDao.selectStickerListByDate(createdDate);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+
 }
 

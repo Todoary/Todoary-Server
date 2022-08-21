@@ -103,12 +103,12 @@ public class DiaryController {
     /**
      * 5.5 일기 스티커 추가 api
      */
-    @PostMapping("/sticker")
-    public BaseResponse<PostStickerRes> postSticker(HttpServletRequest request, @RequestBody PostStickerReq postStickerReq) {
+    @PostMapping("/{createdDate}/sticker")
+    public BaseResponse<BaseResponseStatus> postSticker(HttpServletRequest request,
+                                                        @PathVariable("createdDate") String createdDate, @RequestBody PostStickerReq postStickerReq) {
         try {
-            Long userId = getUserIdFromRequest(request);
-            Long stickerId =  diaryService.createSticker(userId, postStickerReq);
-            return new BaseResponse<>(new PostStickerRes(stickerId));
+            diaryService.createSticker(createdDate, postStickerReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request, postStickerReq.toString());
             return new BaseResponse<>(e.getStatus());
@@ -136,11 +136,10 @@ public class DiaryController {
     /**
      * 5.7 일기 스티커 조회 api
      */
-    @GetMapping("/sticker")
-    public BaseResponse<List<GetStickerRes>> getStickerListByDiary(HttpServletRequest request) {
+    @GetMapping("/{createdDate}/sticker")
+    public BaseResponse<List<GetStickerRes>> getStickerListByDiary(HttpServletRequest request, @PathVariable("createdDate") String createdDate) {
         try {
-            Long diaryId = Long.parseLong(request.getAttribute("diary_id").toString());
-            return new BaseResponse<>(diaryProvider.retrieveStickerListByDiary(diaryId));
+            return new BaseResponse<>(diaryProvider.retrieveStickerListByDiary(createdDate));
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());

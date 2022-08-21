@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 
 public class PostStickerRes {
 
-    private Long stickerId;
-
+    private Long diary_stickerId;
 
 }

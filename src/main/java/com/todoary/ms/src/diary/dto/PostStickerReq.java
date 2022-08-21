@@ -1,16 +1,16 @@
 package com.todoary.ms.src.diary.dto;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class PostStickerReq {
 
+    private Integer stickerId;
     private Double locationX;
     private Double locationY;
     private Double width;
