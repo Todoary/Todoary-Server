@@ -100,7 +100,7 @@ public class DiaryDao {
     }
 
     public List<GetStickerRes> selectStickerListByDate(int diaryId) {
-        String selectStickerByDateQuery = "SELECT id, diary_id, sticker_id,locationX,locationY, width, height, rotation, flipped, created_date " +
+        String selectStickerByDateQuery = "SELECT id, diary_id as diaryId, sticker_id,locationX,locationY, width, height, rotation, flipped, created_date " +
                 "FROM diary_sticker " +
                 "WHERE diary_id = ? ";
         Object[] selectStickerByDateParams = new Object[]{diaryId};
@@ -118,6 +118,7 @@ public class DiaryDao {
                         rs.getString("created_date")
                 ),selectStickerByDateParams);
     }
+
 
     public void deleteSticker(int diaryId, int stickerId) {
         String deleteStickerQuery = "DELETE FROM diary_sticker WHERE diary_id = ? and sticker_id=?";
