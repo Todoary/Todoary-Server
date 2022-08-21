@@ -75,10 +75,11 @@ public class DiaryController {
      */
     @GetMapping(value = "", params = "createdDate")
     public BaseResponse<GetDiaryByDateRes> getDiaryListByDate(HttpServletRequest request,
-                                                              @RequestParam("createdDate") String created_at) {
+                                                              @RequestParam("createdDate") String createdDate) {
         try {
             Long userId = getUserIdFromRequest(request);
-            return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, created_at));
+            diaryProvider.assertUsersDiaryValidByDate(userId, createdDate);
+            return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, createdDate));
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
