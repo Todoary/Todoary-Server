@@ -291,7 +291,7 @@ public class AuthController {
      * @param request, code, id_token, userInfo
      * @return token
      */
-    @RequestMapping("/apple/redirect")
+    @GetMapping("/apple/redirect")
     public BaseResponse<GetAppleUserRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestParam("code")String code, @RequestParam("id_token")String id_token,@RequestParam(value= "user", required = false)String userInfo){
         PostSignupAppleReq postSignupAppleReq = new PostSignupAppleReq(code, id_token);
         AppleUserInfo appleUserInfo = null;
@@ -334,12 +334,12 @@ public class AuthController {
                 if (userInfo != null) {
                     log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
                     appleUserInfo = authService.parseUser(userInfo);
-                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null,"",appleRefreshToken);
+                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null,appleRefreshToken);
                 }
                 // 약관동의 취소 후 가입시
                 else{
                     log.info("약관동의가 필요합니다.");
-                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null,"",appleRefreshToken);
+                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null,appleRefreshToken);
                 }
             } catch (BaseException e) {
                 writeExceptionWithMessage(e, e.getMessage());
@@ -356,26 +356,9 @@ public class AuthController {
                 writeExceptionWithMessage(e, e.getMessage());
                 return new BaseResponse<>(e.getStatus());
             }
-            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token,code,appleRefreshToken);
+            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token,appleRefreshToken);
         }
         return new BaseResponse<>(getAppleUserRes);
-    }
-
-    /**
-     * 1.9.3 애플 회원가입 api
-     * [POST] /auth/signup/apple
-     * 소셜 로그인 시도 후 새로운 유저라면 클라이언트가 약관 동의 후에
-     * 이 api 호출하여 최종 회원가입
-     */
-    @PostMapping("/signup/apple")
-    public BaseResponse<BaseResponseStatus> PostSignupApple(@RequestBody PostSignupOauth2Req postSignupOauth2Req) {
-        try {
-            userService.createOauth2User(postSignupOauth2Req);
-            return new BaseResponse<>(SUCCESS);
-        } catch (BaseException e) {
-            writeExceptionWithMessage(e, e.getMessage());
-            return new BaseResponse<>(e.getStatus());
-        }
     }
 
     /**
