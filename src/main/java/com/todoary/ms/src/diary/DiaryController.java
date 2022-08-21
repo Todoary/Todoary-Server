@@ -6,6 +6,7 @@ import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.util.FormatInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,13 +38,13 @@ public class DiaryController {
         return userId;
     }
 
-
-
     /**
      * 5.1 일기 생성/수정 api
      */
     @PostMapping("/{createdDate}")
     public BaseResponse<BaseResponseStatus> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postDiaryReq, @PathVariable("createdDate") String createdDate) {
+        if (postDiaryReq.getTitle().length() > FormatInfo.DIARY_TITLE_LENGTH.getLength())
+            return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);
             diaryService.createOrModifyDiary(userId, postDiaryReq, createdDate);
@@ -53,8 +54,6 @@ public class DiaryController {
             return new BaseResponse<>(e.getStatus());
         }
     }
-
-
 
     /**
      * 5.2 일기 삭제 api
@@ -76,7 +75,7 @@ public class DiaryController {
      */
     @GetMapping(value = "", params = "createdDate")
     public BaseResponse<GetDiaryByDateRes> getDiaryListByDate(HttpServletRequest request,
-                                                                   @RequestParam("createdDate") String created_at) {
+                                                              @RequestParam("createdDate") String created_at) {
         try {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, created_at));
@@ -91,7 +90,7 @@ public class DiaryController {
      */
     @GetMapping("/days/{yearAndMonth}")
     public BaseResponse<List<Integer>> getDiaryInMonth(HttpServletRequest request,
-                                                      @PathVariable("yearAndMonth") String yearAndMonth) {
+                                                       @PathVariable("yearAndMonth") String yearAndMonth) {
         try {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(diaryProvider.retrieveIsDiaryInMonth(userId, yearAndMonth));
@@ -100,9 +99,4 @@ public class DiaryController {
             return new BaseResponse<>(e.getStatus());
         }
     }
-
-
-
-
-
 }
