@@ -21,7 +21,7 @@ public enum BaseResponseStatus {
     EMPTY_JWT(false, 2001, "JWT를 입력해주세요."),
     INVALID_JWT(false, 2002, "유효하지 않은 JWT입니다."),
     EXPIRED_JWT(false, 2003, "만료된 JWT입니다."),
-    INVALID_USER_JWT(false,2004,"권한이 없는 유저의 접근입니다."),
+    INVALID_USER_JWT(false, 2004, "권한이 없는 유저의 접근입니다."),
     INVALID_AUTH(false, 2005, "유효하지 않은 회원 정보입니다."),
     DIFFERENT_REFRESH_TOKEN(false, 2006, "유저 정보와 일치하지 않는 refresh token입니다."),
     APPLE_Client_SECRET_ERROR(false, 2007, "클라이언트 시크릿 생성에 실패하였습니다."),
@@ -32,8 +32,11 @@ public enum BaseResponseStatus {
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     USERS_EMPTY_USER_EMAIL(false, 2011, "유저 이메일 값을 확인해주세요."),
-    USERS_DELETED_USER(false,2012,"삭제된 유저입니다."),
+    USERS_DELETED_USER(false, 2012, "삭제된 유저입니다."),
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
+
+    // 데이터가 정해진 형식보다 길 때
+    DATA_TOO_LONG(false, 2101, "제한 길이를 초과했습니다."),
 
     // category 도메인 에러
     DUPLICATE_CATEGORY(false, 2104, "같은이름의 카테고리가 이미 존재합니다."),
@@ -47,7 +50,7 @@ public enum BaseResponseStatus {
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
-    POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
+    POST_USERS_EXISTS_EMAIL(false, 2017, "중복된 이메일입니다."),
 
     POST_POSTS_INVALID_CONTENTS(false, 2018, "제한 글자 수를 초과하였습니다."),
     POST_POSTS_EMPTY_IMGURL(false, 2019, "게시물의 이미지를 입력해주세요."),
@@ -68,11 +71,10 @@ public enum BaseResponseStatus {
     RESPONSE_ERROR(false, 3000, "값을 불러오는데 실패하였습니다."),
 
     // [POST] /users
-    FAILED_TO_LOGIN(false,3014,"없는 아이디거나 비밀번호가 틀렸습니다."),
+    FAILED_TO_LOGIN(false, 3014, "없는 아이디거나 비밀번호가 틀렸습니다."),
 
     MODIFY_FAIL_POST(false, 3020, "게시물 수정에 실패하였습니다."),
     DELETE_FAIL_POST(false, 3021, "게시물 삭제에 실패하였습니다."),
-
 
 
     /**
@@ -82,8 +84,8 @@ public enum BaseResponseStatus {
     SERVER_ERROR(false, 4001, "서버와의 연결에 실패하였습니다."),
 
     //[PATCH] /users/{userIdx}
-    MODIFY_FAIL_USERNAME(false,4014,"유저네임 수정 실패"),
-    MODIFY_FAIL_FCMTOKEN(false,4015,"FCM Token 수정 실패"),
+    MODIFY_FAIL_USERNAME(false, 4014, "유저네임 수정 실패"),
+    MODIFY_FAIL_FCMTOKEN(false, 4015, "FCM Token 수정 실패"),
 
 
     DELETE_USER_FAIL(false, 4008, "유저 정보 삭제에 실패하였습니다."),
@@ -92,11 +94,9 @@ public enum BaseResponseStatus {
     PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패하였습니다."),
 
 
-
-
     // 5000 : AWS관련 오류
-    AWS_ACCESS_DENIED(false,5001 ,"접근 권한이 없습니다."),
-    AWS_FILE_NOT_FOUND(false,5002 ,"파일 키에 해당하는 파일이 존재하지 않습니다."),
+    AWS_ACCESS_DENIED(false, 5001, "접근 권한이 없습니다."),
+    AWS_FILE_NOT_FOUND(false, 5002, "파일 키에 해당하는 파일이 존재하지 않습니다."),
     AWS_FILE_CONVERT_FAIL(false, 5003, "파일 변환에 실패했습니다.");
     // 6000 : 필요시 만들어서 쓰세요
 

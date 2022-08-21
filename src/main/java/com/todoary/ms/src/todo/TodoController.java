@@ -2,10 +2,7 @@ package com.todoary.ms.src.todo;
 
 import com.todoary.ms.src.todo.dto.*;
 import com.todoary.ms.src.user.UserProvider;
-import com.todoary.ms.util.BaseException;
-import com.todoary.ms.util.BaseResponse;
-import com.todoary.ms.util.BaseResponseStatus;
-import com.todoary.ms.util.ErrorLogWriter;
+import com.todoary.ms.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +43,8 @@ public class TodoController {
      */
     @PostMapping("")
     public BaseResponse<PostTodoRes> postTodo(HttpServletRequest request, @RequestBody PostTodoReq postTodoReq) {
+        if (postTodoReq.getTitle().length() > FormatInfo.TODO_TITLE_LENGTH.getLength())
+            return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);
             Long todoId = todoService.createTodo(userId, postTodoReq);
@@ -69,6 +68,8 @@ public class TodoController {
     public BaseResponse<BaseResponseStatus> patchTodo(HttpServletRequest request,
                                                       @PathVariable("todoId") Long todoId,
                                                       @RequestBody PostTodoReq postTodoReq) {
+        if (postTodoReq.getTitle().length() > FormatInfo.TODO_TITLE_LENGTH.getLength())
+            return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);
             todoService.modifyTodo(userId, todoId, postTodoReq);
@@ -192,7 +193,7 @@ public class TodoController {
      */
     @GetMapping("/days/{yearAndMonth}")
     public BaseResponse<List<Integer>> getDaysInMonth(HttpServletRequest request,
-                                                               @PathVariable("yearAndMonth") String yearAndMonth) {
+                                                      @PathVariable("yearAndMonth") String yearAndMonth) {
         try {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(todoProvider.retrieveDaysHavingTodoInMonth(userId, yearAndMonth));
