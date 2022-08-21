@@ -3,7 +3,6 @@ package com.todoary.ms.src.s3;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -66,8 +65,7 @@ public class AwsS3Service {
                 throw new BaseException(AWS_FILE_NOT_FOUND);
             }
             log.info((fileName).replace(File.separatorChar, '/'));
-            DeleteObjectRequest request = new DeleteObjectRequest(bucket, fileName);
-            amazonS3Client.deleteObject(request);
+            amazonS3Client.deleteObject(this.bucket, fileName);
         } catch (AmazonServiceException e) {
             System.err.println(e.getErrorMessage());
             throw new BaseException(AWS_ACCESS_DENIED);
