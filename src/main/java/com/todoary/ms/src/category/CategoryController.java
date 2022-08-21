@@ -6,6 +6,7 @@ import com.todoary.ms.src.category.dto.PostCategoryRes;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.util.FormatInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,8 @@ public class CategoryController {
 
     @PostMapping("")
     public BaseResponse<PostCategoryRes> postCategory(HttpServletRequest request, @RequestBody PostCategoryReq postCategoryReq) {
+        if (postCategoryReq.getTitle().length() > FormatInfo.CATEGORY_TITLE_LENGTH.getLength())
+            return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             Long categoryId = categoryService.createCategory(user_id, postCategoryReq);
@@ -50,7 +53,7 @@ public class CategoryController {
 
     /**
      * 4.2 카테고리 수정 api
-     *[PATCH] /category/:categoryId
+     * [PATCH] /category/:categoryId
      *
      * @param request
      * @return
@@ -58,8 +61,10 @@ public class CategoryController {
      */
     @PatchMapping("/{categoryId}")
     public BaseResponse<BaseResponseStatus> patchCategory(HttpServletRequest request,
-                                                      @PathVariable("categoryId") Long categoryId,
-                                                      @RequestBody PostCategoryReq postCategoryReq) {
+                                                          @PathVariable("categoryId") Long categoryId,
+                                                          @RequestBody PostCategoryReq postCategoryReq) {
+        if (postCategoryReq.getTitle().length() > FormatInfo.CATEGORY_TITLE_LENGTH.getLength())
+            return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             categoryService.modifyCategory(user_id, categoryId, postCategoryReq);
@@ -72,7 +77,7 @@ public class CategoryController {
 
     /**
      * 4.3 카테고리 조회 api
-     *[GET] /category
+     * [GET] /category
      *
      * @param request
      * @return List<GetCategoryRes>
