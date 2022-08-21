@@ -9,5 +9,4 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PostAccessReq {
     private String refreshToken;
-    private String fcm_token;
 }

@@ -282,6 +282,21 @@ public class UserController {
             writeExceptionWithMessage(e, "유저 삭제 실패 | UserController/UserRemove()");
         }
     }
+
+    /**
+     * 2.10 FCM 토큰 갱신 api
+     */
+    @PatchMapping("/fcm_token")
+    public BaseResponse FCMTokenRefresh(HttpServletRequest request, @RequestBody PatchFcmTokenReq patchFcmTokenReq) {
+        String fcm_token = patchFcmTokenReq.getFcm_token();
+        try {
+            Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
+            userService.modifyFcmToken(user_id, fcm_token);
+            return new BaseResponse("FCM 토큰 갱신에 성공했습니다.");
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
 
 

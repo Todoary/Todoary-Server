@@ -6,5 +6,4 @@ import lombok.Data;
 public class PostAutoSigninReq {
     private String email;
     private String password;
-    private String fcm_token;
 }
