@@ -65,10 +65,10 @@ public class DiaryService {
         }
     }
 
-    public void modifySticker(String createdDate, PostStickerReq postStickerReq) throws BaseException {
+    public void modifySticker(String createdDate, Integer stickerId,PostStickerReq postStickerReq) throws BaseException {
         try {
             int diaryId=diaryDao.selectDiaryIdExist(createdDate);
-            diaryDao.updateSticker(diaryId,postStickerReq);
+            diaryDao.updateSticker(diaryId, stickerId, postStickerReq);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

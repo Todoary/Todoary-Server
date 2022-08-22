@@ -124,9 +124,9 @@ public class DiaryController {
      */
     @PatchMapping("/{createdDate}/sticker/{stickerId}")
     public BaseResponse<BaseResponseStatus> patchSticker(HttpServletRequest request,
-                                                         @PathVariable("createdDate") String createdDate, @RequestBody PostStickerReq postStickerReq) {
+                                                         @PathVariable("createdDate") String createdDate, @PathVariable("stickerId") Integer stickerId, @RequestBody PostStickerReq postStickerReq) {
         try {
-            diaryService.modifySticker(createdDate, postStickerReq);
+            diaryService.modifySticker(createdDate,stickerId, postStickerReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request, postStickerReq.toString());
