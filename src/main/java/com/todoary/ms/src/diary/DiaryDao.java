@@ -1,6 +1,7 @@
 package com.todoary.ms.src.diary;
 
 
+import com.todoary.ms.src.category.dto.GetCategoryRes;
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
 import com.todoary.ms.src.diary.dto.GetStickerRes;
 import com.todoary.ms.src.diary.dto.PostDiaryReq;
@@ -100,10 +101,10 @@ public class DiaryDao {
     }
 
     public List<GetStickerRes> selectStickerListByDate(int diaryId) {
-        String selectStickerByDateQuery = "SELECT id, diary_id as diaryId, sticker_id,locationX,locationY, width, height, rotation, flipped, created_date " +
+        String selectStickerByDateQuery = "SELECT id, diary_id as diaryId, sticker_id as stickerId ,locationX,locationY, width, height, rotation, flipped, created_date " +
                 "FROM diary_sticker " +
                 "WHERE diary_id = ? ";
-        Object[] selectStickerByDateParams = new Object[]{diaryId};
+        Object[] selectStickerListByDateParam = new Object[]{diaryId};
         return this.jdbcTemplate.query(selectStickerByDateQuery,
                 (rs,rowNum) -> new GetStickerRes(
                         rs.getLong("id"),
@@ -116,8 +117,9 @@ public class DiaryDao {
                         rs.getDouble("rotation"),
                         rs.getBoolean("flipped"),
                         rs.getString("created_date")
-                ),selectStickerByDateParams);
+                ),selectStickerListByDateParam);
     }
+
 
 
     public void deleteSticker(int diaryId, int stickerId) {
