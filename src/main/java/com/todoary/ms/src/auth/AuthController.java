@@ -291,7 +291,7 @@ public class AuthController {
      * @param request, code, id_token, userInfo
      * @return token
      */
-    @GetMapping("/apple/redirect")
+    @PostMapping("/apple/redirect")
     public BaseResponse<GetAppleUserRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestParam("code")String code, @RequestParam("id_token")String id_token,@RequestParam(value= "user", required = false)String userInfo){
         PostSignupAppleReq postSignupAppleReq = new PostSignupAppleReq(code, id_token);
         AppleUserInfo appleUserInfo = null;
