@@ -6,6 +6,7 @@ import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.util.FormatInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +44,8 @@ public class DiaryController {
      */
     @PostMapping("/{createdDate}")
     public BaseResponse<BaseResponseStatus> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postDiaryReq, @PathVariable("createdDate") String createdDate) {
+        if (postDiaryReq.getTitle().length() > FormatInfo.DIARY_TITLE_LENGTH.getLength())
+            return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);
             diaryService.createOrModifyDiary(userId, postDiaryReq, createdDate);
