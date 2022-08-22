@@ -50,6 +50,9 @@ dependencies {
 
 	// Slack
 	implementation 'com.github.maricn:logback-slack-appender:1.4.0'
+
+	// emoji 포함 길이
+	implementation group: 'com.ibm.icu', name: 'icu4j', version: '63.1'
 }
 
 tasks.named('test') {
