@@ -14,6 +14,10 @@ configurations {
     }
 }
 
+springBoot {
+	mainClass = 'com.todoary.ms.TodoaryApplication'
+}
+
 repositories {
     mavenCentral()
 }
