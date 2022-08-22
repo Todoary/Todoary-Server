@@ -1,13 +1,20 @@
 package com.todoary.ms.src.diary;
 
 
+import com.todoary.ms.src.category.dto.PostCategoryReq;
 import com.todoary.ms.src.diary.dto.PostDiaryReq;
+import com.todoary.ms.src.diary.dto.PostStickerReq;
+import com.todoary.ms.src.todo.dto.PostTodoReq;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+
+import static com.todoary.ms.util.BaseResponseStatus.*;
 
 @Slf4j
 @Service
@@ -29,7 +36,6 @@ public class DiaryService {
             diaryDao.insertOrUpdateDiary(userId, postDiaryReq, createdDate);
         } catch (Exception e) {
             e.printStackTrace();
-            log.warn(e.getMessage());
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
@@ -48,5 +54,34 @@ public class DiaryService {
 
 
 
+    public void createSticker(String createdDate, PostStickerReq postStickerReq) throws BaseException {
 
+        try {
+            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
+            diaryDao.insertSticker(diaryId, postStickerReq);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    public void modifySticker(String createdDate, PostStickerReq postStickerReq) throws BaseException {
+        try {
+            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
+            diaryDao.updateSticker(diaryId,postStickerReq);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    public void removeSticker(String createdDate, Integer stickerId) throws BaseException {
+        try {
+            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
+            diaryDao.deleteSticker(diaryId,stickerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

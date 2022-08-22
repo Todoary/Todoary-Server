@@ -1,7 +1,7 @@
 package com.todoary.ms.src.diary;
 
-import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
-import com.todoary.ms.src.diary.dto.PostDiaryReq;
+
+import com.todoary.ms.src.diary.dto.*;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
@@ -38,6 +38,7 @@ public class DiaryController {
         return userId;
     }
 
+
     /**
      * 5.1 일기 생성/수정 api
      */
@@ -54,6 +55,8 @@ public class DiaryController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+
 
     /**
      * 5.2 일기 삭제 api
@@ -75,7 +78,7 @@ public class DiaryController {
      */
     @GetMapping(value = "", params = "createdDate")
     public BaseResponse<GetDiaryByDateRes> getDiaryListByDate(HttpServletRequest request,
-                                                              @RequestParam("createdDate") String createdDate) {
+                                                                   @RequestParam("createdDate") String createdDate) {
         try {
             Long userId = getUserIdFromRequest(request);
             diaryProvider.assertUsersDiaryValidByDate(userId, createdDate);
@@ -91,7 +94,7 @@ public class DiaryController {
      */
     @GetMapping("/days/{yearAndMonth}")
     public BaseResponse<List<Integer>> getDiaryInMonth(HttpServletRequest request,
-                                                       @PathVariable("yearAndMonth") String yearAndMonth) {
+                                                      @PathVariable("yearAndMonth") String yearAndMonth) {
         try {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(diaryProvider.retrieveIsDiaryInMonth(userId, yearAndMonth));
@@ -100,4 +103,64 @@ public class DiaryController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    /**
+     * 5.5 일기 스티커 추가 api
+     */
+    @PostMapping("/{createdDate}/sticker")
+    public BaseResponse<BaseResponseStatus> postSticker(HttpServletRequest request,
+                                                        @PathVariable("createdDate") String createdDate, @RequestBody PostStickerReq postStickerReq) {
+        try {
+            diaryService.createSticker(createdDate, postStickerReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request, postStickerReq.toString());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 5.6 일기 스티커 수정 api
+     */
+    @PatchMapping("/{createdDate}/sticker/{stickerId}")
+    public BaseResponse<BaseResponseStatus> patchSticker(HttpServletRequest request,
+                                                         @PathVariable("createdDate") String createdDate, @RequestBody PostStickerReq postStickerReq) {
+        try {
+            diaryService.modifySticker(createdDate, postStickerReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request, postStickerReq.toString());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+
+    /**
+     * 5.7 일기 스티커 조회 api
+     */
+    @GetMapping("/{createdDate}/sticker")
+    public BaseResponse<List<GetStickerRes>> getStickerListByDiary(HttpServletRequest request, @PathVariable("createdDate") String createdDate) {
+        try {
+            return new BaseResponse<>(diaryProvider.retrieveStickerListByDiary(createdDate));
+        } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request);
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    /**
+     * 5.8 일기 스티커 삭제 api
+     */
+    @DeleteMapping("/{createdDate}/sticker/{stickerId}")
+    public BaseResponse<BaseResponseStatus> deleteSticker(HttpServletRequest request, @PathVariable("createdDate") String createdDate, @PathVariable("stickerId") Integer stickerId) {
+        try {
+            diaryService.removeSticker(createdDate, stickerId);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            writeExceptionWithAuthorizedRequest(e, request);
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+
 }
