@@ -43,7 +43,7 @@ public class TodoController {
      */
     @PostMapping("")
     public BaseResponse<PostTodoRes> postTodo(HttpServletRequest request, @RequestBody PostTodoReq postTodoReq) {
-        if (postTodoReq.getTitle().length() > FormatInfo.TODO_TITLE_LENGTH.getLength())
+        if (FormatInfo.getGraphemeLength(postTodoReq.getTitle()) > FormatInfo.TODO_TITLE_LENGTH.getLength())
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);
@@ -68,7 +68,7 @@ public class TodoController {
     public BaseResponse<BaseResponseStatus> patchTodo(HttpServletRequest request,
                                                       @PathVariable("todoId") Long todoId,
                                                       @RequestBody PostTodoReq postTodoReq) {
-        if (postTodoReq.getTitle().length() > FormatInfo.TODO_TITLE_LENGTH.getLength())
+        if (FormatInfo.getGraphemeLength(postTodoReq.getTitle()) > FormatInfo.TODO_TITLE_LENGTH.getLength())
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);
