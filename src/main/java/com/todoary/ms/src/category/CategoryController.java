@@ -6,7 +6,7 @@ import com.todoary.ms.src.category.dto.PostCategoryRes;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
-import com.todoary.ms.util.FormatInfo;
+import com.todoary.ms.util.ColumnLengthInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +39,7 @@ public class CategoryController {
 
     @PostMapping("")
     public BaseResponse<PostCategoryRes> postCategory(HttpServletRequest request, @RequestBody PostCategoryReq postCategoryReq) {
-        if (FormatInfo.getGraphemeLength(postCategoryReq.getTitle()) > FormatInfo.CATEGORY_TITLE_LENGTH.getLength())
+        if (ColumnLengthInfo.getGraphemeLength(postCategoryReq.getTitle()) > ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH.getLength())
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
@@ -63,7 +63,7 @@ public class CategoryController {
     public BaseResponse<BaseResponseStatus> patchCategory(HttpServletRequest request,
                                                           @PathVariable("categoryId") Long categoryId,
                                                           @RequestBody PostCategoryReq postCategoryReq) {
-        if (FormatInfo.getGraphemeLength(postCategoryReq.getTitle()) > FormatInfo.CATEGORY_TITLE_LENGTH.getLength())
+        if (ColumnLengthInfo.getGraphemeLength(postCategoryReq.getTitle()) > ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH.getLength())
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());

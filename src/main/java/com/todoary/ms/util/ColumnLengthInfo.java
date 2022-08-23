@@ -4,14 +4,14 @@ import com.ibm.icu.text.BreakIterator;
 import lombok.Getter;
 
 @Getter
-public enum FormatInfo {
-    CATEGORY_TITLE_LENGTH(5),
-    DIARY_TITLE_LENGTH(20),
-    TODO_TITLE_LENGTH(20);
+public enum ColumnLengthInfo {
+    CATEGORY_TITLE_MAX_LENGTH(5),
+    DIARY_TITLE_MAX_LENGTH(20),
+    TODO_TITLE_MAX_LENGTH(20);
 
     private final int length;
 
-    private FormatInfo(int length) {
+    private ColumnLengthInfo(int length) {
         this.length = length;
     }
 

@@ -6,7 +6,7 @@ import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
-import com.todoary.ms.util.FormatInfo;
+import com.todoary.ms.util.ColumnLengthInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +44,7 @@ public class DiaryController {
      */
     @PostMapping("/{createdDate}")
     public BaseResponse<BaseResponseStatus> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postDiaryReq, @PathVariable("createdDate") String createdDate) {
-        if (FormatInfo.getGraphemeLength(postDiaryReq.getTitle()) > FormatInfo.DIARY_TITLE_LENGTH.getLength())
+        if (ColumnLengthInfo.getGraphemeLength(postDiaryReq.getTitle()) > ColumnLengthInfo.DIARY_TITLE_MAX_LENGTH.getLength())
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);
@@ -55,7 +55,6 @@ public class DiaryController {
             return new BaseResponse<>(e.getStatus());
         }
     }
-
 
 
     /**
@@ -78,11 +77,11 @@ public class DiaryController {
      */
     @GetMapping(value = "", params = "createdDate")
     public BaseResponse<GetDiaryByDateRes> getDiaryListByDate(HttpServletRequest request,
-                                                                   @RequestParam("createdDate") String createdDate) {
+                                                              @RequestParam("createdDate") String createdDate) {
         try {
             Long userId = getUserIdFromRequest(request);
-            diaryProvider.assertUsersDiaryValidByDate(userId, createdDate);
-            return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(userId, createdDate));
+            Long diaryId = diaryProvider.retrieveDiaryIdByDate(userId, createdDate);
+            return new BaseResponse<>(diaryProvider.retrieveDiaryByDate(diaryId));
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
@@ -94,7 +93,7 @@ public class DiaryController {
      */
     @GetMapping("/days/{yearAndMonth}")
     public BaseResponse<List<Integer>> getDiaryInMonth(HttpServletRequest request,
-                                                      @PathVariable("yearAndMonth") String yearAndMonth) {
+                                                       @PathVariable("yearAndMonth") String yearAndMonth) {
         try {
             Long userId = getUserIdFromRequest(request);
             return new BaseResponse<>(diaryProvider.retrieveIsDiaryInMonth(userId, yearAndMonth));
@@ -105,62 +104,45 @@ public class DiaryController {
     }
 
     /**
-     * 5.5 일기 스티커 추가 api
+     * 5.5 일기 스티커 생성/수정/삭제 api
      */
-    @PostMapping("/{createdDate}/sticker")
-    public BaseResponse<BaseResponseStatus> postSticker(HttpServletRequest request,
-                                                        @PathVariable("createdDate") String createdDate, @RequestBody PostStickerReq postStickerReq) {
+    @PutMapping("/{createdDate}/sticker")
+    public BaseResponse<List<Long>> patchStickers(HttpServletRequest request,
+                                                  @PathVariable("createdDate") String createdDate,
+                                                  @RequestBody PutStickersReq putStickersReq) {
         try {
-            diaryService.createSticker(createdDate, postStickerReq);
-            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+            Long userId = getUserIdFromRequest(request);
+            Long diaryId = diaryProvider.retrieveDiaryIdByDate(userId, createdDate);
+            List<Long> createdIds = null;
+            if (putStickersReq.getCreated() != null && !putStickersReq.getCreated().isEmpty()) {
+                createdIds = diaryService.createStickers(diaryId, putStickersReq.getCreated());
+            }
+            if (putStickersReq.getModified() != null && !putStickersReq.getModified().isEmpty()) {
+                diaryService.modifyStickers(putStickersReq.getModified());
+            }
+            if (putStickersReq.getDeleted() != null && !putStickersReq.getDeleted().isEmpty()) {
+                diaryService.removeStickers(putStickersReq.getDeleted());
+            }
+            return new BaseResponse<>(createdIds);
         } catch (BaseException e) {
-            writeExceptionWithAuthorizedRequest(e, request, postStickerReq.toString());
+            writeExceptionWithAuthorizedRequest(e, request, putStickersReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
 
     /**
-     * 5.6 일기 스티커 수정 api
-     */
-    @PatchMapping("/{createdDate}/sticker/{stickerId}")
-    public BaseResponse<BaseResponseStatus> patchSticker(HttpServletRequest request,
-                                                         @PathVariable("createdDate") String createdDate, @PathVariable("stickerId") Integer stickerId, @RequestBody PostStickerReq postStickerReq) {
-        try {
-            diaryService.modifySticker(createdDate,stickerId, postStickerReq);
-            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
-        } catch (BaseException e) {
-            writeExceptionWithAuthorizedRequest(e, request, postStickerReq.toString());
-            return new BaseResponse<>(e.getStatus());
-        }
-    }
-
-
-    /**
-     * 5.7 일기 스티커 조회 api
+     * 5.6 일기 스티커 조회 api
      */
     @GetMapping("/{createdDate}/sticker")
-    public BaseResponse<List<GetStickerRes>> getStickerListByDiary(HttpServletRequest request, @PathVariable("createdDate") String createdDate) {
+    public BaseResponse<List<GetStickerRes>> getStickerListByDiary(HttpServletRequest request,
+                                                                   @PathVariable("createdDate") String createdDate) {
         try {
-            return new BaseResponse<>(diaryProvider.retrieveStickerListByDiary(createdDate));
+            Long userId = getUserIdFromRequest(request);
+            Long diaryId = diaryProvider.retrieveDiaryIdByDate(userId, createdDate);
+            return new BaseResponse<>(diaryProvider.retrieveStickerListByDiary(diaryId));
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request);
             return new BaseResponse<>(e.getStatus());
         }
     }
-
-    /**
-     * 5.8 일기 스티커 삭제 api
-     */
-    @DeleteMapping("/{createdDate}/sticker/{stickerId}")
-    public BaseResponse<BaseResponseStatus> deleteSticker(HttpServletRequest request, @PathVariable("createdDate") String createdDate, @PathVariable("stickerId") Integer stickerId) {
-        try {
-            diaryService.removeSticker(createdDate, stickerId);
-            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
-        } catch (BaseException e) {
-            writeExceptionWithAuthorizedRequest(e, request);
-            return new BaseResponse<>(e.getStatus());
-        }
-    }
-
-
 }

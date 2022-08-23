@@ -1,20 +1,19 @@
 package com.todoary.ms.src.diary;
 
 
-import com.todoary.ms.src.category.dto.PostCategoryReq;
+import com.todoary.ms.src.diary.dto.CreateStickerReq;
+import com.todoary.ms.src.diary.dto.DeleteStickerReq;
+import com.todoary.ms.src.diary.dto.ModifyStickerReq;
 import com.todoary.ms.src.diary.dto.PostDiaryReq;
-import com.todoary.ms.src.diary.dto.PostStickerReq;
-import com.todoary.ms.src.todo.dto.PostTodoReq;
-import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
-import com.todoary.ms.util.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.util.BaseResponseStatus.DATABASE_ERROR;
 
 @Slf4j
 @Service
@@ -22,13 +21,11 @@ public class DiaryService {
 
     private final DiaryDao diaryDao;
     private final DiaryProvider diaryProvider;
-    private final UserProvider userProvider;
 
     @Autowired
-    public DiaryService(DiaryProvider diaryProvider, DiaryDao diaryDao, UserProvider userProvider) {
+    public DiaryService(DiaryProvider diaryProvider, DiaryDao diaryDao) {
         this.diaryProvider = diaryProvider;
         this.diaryDao = diaryDao;
-        this.userProvider=userProvider;
     }
 
     public void createOrModifyDiary(Long userId, PostDiaryReq postDiaryReq, String createdDate) throws BaseException {
@@ -36,49 +33,46 @@ public class DiaryService {
             diaryDao.insertOrUpdateDiary(userId, postDiaryReq, createdDate);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            throw new BaseException(DATABASE_ERROR);
         }
     }
-
 
 
     public void removeDiary(Long userId, String createdDate) throws BaseException {
-        diaryProvider.assertUsersDiaryValidByDate(userId, createdDate);
+        Long diaryId = diaryProvider.retrieveDiaryIdByDate(userId, createdDate);
         try {
-            diaryDao.deleteDiary(userId, createdDate);
+            diaryDao.deleteDiary(diaryId);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            throw new BaseException(DATABASE_ERROR);
         }
     }
 
-
-
-    public void createSticker(String createdDate, PostStickerReq postStickerReq) throws BaseException {
-
+    public List<Long> createStickers(Long diaryId, List<CreateStickerReq> createdStickers) throws BaseException {
         try {
-            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
-            diaryDao.insertSticker(diaryId, postStickerReq);
+            List<Long> result = new ArrayList<>();
+            for (CreateStickerReq createdSticker : createdStickers) {
+                result.add(diaryDao.insertSticker(diaryId, createdSticker));
+            }
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            throw new BaseException(DATABASE_ERROR);
         }
     }
 
-    public void modifySticker(String createdDate, Integer stickerId,PostStickerReq postStickerReq) throws BaseException {
+    public void modifyStickers(List<ModifyStickerReq> modifiedStickers) throws BaseException {
         try {
-            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
-            diaryDao.updateSticker(diaryId, stickerId, postStickerReq);
+            diaryDao.updateStickers(modifiedStickers);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+            throw new BaseException(DATABASE_ERROR);
         }
     }
 
-    public void removeSticker(String createdDate, Integer stickerId) throws BaseException {
+    public void removeStickers(List<DeleteStickerReq> deletedStickers) throws BaseException {
         try {
-            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
-            diaryDao.deleteSticker(diaryId,stickerId);
+            diaryDao.deleteStickers(deletedStickers);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);

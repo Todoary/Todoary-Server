@@ -13,7 +13,7 @@ public class GetStickerRes {
 
     private Long id;
     private Long diaryId;
-    private Integer stickerId;
+    private Long stickerId;
     private Double locationX;
     private Double locationY;
     private Double width;
