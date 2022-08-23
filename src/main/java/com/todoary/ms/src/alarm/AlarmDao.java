@@ -54,7 +54,7 @@ public class AlarmDao {
         return this.jdbcTemplate.query(selectByDateTime_remindQuery,
                 (rs, rowNum) -> new Alarm(
                         rs.getString("fcm_token"),
-                        rs.getString("title"),
+                        "",
                         rs.getDate("target_date").toString(),
                         "00:00:00"
                 ), target_date);
