@@ -70,6 +70,7 @@ jobs:
             echo -e "\
              >>>>>> git pull... "
             cd "/home/ubuntu/Test-Todoary-Server" || exit 1
+            git fetch --all || exit 1
             git reset --hard origin/Test || exit 1
             git pull origin Test || exit 1
 
