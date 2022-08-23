@@ -1,6 +1,5 @@
 package com.todoary.ms.src.diary;
 
-import com.todoary.ms.src.diary.DiaryDao;
 import com.todoary.ms.src.diary.dto.GetDiaryByDateRes;
 import com.todoary.ms.src.diary.dto.GetStickerRes;
 import com.todoary.ms.util.BaseException;
@@ -25,10 +24,10 @@ public class DiaryProvider {
 
     public boolean checkUsersDiaryById(Long userId, String createdDate) throws BaseException {
         try {
-            return (diaryDao.selectExistsUsersDiaryById(userId, createdDate) == 1);
+            return (diaryDao.selectExistsUsersDiaryByDate(userId, createdDate) == 1);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
@@ -37,12 +36,12 @@ public class DiaryProvider {
             throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
     }
 
-    public GetDiaryByDateRes retrieveDiaryByDate(Long userId, String createdDate) throws BaseException {
+    public GetDiaryByDateRes retrieveDiaryByDate(Long diaryId) throws BaseException {
         try {
-            return diaryDao.selectDiaryByDate(userId, createdDate);
+            return diaryDao.selectDiaryByDate(diaryId);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(BaseResponseStatus.USERS_DIARY_NOT_EXISTS);
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 
@@ -55,9 +54,8 @@ public class DiaryProvider {
         }
     }
 
-    public List<GetStickerRes> retrieveStickerListByDiary(String createdDate) throws BaseException {
+    public List<GetStickerRes> retrieveStickerListByDiary(Long diaryId) throws BaseException {
         try {
-            int diaryId=diaryDao.selectDiaryIdExist(createdDate);
             return diaryDao.selectStickerListByDate(diaryId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,5 +64,13 @@ public class DiaryProvider {
     }
 
 
+    public Long retrieveDiaryIdByDate(Long userId, String createdDate) throws BaseException {
+        assertUsersDiaryValidByDate(userId, createdDate);
+        try{
+            return diaryDao.selectDiaryIdByDate(userId, createdDate);
+        }catch(Exception e){
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }
 

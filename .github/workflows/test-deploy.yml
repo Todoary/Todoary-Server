@@ -70,9 +70,9 @@ jobs:
             echo -e "\
              >>>>>> git pull... "
             cd "/home/ubuntu/Test-Todoary-Server" || exit 1
-            git reset --hard origin/Test
-            git pull origin Test
+            git reset --hard origin/Test || exit 1
+            git pull origin Test || exit 1
 
-            ./test-scripts/build.sh
-            ./test-scripts/stop.sh
-            ./test-scripts/start.sh
+            ./test-scripts/build.sh || exit 1
+            ./test-scripts/stop.sh || exit 1
+            ./test-scripts/start.sh || exit 1

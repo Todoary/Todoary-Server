@@ -68,28 +68,6 @@ public class TodoDao {
         return Objects.requireNonNull(keyHolder.getKey()).longValue();
     }
 
-//    public void insertTodoCategories(Long todoId, List<Long> categories) {
-//        String insertTodoCategoryQuery = "INSERT IGNORE INTO todo_and_category (todo_id, category_id) VALUES(?, ?)";
-//        this.jdbcTemplate.batchUpdate(insertTodoCategoryQuery, new BatchPreparedStatementSetter() {
-//            @Override
-//            public void setValues(PreparedStatement ps, int i) throws SQLException {
-//                ps.setLong(1, todoId);
-//                ps.setLong(2, categories.get(i));
-//            }
-//
-//            @Override
-//            public int getBatchSize() {
-//                return categories.size();
-//            }
-//        });
-//    }
-
-//    public void insertTodoCategory(Long todoId, Long categoryId) {
-//        String insertTodoCategoryQuery = "INSERT INTO todo_and_category (todo_id, category_id) VALUES(?, ?)";
-//        Object[] insertTodoCategoryParams = new Object[]{todoId, categoryId};
-//        this.jdbcTemplate.update(insertTodoCategoryQuery, insertTodoCategoryParams);
-//    }
-
     public int selectExistsUsersTodoById(Long userId, Long todoId) {
         String selectExistsUsersTodoByIdQuery = "SELECT EXISTS(SELECT user_id, id FROM todo " +
                 "where user_id = ? and id = ?)";
