@@ -68,12 +68,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                 request.setAttribute("user_id", user_id);
             }catch (ExpiredJwtException e) {
-                log.info("토큰이 만료됨, uri: " + requestUri);
+                log.info("토큰이 만료됨, uri: {} {}",request.getMethod(), requestUri);
             } catch (Exception e) {
-                log.info("토큰이 유효하지 않음, uri: " + requestUri);
+                log.info("토큰이 유효하지 않음, uri: {} {}",request.getMethod(), requestUri);
             }
         }else{
-            log.info("토큰이 유효하지 않음, uri: " + requestUri);
+            log.info("토큰이 유효하지 않음, uri: {} {}",request.getMethod(), requestUri);
         }
         chain.doFilter(request, response);
 

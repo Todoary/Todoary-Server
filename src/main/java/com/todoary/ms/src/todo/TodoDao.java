@@ -125,7 +125,7 @@ public class TodoDao {
 
     public List<GetTodoByCategoryRes> selectTodoListByCategory(Long userId, Long categoryId) {
         String selectTodosByCategoryQuery = "SELECT todo.id, todo.is_checked, todo.title, todo.target_date, todo.is_alarm_enabled, TIME_FORMAT(todo.target_time, '%H:%i') as target_time, todo.created_at, todo.category_id, category.title, category.color " +
-                "FROM todo INNER JOIN category ON todo.category_id = category.id WHERE category_id = ? " +
+                "FROM todo INNER JOIN category ON todo.category_id = category.id WHERE category_id = ? and target_date >= current_date " +
                 "ORDER BY todo.target_date, todo.target_time, todo.created_at";
         Long selectTodosByCategoryParam = categoryId;
         return this.jdbcTemplate.query(selectTodosByCategoryQuery,
