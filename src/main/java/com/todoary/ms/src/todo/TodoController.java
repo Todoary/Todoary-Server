@@ -123,6 +123,8 @@ public class TodoController {
 
     /**
      * 3.5 투두 카테고리별 조회 api
+     * - 오늘 날짜 이전은 포함하지 않음
+     *
      * [GET] /todo/category/:categoryId
      *
      * @param request
