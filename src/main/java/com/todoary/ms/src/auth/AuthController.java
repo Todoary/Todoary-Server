@@ -293,7 +293,7 @@ public class AuthController {
      */
     @PostMapping("/apple/token")
     public BaseResponse<GetAppleUserRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestBody PostSignupAppleReq postSignupAppleReq){
-        AppleUserInfo appleUserInfo = postSignupAppleReq.getAppleUserInfo();
+        AppleUserInfo appleUserInfo = new AppleUserInfo(postSignupAppleReq.getName(),postSignupAppleReq.getEmail());
         String provider = "apple";
         String provider_id = null; //appleUniqueNo
         JSONObject tokenResponse = null;
@@ -331,7 +331,7 @@ public class AuthController {
                 // 약관동의 처음
                 if (appleUserInfo != null) {
                     log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
-                    PostSignupOauth2Req postSignupOauth2Req = new PostSignupOauth2Req(appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,true);
+                    PostSignupOauth2Req postSignupOauth2Req = new PostSignupOauth2Req(appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id, postSignupAppleReq.isTermsEnable());
                     try {
                         Long userId = userService.createAppleUser(postSignupOauth2Req);
                         token = authService.registerNewTokenForUser(userId);
