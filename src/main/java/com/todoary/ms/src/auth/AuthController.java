@@ -291,10 +291,9 @@ public class AuthController {
      * @param request, code, id_token, userInfo
      * @return token
      */
-    @PostMapping("/apple/redirect")
-    public BaseResponse<GetAppleUserRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestParam("code")String code, @RequestParam("id_token")String id_token,@RequestParam(value= "user", required = false)String userInfo){
-        PostSignupAppleReq postSignupAppleReq = new PostSignupAppleReq(code, id_token);
-        AppleUserInfo appleUserInfo = null;
+    @PostMapping("/apple/token")
+    public BaseResponse<GetAppleUserRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestBody PostSignupAppleReq postSignupAppleReq){
+        AppleUserInfo appleUserInfo = postSignupAppleReq.getAppleUserInfo();
         String provider = "apple";
         String provider_id = null; //appleUniqueNo
         JSONObject tokenResponse = null;
@@ -329,22 +328,24 @@ public class AuthController {
         }
 
         if (user == null) {
-            try {
                 // 약관동의 처음
-                if (userInfo != null) {
+                if (appleUserInfo != null) {
                     log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
-                    appleUserInfo = authService.parseUser(userInfo);
-                    getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,null,appleRefreshToken);
+                    PostSignupOauth2Req postSignupOauth2Req = new PostSignupOauth2Req(appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,true);
+                    try {
+                        Long userId = userService.createAppleUser(postSignupOauth2Req);
+                        token = authService.registerNewTokenForUser(userId);
+                        getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,token,appleRefreshToken);
+                    } catch (BaseException exception) {
+                        writeExceptionWithRequest(exception, request, postSignupOauth2Req.toString());
+                        return new BaseResponse<>(exception.getStatus());
+                    }
                 }
-                // 약관동의 취소 후 가입시
+                // 약관동의 취소 후 앱삭제후 다시 가입시
                 else{
-                    log.info("약관동의가 필요합니다.");
+                    log.info("애플 계정을 삭제해야합니다.");
                     getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null,appleRefreshToken);
                 }
-            } catch (BaseException e) {
-                writeExceptionWithMessage(e, e.getMessage());
-                return new BaseResponse<>(e.getStatus());
-            }
         }
         else
         {

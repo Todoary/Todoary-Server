@@ -61,6 +61,21 @@ public class UserService {
         createUser(user, postSignupOauth2Req.isTermsEnable());
     }
 
+    public Long createAppleUser(PostSignupOauth2Req postSignupOauth2Req) throws BaseException {
+        // provider가 "google", "apple" 인지
+        if (!userProvider.isProviderCorrect(postSignupOauth2Req.getProvider())) {
+            throw new BaseException(BaseResponseStatus.INVALID_PROVIDER);
+        }
+        String nickname = generateRandomNickname();
+        while (userProvider.checkNickname(nickname) == 1) {
+            nickname = generateRandomNickname();
+        }
+        String password = passwordEncoder.encode(postSignupOauth2Req.getProviderId());
+        User user = new User(postSignupOauth2Req.getName(), nickname, postSignupOauth2Req.getEmail(),
+                password, "ROLE_USER", postSignupOauth2Req.getProvider(), postSignupOauth2Req.getProviderId());
+        return createUser(user, postSignupOauth2Req.isTermsEnable()).getId();
+    }
+
     private String generateRandomNickname() {
         // 아스키 코드 48 ~ 122까지 랜덤 문자
         // 예: qOji6mPStx
