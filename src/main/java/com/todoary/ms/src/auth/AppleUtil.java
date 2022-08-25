@@ -216,10 +216,11 @@ public class AppleUtil {
             try {
                 String response = doPost(revokeUrl, tokenRequest);
                 ObjectMapper objectMapper = new ObjectMapper();
+
                 JSONObject  tokenResponse = objectMapper.readValue(response, JSONObject .class);
 
                 if (tokenRequest != null) {
-                    System.out.println(tokenResponse);
+                    log.info("계정 탈퇴에 성공하였습니다.");
                 }
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
