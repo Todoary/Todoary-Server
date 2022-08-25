@@ -329,7 +329,6 @@ public class AuthController {
 
         if (user == null) {
                 // 약관동의 처음
-                if (appleUserInfo != null) {
                     log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
                     PostSignupOauth2Req postSignupOauth2Req = new PostSignupOauth2Req(appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id, postSignupAppleReq.isTermsEnable());
                     try {
@@ -340,12 +339,6 @@ public class AuthController {
                         writeExceptionWithRequest(exception, request, postSignupOauth2Req.toString());
                         return new BaseResponse<>(exception.getStatus());
                     }
-                }
-                // 약관동의 취소 후 앱삭제후 다시 가입시
-                else{
-                    log.info("애플 계정을 삭제해야합니다.");
-                    getAppleUserRes = new GetAppleUserRes(true, "","",provider,provider_id,null,appleRefreshToken);
-                }
         }
         else
         {
@@ -372,7 +365,6 @@ public class AuthController {
     public BaseResponse<BaseResponseStatus> PostRevokeApple(HttpServletRequest request, @RequestBody String appleRefreshToken) {
         JSONObject tokenResponse = null;
         String appleAccessToken = null;
-
         /* create client_secret */
         try {
             String client_secret = appleUtil.createClientSecret();
