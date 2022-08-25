@@ -365,7 +365,6 @@ public class AuthController {
     public BaseResponse<BaseResponseStatus> PostRevokeApple(HttpServletRequest request, @RequestBody String appleRefreshToken) {
         JSONObject tokenResponse = null;
         String appleAccessToken = null;
-        System.out.println(appleRefreshToken);
         /* create client_secret */
         try {
             String client_secret = appleUtil.createClientSecret();
