@@ -19,11 +19,11 @@ public class AlarmDao {
     }
 
     public List<Alarm> selectByDateTime_todo(String target_date, String target_time) {
-        String selectByDateTime_todoQuery = "select fcm_token, title, target_date,target_time\n" +
-                "        from alarm_todo a\n" +
-                "        join (select id, title, target_date,target_time from todo where target_date = ? and target_time like ? and is_checked = 0) t on a.todo_id = t.id\n" +
-                "        join (select id, fcm_token from user where status = 1 and alarm_todo = 1) u on a.user_id = u.id;";
-
+        String selectByDateTime_todoQuery = "select fcm_token, title, target_date, target_time\n" +
+                "    from alarm_todo a\n" +
+                "        join(select id, title, target_date, target_time from todo where target_date = ? and target_time like ? and is_checked = 0) t on a.todo_id = t.id\n" +
+                "        join(select id from user where status = 1 and alarm_todo = 1) u on a.user_id = u.id\n" +
+                "        join(select user_id, fcm_token from fcm_token where fcm_token is not null) f on f.user_id = u.id\n";
         target_time += "%";
 
         Object[] selectByDateTime_todoParams = new Object[]{target_date, target_time};
@@ -37,8 +37,9 @@ public class AlarmDao {
     }
 
     public List<Alarm> selectByDateTime_daily() {
-        String selectByDateTime_dailyQuery = "select user.fcm_token from user\n" +
-                "where user.alarm_diary = 1";
+        String selectByDateTime_dailyQuery = "select f.fcm_token\n" +
+                "    from fcm_token f join user u on u.id = f.user_id\n" +
+                "    where alarm_diary = 1 and f.fcm_token is not null";
         return this.jdbcTemplate.query(selectByDateTime_dailyQuery,
                 (rs, rowNum) -> new Alarm(
                         rs.getString("fcm_token")
@@ -48,8 +49,11 @@ public class AlarmDao {
 
     public List<Alarm> selectByDateTime_remind(String target_date) {
         String selectByDateTime_remindQuery = "select fcm_token, target_date\n" +
-                "from (select user_id, target_date from alarm_remind where target_date = ?) a\n" +
-                "    join (select id , fcm_token from user where status = 1 and alarm_remind = 1) u on u.id = a.user_id";
+                "from (select user_id, target_date\n" +
+                "    from (select user_id, target_date from alarm_remind where target_date = ?) a\n" +
+                "    join (select id  from user where status = 1 and alarm_remind = 1) u on u.id = a.user_id) ua\n" +
+                "join fcm_token f on f.user_id = ua.user_id\n" +
+                "where f.fcm_token is not null;";
 
         return this.jdbcTemplate.query(selectByDateTime_remindQuery,
                 (rs, rowNum) -> new Alarm(

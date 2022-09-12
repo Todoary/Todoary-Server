@@ -143,6 +143,11 @@ public class UserService {
     }
 
     public void modifyFcmToken(Long user_id, String fcm_token) throws BaseException {
+        Long fcmTokenId = userProvider.checkFcmTokenExist(fcm_token);
+
+        if (fcmTokenId != 0) {
+            userDao.updateFcmTokenNull(fcmTokenId);
+        }
         try {
             userDao.updateFcmToken(user_id, fcm_token);
         } catch (Exception e) {

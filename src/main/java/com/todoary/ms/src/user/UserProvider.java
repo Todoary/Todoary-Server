@@ -6,6 +6,7 @@ import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
@@ -156,6 +157,17 @@ public class UserProvider {
                 return false;
             else
                 return true;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public Long checkFcmTokenExist(String fcm_token) throws BaseException {
+        try {
+            Long targetId = userDao.checkFcmTokenExist(fcm_token);
+            return targetId;
+        } catch (EmptyResultDataAccessException e) {
+            return 0L;
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
