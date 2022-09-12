@@ -166,7 +166,7 @@ public class UserDao {
     }
 
     public void updateFcmToken(Long user_id, String fcm_token) {
-        String updateFcmTokenQuery = "update user set fcm_token = ? where id = ?";
+        String updateFcmTokenQuery = "update fcm_token set fcm_token = ? where user_id = ?";
         Object[] updateFcmTokenParams = new Object[]{fcm_token, user_id};
         this.jdbcTemplate.update(updateFcmTokenQuery, updateFcmTokenParams);
     }
@@ -212,4 +212,14 @@ public class UserDao {
         this.jdbcTemplate.update(deleteByUserStatusQuery,target_date);
     }
 
+    public Long checkFcmTokenExist(String fcm_token) {
+//        String isFcmTokenExistQuery = "select exists(select fcm_token from fcm_token where fcm_token = ?";
+        String isFcmTokenExistQuery = "select id from fcm_token where fcm_token = ?";
+        return this.jdbcTemplate.queryForObject(isFcmTokenExistQuery, Long.class, fcm_token);
+    }
+
+    public void updateFcmTokenNull(Long fcmTokenId) {
+        String updateFcmTokenNullQuery = "update fcm_token set fcm_token = null where id = ?";
+        this.jdbcTemplate.update(updateFcmTokenNullQuery, fcmTokenId);
+    }
 }
