@@ -1,6 +1,7 @@
 package com.todoary.ms.src.todo;
 
 import com.todoary.ms.src.category.CategoryProvider;
+import com.todoary.ms.src.todo.dto.PatchTodoAlarmReq;
 import com.todoary.ms.src.todo.dto.PostTodoReq;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -42,7 +43,6 @@ public class TodoService {
         }
     }
 
-    @Transactional(rollbackOn = Exception.class)
     public void modifyTodo(Long userId, Long todoId, PostTodoReq postTodoReq) throws BaseException {
         todoProvider.assertUsersTodoValidById(userId, todoId);
         try {
@@ -77,6 +77,16 @@ public class TodoService {
         todoProvider.assertUsersTodoValidById(userId, todoId);
         try {
             todoDao.updateTodoPin(todoId, isPinned);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    public void modifyTodoAlarm(Long userId, Long todoId, PatchTodoAlarmReq patchTodoAlarmReq) throws BaseException {
+        todoProvider.assertUsersTodoValidById(userId, todoId);
+        try {
+            todoDao.updateTodoAlarm(todoId, patchTodoAlarmReq);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);

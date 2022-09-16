@@ -204,4 +204,22 @@ public class TodoController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    /**
+     * 3.9 투두 알람 수정 api
+     * [PATCH] /todo/:todoId/alarm
+     */
+    @PatchMapping("/{todoId}/alarm")
+    public BaseResponse<BaseResponseStatus> patchTodoAlarm(HttpServletRequest request,
+                                                      @PathVariable("todoId") Long todoId,
+                                                      @RequestBody PatchTodoAlarmReq patchTodoAlarmReq) {
+        try {
+            Long userId = getUserIdFromRequest(request);
+            todoService.modifyTodoAlarm(userId, todoId, patchTodoAlarmReq);
+            return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        } catch (BaseException e) {
+            ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request, patchTodoAlarmReq.toString());
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
