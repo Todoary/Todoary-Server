@@ -369,14 +369,14 @@ public class AuthController {
      * @return token
      */
     @PostMapping("/revoke/apple")
-    public BaseResponse<BaseResponseStatus> PostRevokeApple(HttpServletRequest request, @RequestBody String appleRefreshToken) {
+    public BaseResponse<BaseResponseStatus> PostRevokeApple(HttpServletRequest request, @RequestBody String code) {
         JSONObject tokenResponse = null;
         String appleAccessToken = null;
 
         /* create client_secret */
         try {
             String client_secret = appleUtil.createClientSecret();
-            tokenResponse = appleUtil.validateAppleRefreshToken(client_secret,appleRefreshToken);
+            tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret,code);
             /* decode id_token */
             if (tokenResponse.get("error") == null ) {
                 appleAccessToken = tokenResponse.getAsString("access_token");
