@@ -183,6 +183,12 @@ public class UserDao {
         this.jdbcTemplate.update(deleteRefreshTokenQuery, deleteRefreshTokenParam);
     }
 
+    public void deleteAppleUser(String email) {
+        String deleteAppleUserQuery = "delete from user where email = ? and provider = 'apple'";
+        String deleteAppleUserParam = email;
+        this.jdbcTemplate.update(deleteAppleUserQuery, deleteAppleUserParam);
+    }
+
     public void updateProfileImgToDefault(Long user_id) {
         String updateProfileImgToDefaultQuery = "update user set profile_img_url = 'https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg' where id = ?";
         this.jdbcTemplate.update(updateProfileImgToDefaultQuery,user_id);
