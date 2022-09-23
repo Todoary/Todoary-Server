@@ -124,6 +124,15 @@ public class UserProvider {
         }
     }
 
+    public int checkFCMToken(Long id) throws BaseException {
+        try {
+            return userDao.checkFCMToken(id);
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     public int checkAppleUniqueNo(String provider_id) throws BaseException {
         try {
             return userDao.checkAppleUniqueNo(provider_id);

@@ -177,10 +177,22 @@ public class UserDao {
         return this.jdbcTemplate.queryForObject(checkRefreshTokenQuery, int.class, checkRefreshTokenParam);
     }
 
+    public int checkFCMToken(Long id) {
+        String checkFCMTokenQuery = "select exists(select user_id from fcm_token where user_id = ?)";
+        Long checkFCMTokenParam = id;
+        return this.jdbcTemplate.queryForObject(checkFCMTokenQuery, int.class, checkFCMTokenParam);
+    }
+
     public void deleteRefreshToken(Long user_id) {
         String deleteRefreshTokenQuery = "delete from token where user_id = ?";
         Long deleteRefreshTokenParam = user_id;
         this.jdbcTemplate.update(deleteRefreshTokenQuery, deleteRefreshTokenParam);
+    }
+
+    public void deleteFCMToken(Long user_id) {
+        String deleteFCMTokenQuery = "delete from fcm_token where user_id = ?";
+        Long deleteFCMTokenParam = user_id;
+        this.jdbcTemplate.update(deleteFCMTokenQuery, deleteFCMTokenParam);
     }
 
     public void deleteAppleUser(String email) {
