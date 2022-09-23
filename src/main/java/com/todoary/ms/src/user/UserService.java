@@ -206,6 +206,17 @@ public class UserService {
         }
     }
 
+    public void removeFCMToken(Long user_id) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
+        try {
+            userDao.deleteFCMToken(user_id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     public void removeUserExpired(String targetDate) throws BaseException {
         try {
             userDao.deleteByUserStatus(targetDate);
