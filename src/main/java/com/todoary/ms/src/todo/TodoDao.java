@@ -2,6 +2,7 @@ package com.todoary.ms.src.todo;
 
 import com.todoary.ms.src.todo.dto.GetTodoByCategoryRes;
 import com.todoary.ms.src.todo.dto.GetTodoByDateRes;
+import com.todoary.ms.src.todo.dto.PatchTodoAlarmReq;
 import com.todoary.ms.src.todo.dto.PostTodoReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,7 +39,7 @@ public class TodoDao {
                 PreparedStatement pstmt = con.prepareStatement(insertTodoQuery,
                         new String[]{"id"});
                 pstmt.setLong(1, userId);
-                pstmt.setLong(2,categoryId);
+                pstmt.setLong(2, categoryId);
                 pstmt.setString(3, title);
                 pstmt.setString(4, targetDate);
                 pstmt.setBoolean(5, isAlarmEnabled);
@@ -79,7 +80,7 @@ public class TodoDao {
         String updateTodoQuery = "UPDATE todo " +
                 "SET title = ?, category_id = ?, target_date = ?,  is_alarm_enabled = ?, target_time = ? " +
                 "WHERE id = ?";
-        Object[] updateTodoParams = new Object[]{postTodoReq.getTitle(),postTodoReq.getCategoryId(), postTodoReq.getTargetDate(),
+        Object[] updateTodoParams = new Object[]{postTodoReq.getTitle(), postTodoReq.getCategoryId(), postTodoReq.getTargetDate(),
                 postTodoReq.isAlarmEnabled(), postTodoReq.getTargetTime(), todoId};
         this.jdbcTemplate.update(updateTodoQuery, updateTodoParams);
     }
@@ -119,8 +120,8 @@ public class TodoDao {
                         rs.getLong("category_id"),
                         rs.getString("category.title"),
                         rs.getInt("color")
-                        )
-                ,selectTodosByDateParams);
+                )
+                , selectTodosByDateParams);
     }
 
     public List<GetTodoByCategoryRes> selectTodoListByCategory(Long userId, Long categoryId) {
@@ -140,7 +141,7 @@ public class TodoDao {
                         rs.getLong("category_id"),
                         rs.getString("category.title"),
                         rs.getInt("color")
-                        ), selectTodosByCategoryParam);
+                ), selectTodosByCategoryParam);
     }
 
     public void updateTodoCheck(Long todoId, boolean isChecked) {
@@ -162,5 +163,14 @@ public class TodoDao {
         Object[] selectDaysHavingTodoInMonthParams = new Object[]{userId, yearAndMonth};
         return this.jdbcTemplate.query(selectDaysHavingTodoInMonthQuery,
                 (rs, rowNum) -> (rs.getInt("day")), selectDaysHavingTodoInMonthParams);
+    }
+
+    public void updateTodoAlarm(Long todoId, PatchTodoAlarmReq patchTodoAlarmReq) {
+        String updateTodoAlarmQuery = "UPDATE todo " +
+                "SET target_date = ?,  is_alarm_enabled = ?, target_time = ? " +
+                "WHERE id = ?";
+        Object[] updateTodoAlarmParams = new Object[]{patchTodoAlarmReq.getTargetDate(),
+                patchTodoAlarmReq.isAlarmEnabled(), patchTodoAlarmReq.getTargetTime(), todoId};
+        this.jdbcTemplate.update(updateTodoAlarmQuery, updateTodoAlarmParams);
     }
 }

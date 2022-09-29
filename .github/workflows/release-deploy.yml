@@ -1,12 +1,12 @@
 # This is a basic workflow to help you get started with Actions
 
-name: deploy
+name: release-deploy
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "Develop" branch
   push:
-    branches: [ "Develop"]
+    branches: [ "Release" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -17,7 +17,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
       - name: Set up JDK 11
@@ -32,7 +32,7 @@ jobs:
         run: |
           cd ./src/main/resources
           touch ./application-secret.yml
-          echo "${{ secrets.SECRET_YML }}" > ./application-secret.yml
+          echo "${{ secrets.RELEASE_YML }}" > ./application-secret.yml
         shell: bash
 
       - name: Grant execute permission for gradlew
@@ -55,25 +55,25 @@ jobs:
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             whoami
-            cd /home/ubuntu/Todoary-Server
+            cd /home/ubuntu/Release-Todoary-Server
              echo -e "\
              +------------------------------------+
              |              1. build              |
              +------------------------------------+"
             
             echo ">>>>>> making secret yml..."
-            echo "${{ secrets.SECRET_YML }}" > ./src/main/resources/application-secret.yml
-           
+            echo "${{ secrets.RELEASE_YML }}" > ./src/main/resources/application-secret.yml
+            
             echo ">>>>>> making auth key..."
             echo "${{ secrets.AUTH_KEY }}" > ./src/main/resources/static/AuthKey_Q97Q56DJS6.p8
             
             echo -e "\
              >>>>>> git pull... "
-            cd "/home/ubuntu/Todoary-Server" || exit 1
+            cd "/home/ubuntu/Release-Todoary-Server" || exit 1
             git fetch --all || exit 1
-            git reset --hard origin/Develop || exit 1
-            git pull origin Develop || exit 1
+            git reset --hard origin/Release || exit 1
+            git pull origin Release || exit 1
 
-            ./scripts/build.sh || exit 1
-            ./scripts/stop.sh || exit 1
-            ./scripts/start.sh || exit 1
+            ./release-scripts/build.sh || exit 1
+            ./release-scripts/stop.sh || exit 1
+            ./release-scripts/start.sh || exit 1

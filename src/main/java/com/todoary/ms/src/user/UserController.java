@@ -176,6 +176,11 @@ public class UserController {
                 userService.removeRefreshToken(user_id);
             }
 
+            /* remove FCM_token */
+            if (userProvider.checkFCMToken(user_id) == 1) {
+                userService.removeFCMToken(user_id);
+            }
+
             //Date expiration = new Date(jwtTokenProvider.getExpiration(jwtHeader)); // 남은 유효시간
             //userService.signOutUser(jwtHeader, expiration);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);

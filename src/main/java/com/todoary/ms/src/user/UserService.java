@@ -131,6 +131,17 @@ public class UserService {
         }
     }
 
+    public void removeAppleUser(String email) throws BaseException {
+        if (userProvider.checkEmail(email,"apple") == 0)
+            throw new BaseException(USERS_EMPTY_USER_EMAIL);
+        try {
+            userDao.deleteAppleUser(email);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     public void modifyAlarm(Long user_id, String alarm, boolean isChecked) throws BaseException {
         if (userProvider.checkId(user_id) == 0)
             throw new BaseException(USERS_EMPTY_USER_ID);
@@ -189,6 +200,17 @@ public class UserService {
             throw new BaseException(USERS_EMPTY_USER_ID);
         try {
             userDao.deleteRefreshToken(user_id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void removeFCMToken(Long user_id) throws BaseException {
+        if (userProvider.checkId(user_id) == 0)
+            throw new BaseException(USERS_EMPTY_USER_ID);
+        try {
+            userDao.deleteFCMToken(user_id);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
