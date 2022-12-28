@@ -24,6 +24,20 @@ spring:
       max-file-size:
       max-request-size:
 
+  # JPA settings
+  jpa:
+    hibernate:
+      ddl-auto:
+    properties:
+      show-sql:
+      hibernate:
+        format_sql:
+
+logging:
+  level:
+    org.hibernate.SQL:
+    org.hibernate.type:
+
   # AWS Account Credentials
 
 cloud:
