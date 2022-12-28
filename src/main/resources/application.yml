@@ -6,7 +6,7 @@ spring:
     include: secret
 
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name:
     url:
     username:
     password:

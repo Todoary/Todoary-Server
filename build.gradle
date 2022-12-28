@@ -58,6 +58,10 @@ dependencies {
 
 	// emoji 포함 길이
 	implementation group: 'com.ibm.icu', name: 'icu4j', version: '63.1'
+
+	// H2 데이터베이스
+	implementation 'com.h2database:h2:2.1.214'
+
 }
 
 tasks.named('test') {
