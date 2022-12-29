@@ -1,6 +1,5 @@
-package com.todoary.ms.src.domain.token;
+package com.todoary.ms.src.domain;
 
-import com.todoary.ms.src.domain.User;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -8,9 +7,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "type")
-public abstract class Token {
+public class Token {
     @Id
     @GeneratedValue
     @Column(name = "token_id")
@@ -19,6 +16,10 @@ public abstract class Token {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    private String refreshToken;
+    
+    private String fcmToken;
 
     private Integer status = 1;
 

@@ -1,16 +1,35 @@
 package com.todoary.ms.src.domain.alarm;
 
 import com.todoary.ms.src.domain.ToDo;
+import com.todoary.ms.src.domain.User;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
-@DiscriminatorValue("todo")
-public class ToDoAlarm extends Alarm {
+public class ToDoAlarm {
+    @Id
+    @GeneratedValue
+    @Column(name = "todo_alarm_id")
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @OneToOne
     @JoinColumn(name = "todo_id")
     private ToDo todo;
+
+    private Integer status = 1;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

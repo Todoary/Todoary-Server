@@ -1,7 +1,5 @@
 package com.todoary.ms.src.domain;
 
-import com.todoary.ms.src.domain.alarm.Alarm;
-import com.todoary.ms.src.domain.token.Token;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -59,4 +57,8 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Long getId() {
+        return this.id;
+    }
 }

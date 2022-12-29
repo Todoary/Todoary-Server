@@ -1,6 +1,5 @@
 package com.todoary.ms.src.domain;
 
-import com.todoary.ms.src.domain.alarm.Alarm;
 import com.todoary.ms.src.domain.alarm.ToDoAlarm;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
