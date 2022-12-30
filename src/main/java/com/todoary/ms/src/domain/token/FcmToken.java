@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Entity
-public class RefreshToken {
+public class FcmToken {
     @Id
     @GeneratedValue
-    @Column(name = "refresh_token_id")
+    @Column(name = "fcm_token_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -33,7 +33,7 @@ public class RefreshToken {
     private LocalDateTime updatedAt;
 
     /*---Constructor---*/
-    private RefreshToken(Member member, String value) {
+    private FcmToken(Member member, String value) {
         this.member = member;
         this.value = value;
     }
@@ -41,12 +41,12 @@ public class RefreshToken {
     /*---Getter---*/
 
     /*---Method---*/
-    public static RefreshToken create(Member member, String value) {
-        return new RefreshToken(member, value);
+    public static FcmToken create(Member member, String value) {
+        return new FcmToken(member, value);
     }
 
     public void register(Member member) {
         this.member = member;
-        member.setRefreshToken(this);
+        member.setFcmToken(this);
     }
 }

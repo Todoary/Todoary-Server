@@ -24,7 +24,7 @@ public class ToDo {
 
     private LocalDateTime targetTime;
 
-    @OneToOne(mappedBy = "todo")
+    @OneToOne(mappedBy = "todo", fetch = FetchType.LAZY)
     private ToDoAlarm alarm;
 
     private Boolean isAlarmEnabled;
