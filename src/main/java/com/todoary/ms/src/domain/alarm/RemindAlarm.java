@@ -1,6 +1,6 @@
 package com.todoary.ms.src.domain.alarm;
 
-import com.todoary.ms.src.domain.User;
+import com.todoary.ms.src.domain.Member;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,9 +15,9 @@ public class RemindAlarm {
     @Column(name = "remind_alarm_id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     private LocalDate targetDate;
 
