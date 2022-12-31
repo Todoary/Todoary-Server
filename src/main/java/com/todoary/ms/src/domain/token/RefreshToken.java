@@ -20,7 +20,7 @@ public class RefreshToken {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private String value;
+    private String jwt;
 
     private Integer status = 1;
 
@@ -33,16 +33,19 @@ public class RefreshToken {
     private LocalDateTime updatedAt;
 
     /*---Constructor---*/
-    private RefreshToken(Member member, String value) {
+    private RefreshToken(Member member, String jwt) {
         this.member = member;
-        this.value = value;
+        this.jwt = jwt;
     }
 
     /*---Getter---*/
+    public Long getId() {
+        return id;
+    }
 
     /*---Method---*/
-    public static RefreshToken create(Member member, String value) {
-        return new RefreshToken(member, value);
+    public static RefreshToken create(Member member, String jwt) {
+        return new RefreshToken(member, jwt);
     }
 
     public void register(Member member) {

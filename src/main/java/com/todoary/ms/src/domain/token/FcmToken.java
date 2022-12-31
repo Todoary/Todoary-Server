@@ -20,7 +20,7 @@ public class FcmToken {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private String value;
+    private String jwt;
 
     private Integer status = 1;
 
@@ -33,16 +33,16 @@ public class FcmToken {
     private LocalDateTime updatedAt;
 
     /*---Constructor---*/
-    private FcmToken(Member member, String value) {
+    private FcmToken(Member member, String jwt) {
         this.member = member;
-        this.value = value;
+        this.jwt = jwt;
     }
 
     /*---Getter---*/
 
     /*---Method---*/
-    public static FcmToken create(Member member, String value) {
-        return new FcmToken(member, value);
+    public static FcmToken create(Member member, String jwt) {
+        return new FcmToken(member, jwt);
     }
 
     public void register(Member member) {
