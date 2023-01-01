@@ -6,7 +6,7 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the "Develop" branch
   push:
-    branches: [ "Feature/*", "Bugfix", "Hotfix" ]
+    branches: [ "Feature/*", "Feature/*/*", "Bugfix", "Hotfix" ]
   #pull_request:
   #  branches: [ "Develop" ]
 
@@ -41,12 +41,21 @@ jobs:
         shell: bash
         
       ## create application-secret.yml
-      - name: make application-secret.yml
+#      - name: make application-secret.yml
+#        #if: contains(github.ref, 'develop')
+#        run: |
+#          cd ./src/main/resources
+#          touch ./application-secret.yml
+#          echo "${{ secrets.SECRET_YML }}" > ./application-secret.yml
+#        shell: bash
+
+      - name: make application.yml for test
         #if: contains(github.ref, 'develop')
         run: |
-          cd ./src/main/resources
-          touch ./application-secret.yml
-          echo "${{ secrets.SECRET_YML }}" > ./application-secret.yml
+          mkdir -p ./src/test/resources
+          cd ./src/test/resources
+          touch ./application.yml
+          echo "${{ secrets.TEST_YML }}" > ./application.yml
         shell: bash
 
       - name: Grant execute permission for gradlew
