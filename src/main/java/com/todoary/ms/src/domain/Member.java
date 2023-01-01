@@ -47,8 +47,11 @@ public class Member {
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
     private FcmToken fcmToken;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ToDo> toDos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Category> categories;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Diary> diaries = new ArrayList<>();
