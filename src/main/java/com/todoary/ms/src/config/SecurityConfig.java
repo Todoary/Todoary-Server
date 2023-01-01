@@ -73,6 +73,9 @@ public class SecurityConfig {
                 .antMatchers("/swagger-resources/**").permitAll()
                 .antMatchers("/v2/api-docs").permitAll()
                 .antMatchers("/health").permitAll()
+                // h2 console
+                .antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/favicon.ico").permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()
@@ -84,7 +87,7 @@ public class SecurityConfig {
                 .userInfoEndpoint().userService(principalOAuth2UserService)
                 .and()
                 .successHandler(new OAuth2SuccessHandler(jwtTokenProvider, authService));
-
+        http.headers().frameOptions().sameOrigin();
         return http.build();
     }
 }
