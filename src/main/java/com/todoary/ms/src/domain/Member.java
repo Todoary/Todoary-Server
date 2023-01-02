@@ -1,9 +1,10 @@
 package com.todoary.ms.src.domain;
 
-import com.todoary.ms.src.domain.token.FcmToken;
-import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.domain.alarm.RemindAlarm;
 import com.todoary.ms.src.domain.alarm.ToDoAlarm;
+import com.todoary.ms.src.domain.token.FcmToken;
+import com.todoary.ms.src.domain.token.RefreshToken;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@NoArgsConstructor
+@Getter @NoArgsConstructor
 @Entity
 public class Member {
     @Id
@@ -51,7 +52,7 @@ public class Member {
     private List<ToDo> toDos = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Category> categories;
+    private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Diary> diaries = new ArrayList<>();
@@ -73,7 +74,7 @@ public class Member {
     private LocalDateTime updatedAt;
 
     /*---Constructor---*/
-    private Member(String name, String nickname, String email, String password) {
+    public Member(String name, String nickname, String email, String password) {
         this.name = name;
         this.nickname = nickname;
         this.email = email;

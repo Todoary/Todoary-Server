@@ -1,10 +1,14 @@
 package com.todoary.ms.src.exception.common;
 
 import com.todoary.ms.util.BaseResponseStatus;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor @Getter
+@Getter
 public class TodoaryException extends RuntimeException{
     private BaseResponseStatus status;
+
+    public TodoaryException(BaseResponseStatus status) {
+        super(status.getMessage());
+        this.status = status;
+    }
 }
