@@ -43,3 +43,5 @@ out/
 .vscode/
 src/main/resources/application-secret.yml
 Temp**Test.java
+src/main/resources/application-test.yml
+src/test/resources/application.yml
