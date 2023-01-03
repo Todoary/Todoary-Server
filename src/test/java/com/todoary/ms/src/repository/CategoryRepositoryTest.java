@@ -59,9 +59,11 @@ class CategoryRepositoryTest {
         Category category = categoryRepository.save(new Category("title", new Color(10), member));
         Long id = category.getId();
         // when
+        category.removeAssociations();
         categoryRepository.delete(category);
         // then
         assertThat(categoryRepository.findById(id)).isEmpty();
+        assertThat(member.getCategories()).hasSize(0);
     }
 
     @Test

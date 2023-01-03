@@ -60,6 +60,7 @@ public class JpaCategoryService {
     public void deleteCategory(Long memberId, Long categoryId) {
         Member member = getMemberById(memberId);
         Category category = getMembersCategoryById(member, categoryId);
+        category.removeAssociations();
         categoryRepository.delete(category);
     }
 
