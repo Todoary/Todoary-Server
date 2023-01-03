@@ -20,11 +20,11 @@ import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithAuthorizedReq
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
-    private final CategoryService categoryService;
+    private final JdbcCategoryService categoryService;
     private final CategoryProvider categoryProvider;
 
     @Autowired
-    public CategoryController(CategoryService categoryService, CategoryProvider categoryProvider) {
+    public CategoryController(JdbcCategoryService categoryService, CategoryProvider categoryProvider) {
         this.categoryService = categoryService;
         this.categoryProvider = categoryProvider;
     }
