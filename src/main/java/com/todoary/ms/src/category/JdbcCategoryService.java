@@ -1,7 +1,6 @@
 package com.todoary.ms.src.category;
 
 import com.todoary.ms.src.category.dto.PostCategoryReq;
-import com.todoary.ms.src.todo.dto.PostTodoReq;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -15,14 +14,14 @@ import static com.todoary.ms.util.BaseResponseStatus.*;
 
 @Slf4j
 @Service
-public class CategoryService {
+public class JdbcCategoryService {
 
     private final CategoryProvider categoryProvider;
     private final CategoryDao categoryDao;
     private final UserProvider userProvider;
 
     @Autowired
-    public CategoryService(CategoryProvider categoryProvider, CategoryDao categoryDao, UserProvider userProvider) {
+    public JdbcCategoryService(CategoryProvider categoryProvider, CategoryDao categoryDao, UserProvider userProvider) {
         this.categoryProvider = categoryProvider;
         this.categoryDao = categoryDao;
         this.userProvider = userProvider;
