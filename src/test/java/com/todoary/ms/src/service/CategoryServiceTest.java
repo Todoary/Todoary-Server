@@ -119,6 +119,7 @@ class CategoryServiceTest {
         categoryService.deleteCategory(member.getId(), categoryId);
         // then
         assertThat(categoryRepository.findById(categoryId)).isEmpty();
+        assertThat(member.getCategories()).hasSize(0);
     }
 
     @Test

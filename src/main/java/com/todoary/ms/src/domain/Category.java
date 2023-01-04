@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,6 +25,9 @@ public class Category extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ToDo> todos = new ArrayList<>();
 
     public Category(String title, Color color, Member member) {
         this.title = title;
@@ -43,5 +48,9 @@ public class Category extends BaseTimeEntity {
     public void update(String title, Color color) {
         this.title = title;
         this.color = color;
+    }
+
+    public void removeAssociations(){
+        this.member.getCategories().remove(this);
     }
 }

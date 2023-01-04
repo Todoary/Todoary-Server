@@ -20,6 +20,10 @@ public class ToDo {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     private LocalDate targetDate;
 
     private LocalDateTime targetTime;

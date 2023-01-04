@@ -6,8 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor
-@EqualsAndHashCode(of = {"code"})
+@AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
 @Embeddable
 public class Color {
     @Column(name = "color")
