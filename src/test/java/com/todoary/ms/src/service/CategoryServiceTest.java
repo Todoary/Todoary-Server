@@ -1,7 +1,7 @@
 package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.domain.Category;
-import com.todoary.ms.src.domain.CategoryUpdateRequest;
+import com.todoary.ms.src.web.dto.CategoryUpdateRequest;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.CategoryRepository;

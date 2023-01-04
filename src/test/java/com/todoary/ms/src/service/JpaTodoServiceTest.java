@@ -4,6 +4,10 @@ import com.todoary.ms.src.domain.*;
 import com.todoary.ms.src.repository.CategoryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
+import com.todoary.ms.src.web.dto.TodoResponse;
+import com.todoary.ms.src.web.dto.TodoSaveRequest;
+import com.todoary.ms.src.web.dto.TodoUpdateAlarmRequest;
+import com.todoary.ms.src.web.dto.TodoUpdateRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +24,8 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@Transactional @SpringBootTest class JpaTodoServiceTest {
+@Transactional @SpringBootTest
+class JpaTodoServiceTest {
     @Autowired
     EntityManager em;
 
