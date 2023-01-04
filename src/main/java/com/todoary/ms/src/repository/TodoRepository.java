@@ -30,21 +30,21 @@ public class TodoRepository {
     }
 
     public List<Todo> findByDateAndMember(LocalDate targetDate, Member member) {
-        return em.createQuery("select t from Todo t where t.member = :member and t.targetDate = :targetDate", Todo.class)
+        return em.createQuery("select t from Todo t where t.member = :member and t.targetDate = :targetDate order by t.targetDate, t.targetTime, t.createdAt", Todo.class)
                 .setParameter("member", member)
                 .setParameter("targetDate", targetDate)
                 .getResultList();
     }
 
     public List<Todo> findByCategory(Category category) {
-        return em.createQuery("select t from Todo t where t.category = :category", Todo.class)
+        return em.createQuery("select t from Todo t where t.category = :category order by t.targetDate, t.targetTime, t.createdAt", Todo.class)
                 .setParameter("category", category)
                 .getResultList();
     }
 
     public List<Todo> findBetweenDaysAndMember(LocalDate firstDay, LocalDate lastDay, Member member) {
         return em.createQuery("select t from Todo t where t.member = :member and " +
-                        "t.targetDate between :firstDay and :lastDay", Todo.class)
+                        "t.targetDate between :firstDay and :lastDay order by t.targetDate", Todo.class)
                 .setParameter("member", member)
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)

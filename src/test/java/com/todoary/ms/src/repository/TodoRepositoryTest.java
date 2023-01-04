@@ -75,7 +75,7 @@ class TodoRepositoryTest {
 
         boolean expectedEnabled = false;
         // when
-        todo.update(title, expectedCategory, date, time, expectedEnabled);
+        todo.update(title, expectedCategory, expectedEnabled, date, time);
         Todo found = todoRepository.findById(todo.getId()).get();
         // then
         assertThat(found).isEqualTo(todo);

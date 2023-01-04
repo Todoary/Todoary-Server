@@ -23,35 +23,32 @@ public class Todo extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-
     private String title;
-
+    @Column(nullable = false)
+    private Boolean isAlarmEnabled = false;
     private LocalDate targetDate;
     private LocalTime targetTime;
-
-    private Boolean isAlarmEnabled;
-
-    private Boolean isChecked;
-
-    private Boolean isPinned;
+    @Column(nullable = false)
+    private Boolean isChecked = false;
+    @Column(nullable = false)
+    private Boolean isPinned = false;
 
     @Builder
-    public Todo(Member member, Category category, String title, LocalDate targetDate, LocalTime targetTime, Boolean isAlarmEnabled) {
+    public Todo(Member member, Category category, String title, Boolean isAlarmEnabled, LocalDate targetDate, LocalTime targetTime) {
         setMember(member);
         setCategory(category);
         this.title = title;
-        setTarget(targetDate, targetTime);
-        enableAlarm(isAlarmEnabled);
+        updateAlarm(isAlarmEnabled, targetDate, targetTime);
     }
 
-    public void update(String title, Category category, LocalDate targetDate, LocalTime targetTime, Boolean isAlarmEnabled) {
+    public void update(String title, Category category, Boolean isAlarmEnabled, LocalDate targetDate, LocalTime targetTime) {
         this.title = title;
         setCategory(category);
-        setTarget(targetDate, targetTime);
-        enableAlarm(isAlarmEnabled);
+        updateAlarm(isAlarmEnabled, targetDate, targetTime);
     }
 
-    public void setTarget(LocalDate targetDate, LocalTime targetTime) {
+    public void updateAlarm(boolean isAlarmEnabled, LocalDate targetDate, LocalTime targetTime) {
+        this.isAlarmEnabled = isAlarmEnabled;
         this.targetDate = targetDate;
         this.targetTime = targetTime;
     }
@@ -78,10 +75,6 @@ public class Todo extends BaseTimeEntity {
 
     public void pin(boolean isPinned){
         this.isPinned = isPinned;
-    }
-
-    public void enableAlarm(boolean isAlarmEnabled){
-        this.isAlarmEnabled = isAlarmEnabled;
     }
 
     public void removeAssociations() {
