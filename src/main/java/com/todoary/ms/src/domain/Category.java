@@ -27,7 +27,7 @@ public class Category extends BaseTimeEntity {
     private Member member;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ToDo> todos = new ArrayList<>();
+    private List<Todo> todos = new ArrayList<>();
 
     public Category(String title, Color color, Member member) {
         this.title = title;
