@@ -1,7 +1,6 @@
 package com.todoary.ms.src.domain;
 
 import com.todoary.ms.src.domain.alarm.RemindAlarm;
-import com.todoary.ms.src.domain.alarm.ToDoAlarm;
 import com.todoary.ms.src.domain.token.FcmToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import lombok.Getter;
@@ -49,7 +48,7 @@ public class Member {
     private FcmToken fcmToken;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ToDo> toDos = new ArrayList<>();
+    private List<Todo> todos = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
@@ -60,8 +59,8 @@ public class Member {
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
     private RemindAlarm remindAlarm;
 
-    @OneToMany(mappedBy = "member")
-    private List<ToDoAlarm> toDoAlarms = new ArrayList<>();
+    // @OneToMany(mappedBy = "member")
+    // private List<ToDoAlarm> toDoAlarms = new ArrayList<>();
 
     private Integer status = 1;
 
