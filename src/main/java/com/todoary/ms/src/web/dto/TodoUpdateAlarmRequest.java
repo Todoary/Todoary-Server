@@ -1,4 +1,4 @@
-package com.todoary.ms.src.domain;
+package com.todoary.ms.src.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class TodoUpdatePinRequest {
-    @JsonProperty("isPinned")
-    private boolean isPinned;
+public class TodoUpdateAlarmRequest {
+    @JsonProperty("isAlarmEnabled")
+    private boolean isAlarmEnabled;
+    private String targetDate;
+    private String targetTime;
 }

@@ -1,6 +1,7 @@
-package com.todoary.ms.src.domain;
+package com.todoary.ms.src.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.todoary.ms.src.domain.Todo;
 import lombok.*;
 
 import java.time.temporal.ChronoUnit;

@@ -1,6 +1,9 @@
-package com.todoary.ms.src.domain;
+package com.todoary.ms.src.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.todoary.ms.src.domain.Category;
+import com.todoary.ms.src.domain.Member;
+import com.todoary.ms.src.domain.Todo;
 import com.todoary.ms.src.service.JpaTodoService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
