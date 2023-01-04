@@ -6,7 +6,7 @@ name: develop-deploy
 on:
   # Triggers the workflow on push or pull request events but only for the "Develop" branch
   push:
-    branches: [ "Develop"]
+    branches: [ "Develop" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -17,7 +17,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
       - name: Set up JDK 11
@@ -33,6 +33,15 @@ jobs:
           cd ./src/main/resources
           touch ./application-secret.yml
           echo "${{ secrets.SECRET_YML }}" > ./application-secret.yml
+        shell: bash
+
+      - name: make application.yml for test
+        #if: contains(github.ref, 'develop')
+        run: |
+          mkdir -p ./src/test/resources
+          cd ./src/test/resources
+          touch ./application.yml
+          echo "${{ secrets.TEST_YML }}" > ./application.yml
         shell: bash
 
       - name: Grant execute permission for gradlew
@@ -63,7 +72,11 @@ jobs:
             
             echo ">>>>>> making secret yml..."
             echo "${{ secrets.SECRET_YML }}" > ./src/main/resources/application-secret.yml
-           
+            
+            echo ">>>>>> making test yml..."
+            mkdir -p ./src/test/resources
+            echo "${{ secrets.TEST_YML }}" > ./src/test/resources/application.yml
+            
             echo ">>>>>> making auth key..."
             echo "${{ secrets.AUTH_KEY }}" > ./src/main/resources/static/AuthKey_Q97Q56DJS6.p8
             

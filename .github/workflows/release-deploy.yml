@@ -35,6 +35,15 @@ jobs:
           echo "${{ secrets.RELEASE_YML }}" > ./application-secret.yml
         shell: bash
 
+      - name: make application.yml for test
+        #if: contains(github.ref, 'develop')
+        run: |
+          mkdir -p ./src/test/resources
+          cd ./src/test/resources
+          touch ./application.yml
+          echo "${{ secrets.TEST_YML }}" > ./application.yml
+        shell: bash
+
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
@@ -63,6 +72,10 @@ jobs:
             
             echo ">>>>>> making secret yml..."
             echo "${{ secrets.RELEASE_YML }}" > ./src/main/resources/application-secret.yml
+            
+            echo ">>>>>> making test yml..."
+            mkdir -p ./src/test/resources
+            echo "${{ secrets.TEST_YML }}" > ./src/test/resources/application.yml
             
             echo ">>>>>> making auth key..."
             echo "${{ secrets.AUTH_KEY }}" > ./src/main/resources/static/AuthKey_Q97Q56DJS6.p8
