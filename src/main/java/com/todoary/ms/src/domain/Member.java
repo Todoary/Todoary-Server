@@ -12,6 +12,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter @NoArgsConstructor
 @Entity
@@ -98,4 +99,8 @@ public class Member {
         return new Member(name, nickname,email, password);
     }
 
+    public Optional<Category> findCategoryNamed(String title) {
+        return getCategories().stream()
+                .filter(category -> category.getTitle().equals(title)).findAny();
+    }
 }
