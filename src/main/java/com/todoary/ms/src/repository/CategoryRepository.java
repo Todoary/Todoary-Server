@@ -1,7 +1,6 @@
 package com.todoary.ms.src.repository;
 
 import com.todoary.ms.src.domain.Category;
-import com.todoary.ms.src.domain.Member;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -24,14 +23,6 @@ public class CategoryRepository {
 
     public void delete(Category category) {
         em.remove(category);
-    }
-
-    public Optional<Category> findByMembersTitle(Member member, String title) {
-        return em.createQuery("select c from Category c where c.member = :member and c.title = :title", Category.class)
-                .setParameter("member", member)
-                .setParameter("title", title)
-                .getResultStream()
-                .findFirst();
     }
 
 }

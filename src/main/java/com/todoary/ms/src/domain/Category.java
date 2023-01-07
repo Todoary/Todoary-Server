@@ -50,6 +50,10 @@ public class Category extends BaseTimeEntity {
     /*---Method---*/
     public void update(String title, Color color) {
         this.title = title;
+        update(color);
+    }
+
+    public void update(Color color) {
         this.color = color;
     }
 

@@ -10,6 +10,6 @@ import javax.persistence.Embeddable;
 @EqualsAndHashCode
 @Embeddable
 public class Color {
-    @Column(name = "color")
-    private Integer code;
+    @Column(name = "color", nullable = false)
+    private Integer code = 1;
 }

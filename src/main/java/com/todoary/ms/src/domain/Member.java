@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter @NoArgsConstructor
 @Entity
@@ -124,9 +125,12 @@ public class Member extends BaseTimeEntity {
         return new Member(name, nickname,email, password, isTermsEnable);
     }
 
+    public Optional<Category> findCategoryNamed(String title) {
+        return getCategories().stream()
+                .filter(category -> category.getTitle().equals(title)).findAny();
+    }
+
     public static Member createByOauth(String name, String email, ProviderAccount providerAccount, Integer isTermsEnable) {
         return new Member(name, email, providerAccount, isTermsEnable);
     }
-
-
 }

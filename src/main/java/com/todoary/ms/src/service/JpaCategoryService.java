@@ -1,7 +1,6 @@
 package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.domain.Category;
-import com.todoary.ms.src.web.dto.CategoryUpdateRequest;
 import com.todoary.ms.src.domain.Color;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.exception.common.TodoaryException;
@@ -9,6 +8,7 @@ import com.todoary.ms.src.repository.CategoryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.CategoryResponse;
 import com.todoary.ms.src.web.dto.CategorySaveRequest;
+import com.todoary.ms.src.web.dto.CategoryUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,6 @@ public class JpaCategoryService {
     private final CategoryRepository categoryRepository;
     private final MemberRepository memberRepository;
 
-
     @Autowired
     public JpaCategoryService(CategoryRepository categoryRepository, MemberRepository memberRepository) {
         this.categoryRepository = categoryRepository;
@@ -34,26 +33,24 @@ public class JpaCategoryService {
     @Transactional
     public Long saveCategory(Long memberId, CategorySaveRequest request) {
         Member member = getMemberById(memberId);
-        categoryRepository.findByMembersTitle(member, request.getTitle())
-                .ifPresent((c) -> {
-                    throw new TodoaryException(DUPLICATE_CATEGORY);
-                });
+        if (member.findCategoryNamed(request.getTitle()).isPresent())
+            throw new TodoaryException(DUPLICATE_CATEGORY);
         return categoryRepository.save(request.toEntity(member)).getId();
     }
 
     @Transactional
     public void updateCategory(Long memberId, Long categoryId, CategoryUpdateRequest request) {
         Member member = getMemberById(memberId);
-        Category category = findCategoryByIdAndMember(categoryId, member);
-        categoryRepository.findByMembersTitle(member, request.getTitle())
-                .ifPresent((c) -> {
-                    if (!c.getId().equals(categoryId))
-                        throw new TodoaryException(DUPLICATE_CATEGORY);
-                });
-        Color color = new Color(request.getColor());
-        if (category.getTitle().equals(request.getTitle()) && category.getColor().equals(color))
+        Category target = findCategoryByIdAndMember(categoryId, member);
+        Color nextColor = new Color(request.getColor());
+        String nextTitle = request.getTitle();
+        if (target.getTitle().equals(nextTitle)) {
+            target.update(nextColor);
             return;
-        category.update(request.getTitle(), color);
+        }
+        if (member.findCategoryNamed(nextTitle).isPresent())
+            throw new TodoaryException(DUPLICATE_CATEGORY);
+        target.update(nextTitle, nextColor);
     }
 
     @Transactional
