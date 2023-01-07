@@ -5,19 +5,16 @@ import com.todoary.ms.src.domain.token.FcmToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter @NoArgsConstructor
 @Entity
-public class Member {
+public class Member extends BaseTimeEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
 
@@ -29,22 +26,20 @@ public class Member {
 
     private String password;
 
-    @Column(name = "profile_img_rul")
+    @Column(name = "profile_img_url")
     private String profileImgUrl;
 
     private String introduce;
 
     private String role;
 
-    // provider는 추후 Provider객체로 병합
-    private String provider;
+    @Embedded
+    private ProviderAccount providerAccount;
 
-    private String providerId;
-
-    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RefreshToken refreshToken;
 
-    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private FcmToken fcmToken;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -53,35 +48,34 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Diary> diaries = new ArrayList<>();
 
-    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RemindAlarm remindAlarm;
 
-    // @OneToMany(mappedBy = "member")
-    // private List<ToDoAlarm> toDoAlarms = new ArrayList<>();
+    private Integer isTermsEnable;
 
-    private Integer status = 1;
+    private Integer toDoAlarmEnable = 1;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private Integer remindAlarmEnable = 1;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Integer dailyAlarmEnable = 1;
 
     /*---Constructor---*/
-    public Member(String name, String nickname, String email, String password) {
+    private Member(String name, String nickname, String email, String password, Integer isTermsEnable) {
         this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
+        this.isTermsEnable = isTermsEnable;
     }
-    /*---Getter---*/
-    public Long getId() {
-        return this.id;
+
+    private Member(String name, String email, ProviderAccount providerAccount, Integer isTermsEnable) {
+        this.name = name;
+        this.email = email;
+        this.providerAccount = providerAccount;
+        this.isTermsEnable = isTermsEnable;
     }
 
     /*---Setter---*/
@@ -93,9 +87,46 @@ public class Member {
         this.fcmToken = fcmToken;
     }
 
-    /*---Method---*/
-    public static Member create(String name, String nickname, String email, String password) {
-        return new Member(name, nickname,email, password);
+    public void addTodo(Todo todo) {
+        this.todos.add(todo);
     }
+
+    public void addDiary(Diary diary) {
+        this.diaries.add(diary);
+    }
+
+    public void changeRemindAlarm(RemindAlarm remindAlarm) {
+        this.remindAlarm = remindAlarm;
+    }
+
+    public void addCategory(Category category) {
+        this.categories.add(category);
+    }
+
+    public void removeTodo(Todo todo) {
+        this.todos.remove(todo);
+    }
+
+    public void removeRefreshToken() {
+        this.refreshToken = null;
+    }
+
+    public void removeFcmToken() {
+        this.fcmToken = null;
+    }
+
+    public void removeCategory(Category category) {
+        this.categories.remove(category);
+    }
+
+    /*---Method---*/
+    public static Member create(String name, String nickname, String email, String password, Integer isTermsEnable) {
+        return new Member(name, nickname,email, password, isTermsEnable);
+    }
+
+    public static Member createByOauth(String name, String email, ProviderAccount providerAccount, Integer isTermsEnable) {
+        return new Member(name, email, providerAccount, isTermsEnable);
+    }
+
 
 }

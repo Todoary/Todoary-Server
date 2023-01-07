@@ -1,6 +1,9 @@
 package com.todoary.ms.src.domain.token;
 
+import com.todoary.ms.src.domain.BaseTimeEntity;
 import com.todoary.ms.src.domain.Member;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -8,11 +11,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
+@Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class RefreshToken {
+public class RefreshToken extends BaseTimeEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "refresh_token_id")
     private Long id;
 
@@ -22,34 +25,20 @@ public class RefreshToken {
 
     private String jwt;
 
-    private Integer status = 1;
-
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     /*---Constructor---*/
-    private RefreshToken(Member member, String jwt) {
+    public RefreshToken(Member member, String jwt) {
         this.member = member;
+        member.setRefreshToken(this);
         this.jwt = jwt;
     }
 
-    /*---Getter---*/
-    public Long getId() {
-        return id;
+    /*---Setter---*/
+    public void changeJwt(String jwt) {
+        this.jwt = jwt;
     }
 
     /*---Method---*/
-    public static RefreshToken create(Member member, String jwt) {
-        return new RefreshToken(member, jwt);
-    }
-
-    public void register(Member member) {
-        this.member = member;
-        member.setRefreshToken(this);
+    public void removeAssociations() {
+        this.member.removeRefreshToken();
     }
 }

@@ -1,6 +1,10 @@
 package com.todoary.ms.src.domain.alarm;
 
+import com.todoary.ms.src.domain.BaseTimeEntity;
 import com.todoary.ms.src.domain.Member;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -8,10 +12,11 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class RemindAlarm {
+public class RemindAlarm extends BaseTimeEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "remind_alarm_id")
     private Long id;
 
@@ -20,14 +25,4 @@ public class RemindAlarm {
     private Member member;
 
     private LocalDate targetDate;
-
-    private Integer status = 1;
-
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }
