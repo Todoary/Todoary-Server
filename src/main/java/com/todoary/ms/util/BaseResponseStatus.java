@@ -83,6 +83,8 @@ public enum BaseResponseStatus {
     DATABASE_ERROR(false, 4000, "데이터베이스 연결에 실패하였습니다."),
     SERVER_ERROR(false, 4001, "서버와의 연결에 실패하였습니다."),
 
+    INTERNAL_SERVER_ERROR(false, 4004, "서버에서 에러가 발생했습니다"),
+
     //[PATCH] /users/{userIdx}
     MODIFY_FAIL_USERNAME(false, 4014, "유저네임 수정 실패"),
     MODIFY_FAIL_FCMTOKEN(false, 4015, "FCM Token 수정 실패"),
