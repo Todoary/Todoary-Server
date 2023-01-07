@@ -67,10 +67,11 @@ class CategoryRepositoryTest {
     }
 
     @Test
-    void BaseTimeEntity로_생성_수정_시간_저장() {
+    void BaseTimeEntity로_생성_수정_시간_저장() throws InterruptedException {
         // given
         Member member = createMember();
         LocalDateTime now = LocalDateTime.now();
+        Thread.sleep(1000);
         Category category = categoryRepository.save(new Category("title", new Color(10), member));
         // when
         Category found = categoryRepository.findById(category.getId()).get();
