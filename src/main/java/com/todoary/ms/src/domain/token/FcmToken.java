@@ -1,6 +1,9 @@
 package com.todoary.ms.src.domain.token;
 
+import com.todoary.ms.src.domain.BaseTimeEntity;
 import com.todoary.ms.src.domain.Member;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -8,11 +11,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
+@Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class FcmToken {
+public class FcmToken extends BaseTimeEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fcm_token_id")
     private Long id;
 
@@ -22,31 +25,15 @@ public class FcmToken {
 
     private String jwt;
 
-    private Integer status = 1;
-
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     /*---Constructor---*/
     private FcmToken(Member member, String jwt) {
         this.member = member;
+        member.setFcmToken(this);
         this.jwt = jwt;
     }
 
-    /*---Getter---*/
-
     /*---Method---*/
-    public static FcmToken create(Member member, String jwt) {
-        return new FcmToken(member, jwt);
-    }
-
-    public void register(Member member) {
-        this.member = member;
-        member.setFcmToken(this);
+    public void remove() {
+        this.member.removeFcmToken();
     }
 }
