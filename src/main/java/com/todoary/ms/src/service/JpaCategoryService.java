@@ -13,9 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static com.todoary.ms.util.BaseResponseStatus.*;
 
 @Service
@@ -33,8 +30,7 @@ public class JpaCategoryService {
     @Transactional
     public Long saveCategory(Long memberId, CategorySaveRequest request) {
         Member member = getMemberById(memberId);
-        if (member.findCategoryNamed(request.getTitle()).isPresent())
-            throw new TodoaryException(DUPLICATE_CATEGORY);
+        validateMembersCategoryTitle(member, request.getTitle());
         return categoryRepository.save(request.toEntity(member)).getId();
     }
 
@@ -48,9 +44,13 @@ public class JpaCategoryService {
             target.update(nextColor);
             return;
         }
-        if (member.findCategoryNamed(nextTitle).isPresent())
-            throw new TodoaryException(DUPLICATE_CATEGORY);
+        validateMembersCategoryTitle(member, nextTitle);
         target.update(nextTitle, nextColor);
+    }
+
+    private void validateMembersCategoryTitle(Member member, String title) {
+        if (member.hasCategoryNamed(title))
+            throw new TodoaryException(DUPLICATE_CATEGORY);
     }
 
     @Transactional
@@ -62,19 +62,19 @@ public class JpaCategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryResponse> findCategories(Long memberId) {
+    public CategoryResponse[] findCategories(Long memberId) {
         Member member = getMemberById(memberId);
         return member.getCategories()
                 .stream().map(c -> new CategoryResponse(
                         c.getId(), c.getTitle(), c.getColor().getCode())
-                ).collect(Collectors.toList());
+                ).toArray(CategoryResponse[]::new);
     }
 
     @Transactional(readOnly = true)
     public Category findCategoryByIdAndMember(Long categoryId, Member member) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new TodoaryException(USERS_CATEGORY_NOT_EXISTS));
-        if (!category.getMember().equals(member))
+        if (!category.has(member))
             throw new TodoaryException(USERS_CATEGORY_NOT_EXISTS);
         return category;
     }

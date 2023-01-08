@@ -49,19 +49,29 @@ public class Category extends BaseTimeEntity {
 
     /*---Method---*/
     public void update(String title, Color color) {
-        this.title = title;
+        if (!this.title.equals(title))
+            this.title = title;
         update(color);
     }
 
     public void update(Color color) {
-        this.color = color;
+        if (!this.color.equals(color))
+            this.color = color;
     }
 
-    public void removeAssociations(){
+    public void removeAssociations() {
         this.member.removeCategory(this);
     }
 
     public void removeTodo(Todo todo) {
         this.todos.remove(todo);
+    }
+
+    public boolean has(Member member) {
+        return this.member == member;
+    }
+
+    private Member getMember() {
+        return member;
     }
 }
