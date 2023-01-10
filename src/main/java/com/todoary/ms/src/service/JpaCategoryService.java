@@ -1,7 +1,6 @@
 package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.domain.Category;
-import com.todoary.ms.src.web.dto.CategoryUpdateRequest;
 import com.todoary.ms.src.domain.Color;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.exception.common.TodoaryException;
@@ -9,12 +8,10 @@ import com.todoary.ms.src.repository.CategoryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.CategoryResponse;
 import com.todoary.ms.src.web.dto.CategorySaveRequest;
+import com.todoary.ms.src.web.dto.CategoryUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
 
@@ -23,7 +20,6 @@ public class JpaCategoryService {
 
     private final CategoryRepository categoryRepository;
     private final MemberRepository memberRepository;
-
 
     @Autowired
     public JpaCategoryService(CategoryRepository categoryRepository, MemberRepository memberRepository) {
@@ -34,26 +30,27 @@ public class JpaCategoryService {
     @Transactional
     public Long saveCategory(Long memberId, CategorySaveRequest request) {
         Member member = getMemberById(memberId);
-        categoryRepository.findByMembersTitle(member, request.getTitle())
-                .ifPresent((c) -> {
-                    throw new TodoaryException(DUPLICATE_CATEGORY);
-                });
+        validateMembersCategoryTitle(member, request.getTitle());
         return categoryRepository.save(request.toEntity(member)).getId();
     }
 
     @Transactional
     public void updateCategory(Long memberId, Long categoryId, CategoryUpdateRequest request) {
         Member member = getMemberById(memberId);
-        Category category = findCategoryByIdAndMember(categoryId, member);
-        categoryRepository.findByMembersTitle(member, request.getTitle())
-                .ifPresent((c) -> {
-                    if (!c.getId().equals(categoryId))
-                        throw new TodoaryException(DUPLICATE_CATEGORY);
-                });
-        Color color = new Color(request.getColor());
-        if (category.getTitle().equals(request.getTitle()) && category.getColor().equals(color))
+        Category target = findCategoryByIdAndMember(categoryId, member);
+        Color nextColor = new Color(request.getColor());
+        String nextTitle = request.getTitle();
+        if (target.getTitle().equals(nextTitle)) {
+            target.update(nextColor);
             return;
-        category.update(request.getTitle(), color);
+        }
+        validateMembersCategoryTitle(member, nextTitle);
+        target.update(nextTitle, nextColor);
+    }
+
+    private void validateMembersCategoryTitle(Member member, String title) {
+        if (member.hasCategoryNamed(title))
+            throw new TodoaryException(DUPLICATE_CATEGORY);
     }
 
     @Transactional
@@ -65,19 +62,19 @@ public class JpaCategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryResponse> findCategories(Long memberId) {
+    public CategoryResponse[] findCategories(Long memberId) {
         Member member = getMemberById(memberId);
         return member.getCategories()
                 .stream().map(c -> new CategoryResponse(
                         c.getId(), c.getTitle(), c.getColor().getCode())
-                ).collect(Collectors.toList());
+                ).toArray(CategoryResponse[]::new);
     }
 
     @Transactional(readOnly = true)
     public Category findCategoryByIdAndMember(Long categoryId, Member member) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new TodoaryException(USERS_CATEGORY_NOT_EXISTS));
-        if (!category.getMember().equals(member))
+        if (!category.has(member))
             throw new TodoaryException(USERS_CATEGORY_NOT_EXISTS);
         return category;
     }

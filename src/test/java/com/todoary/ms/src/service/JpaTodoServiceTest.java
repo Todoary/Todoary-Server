@@ -104,7 +104,7 @@ class JpaTodoServiceTest {
     }
 
     @Test
-    void Todo_삭제() {
+    void Todo_삭제_카테고리와_멤버_연관관계도_삭제됨() {
         // given
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
@@ -116,6 +116,19 @@ class JpaTodoServiceTest {
         assertThat(todoRepository.findById(todoId)).isEmpty();
         assertThat(category.getTodos()).hasSize(0);
         assertThat(member.getTodos()).hasSize(0);
+    }
+
+    @Test
+    void Category_삭제_시_Todo_삭제() {
+        // given
+        Member member = createMember();
+        Category category = createCategoryWithTitle(member, "category");
+        TodoSaveRequest request = new TodoSaveRequest("todo", true, "2022-01-02", "15:10", category.getId());
+        Long todoId = todoService.saveTodo(member.getId(), request);
+        // when
+        em.remove(category);
+        // then
+        assertThat(todoRepository.findById(todoId)).isEmpty();
     }
 
     @Test

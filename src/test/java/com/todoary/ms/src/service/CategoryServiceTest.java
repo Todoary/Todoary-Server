@@ -134,12 +134,12 @@ class CategoryServiceTest {
         for (CategorySaveRequest request : requests)
             categoryService.saveCategory(member.getId(), request);
         // when
-        List<CategoryResponse> categories = categoryService.findCategories(member.getId());
+        CategoryResponse[] categories = categoryService.findCategories(member.getId());
         // then
-        assertThat(categories.size()).isEqualTo(requests.size());
-        for (int i = 0; i < categories.size(); i++) {
-            assertThat(categories.get(i).getTitle()).isEqualTo(requests.get(i).getTitle());
-            assertThat(categories.get(i).getColor()).isEqualTo(requests.get(i).getColor());
+        assertThat(categories.length).isEqualTo(requests.size());
+        for (int i = 0; i < categories.length; i++) {
+            assertThat(categories[i].getTitle()).isEqualTo(requests.get(i).getTitle());
+            assertThat(categories[i].getColor()).isEqualTo(requests.get(i).getColor());
         }
     }
 
