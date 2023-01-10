@@ -132,19 +132,8 @@ public class Member {
     }
 
     /*---Method---*/
-<<<<<<< HEAD
-=======
-    public static Member create(String name, String nickname, String email, String password, Integer isTermsEnable) {
-        return new Member(name, nickname,email, password, isTermsEnable);
-    }
-
     public boolean hasCategoryNamed(String title) {
         return getCategories().stream()
                 .anyMatch(category -> category.getTitle().equals(title));
     }
-
-    public static Member createByOauth(String name, String email, ProviderAccount providerAccount, Integer isTermsEnable) {
-        return new Member(name, email, providerAccount, isTermsEnable);
-    }
->>>>>>> Develop
 }
