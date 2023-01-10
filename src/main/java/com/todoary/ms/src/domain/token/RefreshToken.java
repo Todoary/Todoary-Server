@@ -23,22 +23,30 @@ public class RefreshToken extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private String jwt;
+    private String token;
 
     /*---Constructor---*/
-    public RefreshToken(Member member, String jwt) {
+    public RefreshToken(Member member, String token) {
         this.member = member;
         member.setRefreshToken(this);
-        this.jwt = jwt;
+        this.token = token;
     }
 
     /*---Setter---*/
-    public void changeJwt(String jwt) {
-        this.jwt = jwt;
+    public void changeToken(String token) {
+        this.token = token;
     }
 
     /*---Method---*/
     public void removeAssociations() {
         this.member.removeRefreshToken();
+    }
+
+    public Boolean belongs(Member member) {
+        if (this.member == member) {
+            return true;
+        }
+
+        return false;
     }
 }

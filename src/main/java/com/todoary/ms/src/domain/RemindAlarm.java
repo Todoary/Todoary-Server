@@ -1,4 +1,4 @@
-package com.todoary.ms.src.domain.alarm;
+package com.todoary.ms.src.domain;
 
 import com.todoary.ms.src.domain.BaseTimeEntity;
 import com.todoary.ms.src.domain.Member;
@@ -25,4 +25,10 @@ public class RemindAlarm extends BaseTimeEntity {
     private Member member;
 
     private LocalDate targetDate;
+
+    public RemindAlarm(Member member, LocalDate targetDate) {
+        this.member = member;
+        member.setRemindAlarm(this);
+        this.targetDate = targetDate;
+    }
 }

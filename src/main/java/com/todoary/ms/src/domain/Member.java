@@ -1,18 +1,22 @@
 package com.todoary.ms.src.domain;
 
-import com.todoary.ms.src.domain.alarm.RemindAlarm;
 import com.todoary.ms.src.domain.token.FcmToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter @NoArgsConstructor
+@Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Member extends BaseTimeEntity {
+public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -54,26 +58,30 @@ public class Member extends BaseTimeEntity {
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RemindAlarm remindAlarm;
 
-    private Integer isTermsEnable;
+    private Boolean isTermsEnable;
 
-    private Integer toDoAlarmEnable = 1;
+    private Boolean toDoAlarmEnable = true;
 
-    private Integer remindAlarmEnable = 1;
+    private Boolean remindAlarmEnable = true;
 
-    private Integer dailyAlarmEnable = 1;
+    private Boolean dailyAlarmEnable = true;
+
+    private Integer status = 1;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime modifiedAt;
 
     /*---Constructor---*/
-    private Member(String name, String nickname, String email, String password, Integer isTermsEnable) {
+
+    @Builder
+    public Member(String name, String nickname, String email, String password, ProviderAccount providerAccount, Boolean isTermsEnable) {
         this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
-        this.isTermsEnable = isTermsEnable;
-    }
-
-    private Member(String name, String email, ProviderAccount providerAccount, Integer isTermsEnable) {
-        this.name = name;
-        this.email = email;
         this.providerAccount = providerAccount;
         this.isTermsEnable = isTermsEnable;
     }
@@ -85,6 +93,10 @@ public class Member extends BaseTimeEntity {
 
     public void setFcmToken(FcmToken fcmToken) {
         this.fcmToken = fcmToken;
+    }
+
+    public void setRemindAlarm(RemindAlarm remindAlarm) {
+        this.remindAlarm = remindAlarm;
     }
 
     public void addTodo(Todo todo) {
@@ -120,16 +132,8 @@ public class Member extends BaseTimeEntity {
     }
 
     /*---Method---*/
-    public static Member create(String name, String nickname, String email, String password, Integer isTermsEnable) {
-        return new Member(name, nickname,email, password, isTermsEnable);
-    }
-
     public boolean hasCategoryNamed(String title) {
         return getCategories().stream()
                 .anyMatch(category -> category.getTitle().equals(title));
-    }
-
-    public static Member createByOauth(String name, String email, ProviderAccount providerAccount, Integer isTermsEnable) {
-        return new Member(name, email, providerAccount, isTermsEnable);
     }
 }

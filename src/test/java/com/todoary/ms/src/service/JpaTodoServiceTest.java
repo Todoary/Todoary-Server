@@ -313,7 +313,7 @@ class JpaTodoServiceTest {
     }
 
     Member createMember() {
-        Member member = new Member();
+        Member member = Member.builder().build();
         em.persist(member);
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
         return member;
