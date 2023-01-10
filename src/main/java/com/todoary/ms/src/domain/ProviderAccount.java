@@ -20,8 +20,4 @@ public class ProviderAccount {
         this.provider = provider;
         this.providerId = providerId;
     }
-
-    public static ProviderAccount create(Provider provider, String providerId) {
-        return new ProviderAccount(provider, providerId);
-    }
 }
