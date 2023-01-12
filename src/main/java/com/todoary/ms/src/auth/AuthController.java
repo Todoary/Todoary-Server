@@ -10,6 +10,8 @@ import com.todoary.ms.src.user.UserService;
 import com.todoary.ms.src.user.dto.PatchPasswordReq;
 import com.todoary.ms.src.user.dto.PostUserReq;
 import com.todoary.ms.src.user.model.User;
+import com.todoary.ms.src.web.dto.GoogleSigninRequest;
+import com.todoary.ms.src.web.dto.GoogleSigninResponse;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -108,7 +110,8 @@ public class AuthController {
      * @return
      */
     @PostMapping("/signin/auto")
-    public BaseResponse<PostAutoSigninRes> autoLogin(HttpServletRequest request, @RequestBody PostAutoSigninReq postAutoSigninReq) {
+    public BaseResponse<PostAutoSigninRes> autoLogin(HttpServletRequest request,
+                                                     @RequestBody PostAutoSigninReq postAutoSigninReq) {
         User user = null;
         try {
             user = userProvider.retrieveByEmail(postAutoSigninReq.getEmail());
@@ -146,7 +149,8 @@ public class AuthController {
      * @return
      */
     @PostMapping("/jwt")
-    public BaseResponse<PostAccessRes> postAccess(HttpServletRequest request, @RequestBody PostAccessReq postAccessReq) {
+    public BaseResponse<PostAccessRes> postAccess(HttpServletRequest request,
+                                                  @RequestBody PostAccessReq postAccessReq) {
 
         String refreshToken = postAccessReq.getRefreshToken();
         try {
@@ -178,7 +182,31 @@ public class AuthController {
     /**
      * 1.4 구글 소셜 로그인 api
      * [GET] /oauth2/authorization/google
+     *
+     * 위에는 웹으로 구현했으나 클라(안드로이드)에서 정보 가져오고 요청하는 것으로 변경.
      */
+    @PostMapping("/signin/google")
+    public BaseResponse<GoogleSigninResponse> signInIfGoogleUserSignedUp(HttpServletRequest servletRequest,
+                                                                         @RequestBody GoogleSigninRequest request) {
+        String provider = "google";
+        try {
+            if (userProvider.checkEmail(request.getEmail(), provider) == 1) {
+                try {
+                    User user = userProvider.retrieveByEmail(request.getEmail(), provider);
+                    Token token = authService.registerNewTokenForUser(user.getId());
+                    return new BaseResponse<>(new GoogleSigninResponse(false, token));
+                } catch (BaseException e) {
+                    writeExceptionWithRequest(e, servletRequest, request.toString());
+                    return new BaseResponse<>(e.getStatus());
+                }
+            } else {
+                return new BaseResponse<>(new GoogleSigninResponse(true, null));
+            }
+        } catch (BaseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     /**
      * 1.5 애플 소셜 로그인 api
@@ -213,7 +241,8 @@ public class AuthController {
      * 이 api 호출하여 최종 회원가입
      */
     @PostMapping("/signup/oauth2")
-    public BaseResponse<BaseResponseStatus> PostSignupOauth2(HttpServletRequest request, @RequestBody PostSignupOauth2Req postSignupOauth2Req) {
+    public BaseResponse<BaseResponseStatus> PostSignupOauth2(HttpServletRequest request,
+                                                             @RequestBody PostSignupOauth2Req postSignupOauth2Req) {
 
         try {
             userService.createOauth2User(postSignupOauth2Req);
@@ -253,7 +282,8 @@ public class AuthController {
      * @return
      */
     @GetMapping("/email/existence")
-    public BaseResponse<String> checkEmailExistence(HttpServletRequest request, @RequestParam(required = true) String email) {
+    public BaseResponse<String> checkEmailExistence(HttpServletRequest request,
+                                                    @RequestParam(required = true) String email) {
         try {
             if (userProvider.checkEmail(email) == 1) { // email 확인
                 return new BaseResponse<>("존재하는 일반 이메일 입니다.");
@@ -274,7 +304,8 @@ public class AuthController {
      * @return
      */
     @PatchMapping("/password")
-    public BaseResponse<BaseResponseStatus> patchUserPassword(HttpServletRequest request, @RequestBody PatchPasswordReq patchPasswordReq) {
+    public BaseResponse<BaseResponseStatus> patchUserPassword(HttpServletRequest request,
+                                                              @RequestBody PatchPasswordReq patchPasswordReq) {
         try {
             userService.changePassword(patchPasswordReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
@@ -292,8 +323,9 @@ public class AuthController {
      * @return token
      */
     @PostMapping("/apple/token")
-    public BaseResponse<GetAppleUserRes> Oauth2AppleLoginRedirect(HttpServletRequest request, @RequestBody PostSignupAppleReq postSignupAppleReq){
-        AppleUserInfo appleUserInfo = new AppleUserInfo(postSignupAppleReq.getName(),postSignupAppleReq.getEmail());
+    public BaseResponse<GetAppleUserRes> Oauth2AppleLoginRedirect(HttpServletRequest request,
+                                                                  @RequestBody PostSignupAppleReq postSignupAppleReq) {
+        AppleUserInfo appleUserInfo = new AppleUserInfo(postSignupAppleReq.getName(), postSignupAppleReq.getEmail());
         String provider = "apple";
         String provider_id = null; //appleUniqueNo
         JSONObject tokenResponse = null;
@@ -305,19 +337,18 @@ public class AuthController {
         /* create client_secret */
         try {
             String client_secret = appleUtil.createClientSecret();
-            tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret,postSignupAppleReq.getCode());
+            tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret, postSignupAppleReq.getCode());
         } catch (IOException e) {
             writeExceptionWithMessage(e, e.getMessage());
             return new BaseResponse<>(APPLE_Client_SECRET_ERROR);
         }
 
         /* decode id_token */
-        if (tokenResponse.get("error") == null ) {
+        if (tokenResponse.get("error") == null) {
             JSONObject payload = appleUtil.decodeFromIdToken(tokenResponse.getAsString("id_token"));
             provider_id = payload.getAsString("sub");
             appleRefreshToken = tokenResponse.getAsString("refresh_token");
-        }
-        else return new BaseResponse<>(INVALID_APPLE_AUTH);
+        } else return new BaseResponse<>(INVALID_APPLE_AUTH);
 
         /* DB 유저확인 */
         try {
@@ -328,20 +359,18 @@ public class AuthController {
         }
 
         if (user == null) {
-                // 약관동의 처음
-                    log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
-                    PostSignupOauth2Req postSignupOauth2Req = new PostSignupOauth2Req(appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id, postSignupAppleReq.isTermsEnable());
-                    try {
-                        Long userId = userService.createAppleUser(postSignupOauth2Req);
-                        token = authService.registerNewTokenForUser(userId);
-                        getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(),appleUserInfo.getEmail(),provider,provider_id,token,appleRefreshToken);
-                    } catch (BaseException exception) {
-                        writeExceptionWithRequest(exception, request, postSignupOauth2Req.toString());
-                        return new BaseResponse<>(exception.getStatus());
-                    }
-        }
-        else
-        {
+            // 약관동의 처음
+            log.info("애플 로그인 최초입니다. 회원가입을 진행합니다.");
+            PostSignupOauth2Req postSignupOauth2Req = new PostSignupOauth2Req(appleUserInfo.getName(), appleUserInfo.getEmail(), provider, provider_id, postSignupAppleReq.isTermsEnable());
+            try {
+                Long userId = userService.createAppleUser(postSignupOauth2Req);
+                token = authService.registerNewTokenForUser(userId);
+                getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(), appleUserInfo.getEmail(), provider, provider_id, token, appleRefreshToken);
+            } catch (BaseException exception) {
+                writeExceptionWithRequest(exception, request, postSignupOauth2Req.toString());
+                return new BaseResponse<>(exception.getStatus());
+            }
+        } else {
             log.info("애플 로그인 기록이 있습니다. 로그인을 진행합니다.");
             try {
                 user = userProvider.retrieveByAppleUniqueNo(provider_id);
@@ -350,7 +379,7 @@ public class AuthController {
                 writeExceptionWithMessage(e, e.getMessage());
                 return new BaseResponse<>(e.getStatus());
             }
-            getAppleUserRes = new GetAppleUserRes(false, user.getName(),user.getEmail(),provider,provider_id,token,appleRefreshToken);
+            getAppleUserRes = new GetAppleUserRes(false, user.getName(), user.getEmail(), provider, provider_id, token, appleRefreshToken);
         }
         return new BaseResponse<>(getAppleUserRes);
     }
@@ -358,21 +387,23 @@ public class AuthController {
     /**
      * 1.9.4 애플 회원 탈퇴 api
      * [POST] /auth/revoke/apple
+     *
      * @param request, code
      * @return token
      */
     @PostMapping("/revoke/apple")
-    public BaseResponse<BaseResponseStatus> PostRevokeApple(HttpServletRequest request, @RequestBody PostRevokeAppleReq postRevokeAppleReq) {
+    public BaseResponse<BaseResponseStatus> PostRevokeApple(HttpServletRequest request,
+                                                            @RequestBody PostRevokeAppleReq postRevokeAppleReq) {
         JSONObject tokenResponse = null;
         String appleAccessToken = null;
         /* create client_secret */
         try {
             String client_secret = appleUtil.createClientSecret();
-            tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret,postRevokeAppleReq.getCode());
+            tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret, postRevokeAppleReq.getCode());
             /* decode id_token */
-            if (tokenResponse.get("error") == null ) {
+            if (tokenResponse.get("error") == null) {
                 appleAccessToken = tokenResponse.getAsString("access_token");
-                appleUtil.revokeUser(client_secret,appleAccessToken);
+                appleUtil.revokeUser(client_secret, appleAccessToken);
                 try {
                     userService.removeAppleUser(postRevokeAppleReq.getEmail());
                 } catch (BaseException e) {
@@ -380,8 +411,7 @@ public class AuthController {
                     return new BaseResponse<>(e.getStatus());
                 }
                 return new BaseResponse<>(SUCCESS);
-            }
-            else {
+            } else {
                 return new BaseResponse<>(INVALID_APPLE_AUTH);
             }
         } catch (IOException e) {
@@ -396,10 +426,10 @@ public class AuthController {
                     .parserBuilder().setSigningKey(jwtTokenProvider.getRefreshKey()).build()
                     .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
-            writeExceptionWithMessage(e, "Refresh Token 만료 | "+ token);
+            writeExceptionWithMessage(e, "Refresh Token 만료 | " + token);
             throw new BaseException(EXPIRED_JWT);
         } catch (Exception e) {
-            writeExceptionWithMessage(e, "Refresh Token 에러 | "+ token);
+            writeExceptionWithMessage(e, "Refresh Token 에러 | " + token);
             throw new BaseException(INVALID_JWT);
         }
         if (!authProvider.isRefreshTokenEqual(token))
