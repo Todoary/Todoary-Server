@@ -29,14 +29,14 @@ public class JpaCategoryService {
 
     @Transactional
     public Long saveCategory(Long memberId, CategorySaveRequest request) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
         validateMembersCategoryTitle(member, request.getTitle());
         return categoryRepository.save(request.toEntity(member)).getId();
     }
 
     @Transactional
     public void updateCategory(Long memberId, Long categoryId, CategoryUpdateRequest request) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
         Category target = findCategoryByIdAndMember(categoryId, member);
         Color nextColor = new Color(request.getColor());
         String nextTitle = request.getTitle();
@@ -55,7 +55,7 @@ public class JpaCategoryService {
 
     @Transactional
     public void deleteCategory(Long memberId, Long categoryId) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
         Category category = findCategoryByIdAndMember(categoryId, member);
         category.removeAssociations();
         categoryRepository.delete(category);
@@ -63,7 +63,7 @@ public class JpaCategoryService {
 
     @Transactional(readOnly = true)
     public CategoryResponse[] findCategories(Long memberId) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
         return member.getCategories()
                 .stream().map(c -> new CategoryResponse(
                         c.getId(), c.getTitle(), c.getColor().getCode())
@@ -79,7 +79,7 @@ public class JpaCategoryService {
         return category;
     }
 
-    private Member getMemberById(Long memberId) {
+    private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new TodoaryException(USERS_EMPTY_USER_ID));
     }

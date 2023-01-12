@@ -36,8 +36,8 @@ public class JpaTodoService {
 
     @Transactional
     public Long saveTodo(Long memberId, TodoSaveRequest request) {
-        Member member = getMemberById(memberId);
-        Category category = getCategoryByIdAndMember(request.getCategoryId(), member);
+        Member member = findMemberById(memberId);
+        Category category = findCategoryByIdAndMember(request.getCategoryId(), member);
         return todoRepository.save(
                 request.toEntity(member, category)
         ).getId();
@@ -45,8 +45,8 @@ public class JpaTodoService {
 
     @Transactional
     public void updateTodo(Long memberId, Long todoId, TodoUpdateRequest request) {
-        Member member = getMemberById(memberId);
-        Category category = getCategoryByIdAndMember(request.getCategoryId(), member);
+        Member member = findMemberById(memberId);
+        Category category = findCategoryByIdAndMember(request.getCategoryId(), member);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.update(
                 request.getTitle(),
@@ -59,7 +59,7 @@ public class JpaTodoService {
 
     @Transactional
     public void deleteTodo(Long memberId, Long todoId) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.removeAssociations();
         todoRepository.delete(todo);
@@ -67,21 +67,21 @@ public class JpaTodoService {
 
     @Transactional
     public void markTodoAsDone(Long memberId, Long todoId, boolean isChecked) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.check(isChecked);
     }
 
     @Transactional
     public void pinTodo(Long memberId, Long todoId, boolean isPinned) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.pin(isPinned);
     }
 
     @Transactional
     public void updateTodoAlarm(Long memberId, Long todoId, TodoUpdateAlarmRequest request) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.updateAlarm(
                 request.isAlarmEnabled(),
@@ -92,22 +92,22 @@ public class JpaTodoService {
 
     @Transactional(readOnly = true)
     public TodoResponse[] findTodosByDate(Long memberId, String targetDate) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
         return todoRepository.findByDateAndMember(JpaTodoService.convertToLocalDate(targetDate), member)
                 .stream().map(TodoResponse::from).toArray(TodoResponse[]::new);
     }
 
     @Transactional(readOnly = true)
     public TodoResponse[] findTodosByCategory(Long memberId, Long categoryId) {
-        Member member = getMemberById(memberId);
-        Category category = getCategoryByIdAndMember(categoryId, member);
+        Member member = findMemberById(memberId);
+        Category category = findCategoryByIdAndMember(categoryId, member);
         return todoRepository.findByCategory(category)
                 .stream().map(TodoResponse::from).toArray(TodoResponse[]::new);
     }
 
     @Transactional(readOnly = true)
     public int[] findDaysHavingTodoInMonth(Long memberId, String yearAndMonth) {
-        Member member = getMemberById(memberId);
+        Member member = findMemberById(memberId);
 
         StringTokenizer st = new StringTokenizer(yearAndMonth, "-");
         LocalDate firstDay = LocalDate.of(
@@ -135,12 +135,12 @@ public class JpaTodoService {
         return LocalTime.of(hour, minute);
     }
 
-    private Member getMemberById(Long memberId) {
+    private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new TodoaryException(USERS_EMPTY_USER_ID));
     }
 
-    private Category getCategoryByIdAndMember(Long categoryId, Member member) {
+    private Category findCategoryByIdAndMember(Long categoryId, Member member) {
         return categoryService.findCategoryByIdAndMember(categoryId, member);
     }
 
