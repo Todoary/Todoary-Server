@@ -3,12 +3,15 @@ package com.todoary.ms.util;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import static com.todoary.ms.util.BaseResponseStatus.SUCCESS;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @JsonPropertyOrder({"isSuccess", "code", "message", "result"})
 public class BaseResponse<T> {
     @JsonProperty("isSuccess")
