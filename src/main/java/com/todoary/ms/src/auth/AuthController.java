@@ -189,6 +189,7 @@ public class AuthController {
     public BaseResponse<GoogleSigninResponse> signInIfGoogleUserSignedUp(HttpServletRequest servletRequest,
                                                                          @RequestBody GoogleSigninRequest request) {
         String provider = "google";
+        log.error("구글 로그인 요청 {}", request.toString());
         try {
             if (userProvider.checkEmail(request.getEmail(), provider) == 1) {
                 try {
