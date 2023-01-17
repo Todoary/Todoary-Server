@@ -45,8 +45,8 @@ class RefreshTokenRepositoryTest {
         refreshTokenRepository.save(refreshToken);
 
         //when
-        Boolean isExist1 = refreshTokenRepository.isExistsByValue("refreshToken1");
-        Boolean isExist2 = refreshTokenRepository.isExistsByValue("refreshToken2");
+        Boolean isExist1 = refreshTokenRepository.existsByCode("refreshToken1");
+        Boolean isExist2 = refreshTokenRepository.existsByCode("refreshToken2");
         //then
         assertThat(isExist1).isTrue();
         assertThat(isExist2).isFalse();
