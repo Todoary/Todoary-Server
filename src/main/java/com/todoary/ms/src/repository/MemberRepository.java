@@ -3,6 +3,7 @@ package com.todoary.ms.src.repository;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
+import com.todoary.ms.src.domain.token.RefreshToken;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -15,8 +16,9 @@ public class MemberRepository {
     @PersistenceContext
     private EntityManager em;
 
-    public void save(Member member) {
+    public Long save(Member member) {
         em.persist(member);
+        return member.getId();
     }
 
     public Optional<Member> findById(Long memberId) {
@@ -114,5 +116,29 @@ public class MemberRepository {
                         "   where status = 0) " +
                         "and FORMATDATETIME(TIMESTAMPADD(DAY, 0, modified_at), 'yyyy-MM-dd')  = current_date")
                 .executeUpdate();
+    }
+
+    public Boolean existById(Long memberId) {
+        try {
+            em.createQuery("select m from Member m where m.id = :memberId", Member.class)
+                    .setParameter("memberId", memberId)
+                    .getSingleResult();
+
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
+    public Boolean existByRefreshToken(RefreshToken refreshToken) {
+        try {
+            em.createQuery("select m from Member m join m.refreshToken r where r.code = :code", Member.class)
+                    .setParameter("code", refreshToken.getCode())
+                    .getSingleResult();
+
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 }
