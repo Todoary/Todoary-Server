@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 
 @Repository
@@ -98,23 +101,20 @@ public class MemberRepository {
     }
 
     public void deleteByStatus() {
-//        /* MySQL
-//        em.createNativeQuery("delete from member " +
-//                "where member_id in " +
-//                "   (select member_id " +
-//                "   from member " +
-//                "   where status = 0) " +
-//                "and DATE_FORMAT(DATE_ADD(modified_at, INTERVAL 30 DAY), '%Y-%m-%d')  = current_date")
-//                .executeUpdate();
-//        */
+        LocalDateTime startDateTime = LocalDateTime.of(
+                LocalDate.now().minusDays(30)
+                , LocalTime.of(0, 0, 0));
 
-        // H2
-        em.createNativeQuery("delete from member " +
-                        "where member_id in " +
-                        "   (select member_id " +
-                        "   from member " +
-                        "   where status = 0) " +
-                        "and FORMATDATETIME(TIMESTAMPADD(DAY, 0, modified_at), 'yyyy-MM-dd')  = current_date")
+        LocalDateTime endDateTime = LocalDateTime.of(
+                LocalDate.now().minusDays(29)
+                , LocalTime.of(0, 0, 0));
+
+        em.createQuery("delete from Member m " +
+                        "where m.status = 0 " +
+                        "and m.modifiedAt >= :startDateTime " +
+                        "and m.modifiedAt < :endDateTime")
+                .setParameter("startDateTime", startDateTime)
+                .setParameter("endDateTime", endDateTime)
                 .executeUpdate();
     }
 
