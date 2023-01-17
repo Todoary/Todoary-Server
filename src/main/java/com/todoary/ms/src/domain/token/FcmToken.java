@@ -23,18 +23,18 @@ public class FcmToken extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private String token;
+    private String code;
 
     /*---Constructor---*/
-    public FcmToken(Member member, String token) {
+    public FcmToken(Member member, String code) {
         this.member = member;
         member.setFcmToken(this);
-        this.token = token;
+        this.code = code;
     }
 
     /*---Setter---*/
-    public void changeToken(String token) {
-        this.token = token;
+    public void changeToken(String code) {
+        this.code = code;
     }
 
     /*---Method---*/
