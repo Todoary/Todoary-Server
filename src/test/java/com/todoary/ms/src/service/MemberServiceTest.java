@@ -22,7 +22,7 @@ class MemberServiceTest {
     @Autowired
     MemberService memberService;
 
-    @MockBean
+    @Autowired
     MemberRepository memberRepository;
 
     @Test
@@ -34,13 +34,11 @@ class MemberServiceTest {
         Long joinMemberId = memberService.join(member);
 
         //then
-        assertThat(joinMemberId).isEqualTo(1L);
+        assertThat(joinMemberId).isEqualTo(member.getId());
     }
 
     Member createMember() {
         Member member = Member.builder().build();
-        em.persist(member);
-        Mockito.when(memberRepository.save(member)).thenReturn(member.getId());
         return member;
     }
 }
