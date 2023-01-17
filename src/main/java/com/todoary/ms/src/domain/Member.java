@@ -6,17 +6,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Member {
+public class Member extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -67,12 +64,6 @@ public class Member {
     private Boolean dailyAlarmEnable = true;
 
     private Integer status = 1;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    private LocalDateTime modifiedAt;
 
     /*---Constructor---*/
 
@@ -135,5 +126,9 @@ public class Member {
     public boolean hasCategoryNamed(String title) {
         return getCategories().stream()
                 .anyMatch(category -> category.getTitle().equals(title));
+    }
+
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
     }
 }

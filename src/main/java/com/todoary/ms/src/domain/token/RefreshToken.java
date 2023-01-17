@@ -23,18 +23,18 @@ public class RefreshToken extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private String token;
+    private String code;
 
     /*---Constructor---*/
-    public RefreshToken(Member member, String token) {
+    public RefreshToken(Member member, String code) {
         this.member = member;
         member.setRefreshToken(this);
-        this.token = token;
+        this.code = code;
     }
 
     /*---Setter---*/
-    public void changeToken(String token) {
-        this.token = token;
+    public void changeCode(String code) {
+        this.code = code;
     }
 
     /*---Method---*/

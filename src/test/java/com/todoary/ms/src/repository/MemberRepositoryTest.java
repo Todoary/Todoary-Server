@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -193,16 +194,33 @@ class MemberRepositoryTest {
         //given
         Member member = createMember();
         setInActive(member);
-
         em.persist(member);
 
+        // 멤버 delete를 위해 영속성 컨텍스를 비움
+        em.flush();
+        em.clear();
+
+        // 현재부로 30일 전의 시간
+        LocalDateTime deletedDateTime = LocalDateTime.of(
+                LocalDate.now().minusDays(30),
+                LocalTime.of(0,0,0)
+        );
+
         //when
+
+        // 멤버의 modifiedAt을 30일 전으로 변경
+        em.createQuery("update Member m " +
+                        "set m.modifiedAt = :deletedDateTime " +
+                        "where m.id = :memberId")
+                .setParameter("deletedDateTime", deletedDateTime)
+                .setParameter("memberId", member.getId())
+                .executeUpdate();
         memberRepository.deleteByStatus();
 
         //then
-        em.clear();
+
         Member findMember = em.find(Member.class, member.getId());
-        System.out.println(findMember == null);
+        assertThat(findMember).isNull();
     }
 
     void setInActive(Member member) throws NoSuchFieldException, IllegalAccessException {

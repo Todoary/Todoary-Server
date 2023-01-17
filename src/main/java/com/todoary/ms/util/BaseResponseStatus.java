@@ -32,6 +32,7 @@ public enum BaseResponseStatus {
     USERS_EMPTY_USER_EMAIL(false, 2011, "유저 이메일 값을 확인해주세요."),
     USERS_DELETED_USER(false, 2012, "삭제된 유저입니다."),
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
+    USERS_REFRESH_TOKEN_NOT_EXISTS(false, 2113, "유저 정보와 일치하는 Refresh Token이 없습니다."),
 
     // 데이터가 정해진 형식보다 길 때
     DATA_TOO_LONG(false, 2101, "제한 길이를 초과했습니다."),
