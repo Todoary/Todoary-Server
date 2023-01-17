@@ -3,7 +3,6 @@ package com.todoary.ms.src.service;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.repository.MemberRepository;
-import com.todoary.ms.src.web.dto.MemberJoinRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
