@@ -2,6 +2,7 @@ package com.todoary.ms.src.auth.jwt.filter;
 
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.user.UserProvider;
+import com.todoary.ms.util.ErrorLogWriter;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -36,16 +37,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if(request.getRequestURI().startsWith("/auth")
-            || request.getRequestURI().startsWith("/favicon")){ // "/auth/*" uri들은 jwt체크 불필요
-            log.info("JWT 인증 통과");
-            chain.doFilter(request,response);
+        if (request.getRequestURI().startsWith("/auth")
+                || request.getRequestURI().startsWith("/favicon")) { // "/auth/*" uri들은 jwt체크 불필요
+            log.info("JWT 인증 통과 | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
+            chain.doFilter(request, response);
             return;
         }
         log.info("JWT 인증 시작");
         String jwtHeader = request.getHeader("Authorization");
         String requestUri = request.getRequestURI();
-        if (StringUtils.hasText(jwtHeader)){
+        if (StringUtils.hasText(jwtHeader)) {
             try {
                 Jwts
                         .parserBuilder().setSigningKey(jwtTokenProvider.getAccessKey()).build()
@@ -67,13 +68,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 request.setAttribute("user_id", user_id);
-            }catch (ExpiredJwtException e) {
-                log.info("토큰이 만료됨, uri: {} {}",request.getMethod(), requestUri);
+            } catch (ExpiredJwtException e) {
+                log.info("토큰이 만료됨, uri: {} {}", request.getMethod(), requestUri);
             } catch (Exception e) {
-                log.info("토큰이 유효하지 않음, uri: {} {}",request.getMethod(), requestUri);
+                log.info("토큰이 유효하지 않음, uri: {} {}", request.getMethod(), requestUri);
             }
-        }else{
-            log.info("토큰이 유효하지 않음, uri: {} {}",request.getMethod(), requestUri);
+        } else {
+            log.info("토큰이 유효하지 않음, uri: {} {}", request.getMethod(), requestUri);
         }
         chain.doFilter(request, response);
 
