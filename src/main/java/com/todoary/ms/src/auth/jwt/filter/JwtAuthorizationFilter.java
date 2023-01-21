@@ -2,6 +2,7 @@ package com.todoary.ms.src.auth.jwt.filter;
 
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.user.UserProvider;
+import com.todoary.ms.util.ErrorLogWriter;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +39,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if(request.getRequestURI().startsWith("/auth")
             || request.getRequestURI().startsWith("/favicon")){ // "/auth/*" uri들은 jwt체크 불필요
-            log.info("JWT 인증 통과");
+            log.info("JWT 인증 필요 없음 | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
             chain.doFilter(request,response);
             return;
         }
-        log.info("JWT 인증 시작");
+        log.info("JWT 인증 시작.. | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
         String jwtHeader = request.getHeader("Authorization");
         String requestUri = request.getRequestURI();
         if (StringUtils.hasText(jwtHeader)){
@@ -75,9 +76,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }else{
             log.info("토큰이 유효하지 않음, uri: {} {}",request.getMethod(), requestUri);
         }
+        log.info("JWT 인증 완료 | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
         chain.doFilter(request, response);
-
     }
-
-
 }
