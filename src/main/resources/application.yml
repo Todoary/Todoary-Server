@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    include: test
+    include: secret
 
   datasource:
     driver-class-name:
