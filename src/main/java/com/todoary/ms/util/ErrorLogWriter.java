@@ -66,7 +66,7 @@ public class ErrorLogWriter {
         log.error("{} - {}", exception.getMessage(), message);
     }
 
-    private static String parameterMapToString(Map<String, String[]> parameters) {
+    public static String parameterMapToString(Map<String, String[]> parameters) {
         return parameters.entrySet().stream()
                 .map(p -> p.getKey() + "=" + String.join(",", p.getValue()))
                 .reduce((p1, p2) -> p1 + "&" + p2)
