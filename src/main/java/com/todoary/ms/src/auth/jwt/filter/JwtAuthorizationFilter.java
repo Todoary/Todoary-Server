@@ -37,13 +37,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (request.getRequestURI().startsWith("/auth")
-                || request.getRequestURI().startsWith("/favicon")) { // "/auth/*" uri들은 jwt체크 불필요
-            log.info("JWT 인증 통과 | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
-            chain.doFilter(request, response);
+        if(request.getRequestURI().startsWith("/auth")
+            || request.getRequestURI().startsWith("/favicon")
+            || request.getRequestURI().startsWith("/swagger")){ // "/auth/*" uri들은 jwt체크 불필요
+            log.info("JWT 인증 필요 없음 | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
+            chain.doFilter(request,response);
             return;
         }
-        log.info("JWT 인증 시작");
         String jwtHeader = request.getHeader("Authorization");
         String requestUri = request.getRequestURI();
         if (StringUtils.hasText(jwtHeader)) {
@@ -73,12 +73,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 log.info("토큰이 유효하지 않음, uri: {} {}", request.getMethod(), requestUri);
             }
-        } else {
-            log.info("토큰이 유효하지 않음, uri: {} {}", request.getMethod(), requestUri);
+            log.info("JWT 인증 완료 | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
+        }else{
+            log.info("JWT 인증 불가능 (Authorization 헤더 없음) | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
         }
         chain.doFilter(request, response);
-
     }
-
-
 }
