@@ -49,4 +49,8 @@ public class RefreshToken extends BaseTimeEntity {
 
         return false;
     }
+
+    public boolean hasCode(String refreshTokenCode) {
+        return this.code.equals(refreshTokenCode);
+    }
 }
