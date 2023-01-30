@@ -120,7 +120,7 @@ public class MemberRepository {
 
     public Boolean existById(Long memberId) {
         try {
-            em.createQuery("select m from Member m where m.id = :memberId", Member.class)
+            em.createQuery("select m from Member m where m.id = :memberId and m.status = 1", Member.class)
                     .setParameter("memberId", memberId)
                     .getSingleResult();
 
