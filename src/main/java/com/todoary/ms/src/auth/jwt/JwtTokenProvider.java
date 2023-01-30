@@ -1,5 +1,6 @@
 package com.todoary.ms.src.auth.jwt;
 
+import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.util.BaseException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -103,19 +104,17 @@ public class JwtTokenProvider {
         return expiration.getTime() - now;
     }
 
-    // RefreshTokenCode validate
-    public void validateRefreshTokenCode(String refreshTokenCode) throws BaseException {
+    // RefreshToken validate
+    public void validateRefreshToken(String refreshTokenCode) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(refreshKey)
                     .build()
                     .parseClaimsJws(refreshTokenCode);
         } catch (ExpiredJwtException expiredJwtException) {
-            writeExceptionWithMessage(expiredJwtException, "Refresh Token 만료 | " + refreshTokenCode);
-            throw new BaseException(EXPIRED_JWT);
+            throw new TodoaryException(EXPIRED_JWT);
         } catch (Exception exception) {
-            writeExceptionWithMessage(exception, "Refresh Token 에러 | " + refreshTokenCode);
-            throw new BaseException(INVALID_JWT);
+            throw new TodoaryException(INVALID_JWT);
         }
     }
 }
