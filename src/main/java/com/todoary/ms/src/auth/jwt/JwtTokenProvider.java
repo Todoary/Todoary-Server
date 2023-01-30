@@ -1,6 +1,8 @@
 package com.todoary.ms.src.auth.jwt;
 
+import com.todoary.ms.util.BaseException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -14,6 +16,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
+
+import static com.todoary.ms.util.BaseResponseStatus.EXPIRED_JWT;
+import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithMessage;
 
 @Component
 @Getter
@@ -38,9 +44,6 @@ public class JwtTokenProvider {
         this.JWT_ACCESS_SECRET_KEY = JWT_ACCESS_SECRET_KEY;
         this.JWT_REFRESH_SECRET_KEY = JWT_REFRESH_SECRET_KEY;
     }
-
-    @Autowired
-
 
     @PostConstruct
     public void initialize() {
@@ -78,12 +81,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-//    // JWT 토큰에서 인증 정보 조회
-//    public Authentication getAuthentication(String token) {
-//        PrincipalDetails userDetails = (PrincipalDetails) userDetailsService.loadUserByUsername(this.getUserid(token));
-//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-//    }
-
     // 토큰에서 회원 정보 추출
     public String getUserIdFromAccessToken(String token) {
         return getUserIdFromTokenUsingKey(token, accessKey);
@@ -104,5 +101,21 @@ public class JwtTokenProvider {
         // 현재 시간
         Long now = new Date().getTime();
         return expiration.getTime() - now;
+    }
+
+    // RefreshTokenCode validate
+    public void validateRefreshTokenCode(String refreshTokenCode) throws BaseException {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(refreshKey)
+                    .build()
+                    .parseClaimsJws(refreshTokenCode);
+        } catch (ExpiredJwtException expiredJwtException) {
+            writeExceptionWithMessage(expiredJwtException, "Refresh Token 만료 | " + refreshTokenCode);
+            throw new BaseException(EXPIRED_JWT);
+        } catch (Exception exception) {
+            writeExceptionWithMessage(exception, "Refresh Token 에러 | " + refreshTokenCode);
+            throw new BaseException(INVALID_JWT);
+        }
     }
 }
