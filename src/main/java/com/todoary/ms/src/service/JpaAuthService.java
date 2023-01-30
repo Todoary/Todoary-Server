@@ -5,6 +5,7 @@ import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.AuthenticationToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
+import com.todoary.ms.util.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +18,9 @@ public class JpaAuthService {
     private final RefreshTokenService refreshTokenService;
     private final MemberService memberService;
 
-//    @Transactional(readOnly = true)
-//    public Boolean refreshTokenExistsByCode(String code) {
-//        return refreshTokenService.existsByCode(code);
-//    }
+    public void validateRefreshToken(String refreshTokenCode) {
+        jwtTokenProvider.validateRefreshToken(refreshTokenCode);
+    }
 
     @Transactional(readOnly = true)
     public Boolean decodableRefreshToken(String refreshTokenCode, Long memberId) throws Exception {
@@ -46,7 +46,7 @@ public class JpaAuthService {
         AccessToken accessToken = new AccessToken(jwtTokenProvider.createAccessToken(memberId));
         RefreshToken refreshToken = saveRefreshToken(findMember);
 
-        return new AuthenticationToken(accessToken, refreshToken);
+        return new AuthenticationToken(accessToken.getCode(), refreshToken.getCode());
     }
 
     public AuthenticationToken issueAuthenticationToken(String refreshTokenCode) {

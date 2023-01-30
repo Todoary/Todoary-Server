@@ -97,8 +97,8 @@ class JpaAuthServiceTest {
         AuthenticationToken authenticationToken = authService.issueAuthenticationToken(member.getId());
 
         //then
-        assertThat(authService.decodableAccessToken(authenticationToken.getAccessToken().getCode(), member.getId())).isTrue();
-        assertThat(authService.decodableRefreshToken(authenticationToken.getRefreshToken().getCode(), member.getId())).isTrue();
+        assertThat(authService.decodableAccessToken(authenticationToken.getAccessToken(), member.getId())).isTrue();
+        assertThat(authService.decodableRefreshToken(authenticationToken.getRefreshToken(), member.getId())).isTrue();
     }
 
     @Test
@@ -111,8 +111,8 @@ class JpaAuthServiceTest {
         AuthenticationToken authenticationToken = authService.issueAuthenticationToken(refreshToken.getCode());
 
         //then
-        assertThat(authService.decodableAccessToken(authenticationToken.getAccessToken().getCode(), member.getId())).isTrue();
-        assertThat(authService.decodableRefreshToken(authenticationToken.getRefreshToken().getCode(), member.getId())).isTrue();
+        assertThat(authService.decodableAccessToken(authenticationToken.getAccessToken(), member.getId())).isTrue();
+        assertThat(authService.decodableRefreshToken(authenticationToken.getRefreshToken(), member.getId())).isTrue();
     }
 
     Member createMember() {
