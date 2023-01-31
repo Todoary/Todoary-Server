@@ -25,8 +25,6 @@ import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithMessage;
 @Component
 @Getter
 public class JwtTokenProvider {
-
-    private final UserDetailsService userDetailsService;
     private final Long JWT_ACCESS_TOKEN_EXPTIME;
     private final Long JWT_REFRESH_TOKEN_EXPTIME;
     private final String  JWT_ACCESS_SECRET_KEY;
@@ -34,12 +32,11 @@ public class JwtTokenProvider {
     private Key accessKey;
     private Key refreshKey;
 
-    public JwtTokenProvider(UserDetailsService userDetailsService,
-                            @Value("${jwt.time.access}") Long JWT_ACCESS_TOKEN_EXPTIME,
+    public JwtTokenProvider(@Value("${jwt.time.access}") Long JWT_ACCESS_TOKEN_EXPTIME,
                             @Value("${jwt.time.refresh}") Long JWT_REFRESH_TOKEN_EXPTIME,
                             @Value("${jwt.secret.access}") String JWT_ACCESS_SECRET_KEY,
                             @Value("${jwt.secret.refresh}") String JWT_REFRESH_SECRET_KEY) {
-        this.userDetailsService = userDetailsService;
+
         this.JWT_ACCESS_TOKEN_EXPTIME = JWT_ACCESS_TOKEN_EXPTIME;
         this.JWT_REFRESH_TOKEN_EXPTIME = JWT_REFRESH_TOKEN_EXPTIME;
         this.JWT_ACCESS_SECRET_KEY = JWT_ACCESS_SECRET_KEY;
