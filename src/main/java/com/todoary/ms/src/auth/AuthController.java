@@ -71,75 +71,75 @@ public class AuthController {
      * @param postSigninReq
      * @return
      */
-    @PostMapping("/signin")
-    public BaseResponse<PostSigninRes> login(HttpServletRequest request, @RequestBody PostSigninReq postSigninReq) {
-        User user = null;
-        try {
-            user = userProvider.retrieveByEmail(postSigninReq.getEmail());
-            user.setPassword(postSigninReq.getPassword());
-        } catch (BaseException e) {
-            writeExceptionWithRequest(e, request, postSigninReq.toString());
-            return new BaseResponse<>(e.getStatus());
-        }
+//    @PostMapping("/signin")
+//    public BaseResponse<PostSigninRes> login(HttpServletRequest request, @RequestBody PostSigninReq postSigninReq) {
+//        User user = null;
+//        try {
+//            user = userProvider.retrieveByEmail(postSigninReq.getEmail());
+//            user.setPassword(postSigninReq.getPassword());
+//        } catch (BaseException e) {
+//            writeExceptionWithRequest(e, request, postSigninReq.toString());
+//            return new BaseResponse<>(e.getStatus());
+//        }
+//
+//
+//        Authentication authentication = null;
+//        try {
+//            authentication = attemptAuthentication(user);
+//        } catch (BaseException e) {
+//            writeExceptionWithRequest(e, request, postSigninReq.toString());
+//            return new BaseResponse<>(e.getStatus());
+//        }
+//
+//
+//        PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        Long user_id = userEntity.getUser().getId();
+//        String accessToken = jwtTokenProvider.createAccessToken(user_id);
+//        Token token = new Token(accessToken, "");
+//        PostSigninRes postSigninRes = new PostSigninRes(token);
+//
+//        return new BaseResponse<>(postSigninRes);
+//    }
 
-
-        Authentication authentication = null;
-        try {
-            authentication = attemptAuthentication(user);
-        } catch (BaseException e) {
-            writeExceptionWithRequest(e, request, postSigninReq.toString());
-            return new BaseResponse<>(e.getStatus());
-        }
-
-
-        PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        Long user_id = userEntity.getUser().getId();
-        String accessToken = jwtTokenProvider.createAccessToken(user_id);
-        Token token = new Token(accessToken, "");
-        PostSigninRes postSigninRes = new PostSigninRes(token);
-
-        return new BaseResponse<>(postSigninRes);
-    }
-
-    /**
-     * 1.2 자동 로그인 api
-     * [POST] /auth/signin/auto
-     *
-     * @param postAutoSigninReq
-     * @return
-     */
-    @PostMapping("/signin/auto")
-    public BaseResponse<PostAutoSigninRes> autoLogin(HttpServletRequest request,
-                                                     @RequestBody PostAutoSigninReq postAutoSigninReq) {
-        User user = null;
-        try {
-            user = userProvider.retrieveByEmail(postAutoSigninReq.getEmail());
-            user.setPassword(postAutoSigninReq.getPassword());
-        } catch (BaseException e) {
-            writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
-            return new BaseResponse(e.getStatus());
-        }
-
-        Authentication authentication = null;
-        try {
-            authentication = attemptAuthentication(user);
-        } catch (BaseException e) {
-            writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
-            return new BaseResponse<>(e.getStatus());
-        }
-        PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
-
-        Token token = null;
-        try {
-            token = authService.registerNewTokenForUser(userEntity.getUser().getId());
-        } catch (BaseException e) {
-            writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
-            return new BaseResponse<>(e.getStatus());
-        }
-        PostAutoSigninRes postAutoSigninRes = new PostAutoSigninRes(token);
-        return new BaseResponse<>(postAutoSigninRes);
-    }
+//    /**
+//     * 1.2 자동 로그인 api
+//     * [POST] /auth/signin/auto
+//     *
+//     * @param postAutoSigninReq
+//     * @return
+//     */
+//    @PostMapping("/signin/auto")
+//    public BaseResponse<PostAutoSigninRes> autoLogin(HttpServletRequest request,
+//                                                     @RequestBody PostAutoSigninReq postAutoSigninReq) {
+//        User user = null;
+//        try {
+//            user = userProvider.retrieveByEmail(postAutoSigninReq.getEmail());
+//            user.setPassword(postAutoSigninReq.getPassword());
+//        } catch (BaseException e) {
+//            writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
+//            return new BaseResponse(e.getStatus());
+//        }
+//
+//        Authentication authentication = null;
+//        try {
+//            authentication = attemptAuthentication(user);
+//        } catch (BaseException e) {
+//            writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
+//            return new BaseResponse<>(e.getStatus());
+//        }
+//        PrincipalDetails userEntity = (PrincipalDetails) authentication.getPrincipal();
+//
+//        Token token = null;
+//        try {
+//            token = authService.registerNewTokenForUser(userEntity.getUser().getId());
+//        } catch (BaseException e) {
+//            writeExceptionWithRequest(e, request, postAutoSigninReq.toString());
+//            return new BaseResponse<>(e.getStatus());
+//        }
+//        PostAutoSigninRes postAutoSigninRes = new PostAutoSigninRes(token);
+//        return new BaseResponse<>(postAutoSigninRes);
+//    }
 
     /**
      * 1.3 토큰 재발급 api

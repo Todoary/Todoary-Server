@@ -1,6 +1,9 @@
 package com.todoary.ms.src.auth.jwt;
 
+import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.util.BaseException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -15,11 +18,13 @@ import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
 
+import static com.todoary.ms.util.BaseResponseStatus.EXPIRED_JWT;
+import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithMessage;
+
 @Component
 @Getter
 public class JwtTokenProvider {
-
-    private final UserDetailsService userDetailsService;
     private final Long JWT_ACCESS_TOKEN_EXPTIME;
     private final Long JWT_REFRESH_TOKEN_EXPTIME;
     private final String  JWT_ACCESS_SECRET_KEY;
@@ -27,20 +32,16 @@ public class JwtTokenProvider {
     private Key accessKey;
     private Key refreshKey;
 
-    public JwtTokenProvider(UserDetailsService userDetailsService,
-                            @Value("${jwt.time.access}") Long JWT_ACCESS_TOKEN_EXPTIME,
+    public JwtTokenProvider(@Value("${jwt.time.access}") Long JWT_ACCESS_TOKEN_EXPTIME,
                             @Value("${jwt.time.refresh}") Long JWT_REFRESH_TOKEN_EXPTIME,
                             @Value("${jwt.secret.access}") String JWT_ACCESS_SECRET_KEY,
                             @Value("${jwt.secret.refresh}") String JWT_REFRESH_SECRET_KEY) {
-        this.userDetailsService = userDetailsService;
+
         this.JWT_ACCESS_TOKEN_EXPTIME = JWT_ACCESS_TOKEN_EXPTIME;
         this.JWT_REFRESH_TOKEN_EXPTIME = JWT_REFRESH_TOKEN_EXPTIME;
         this.JWT_ACCESS_SECRET_KEY = JWT_ACCESS_SECRET_KEY;
         this.JWT_REFRESH_SECRET_KEY = JWT_REFRESH_SECRET_KEY;
     }
-
-    @Autowired
-
 
     @PostConstruct
     public void initialize() {
@@ -78,12 +79,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-//    // JWT 토큰에서 인증 정보 조회
-//    public Authentication getAuthentication(String token) {
-//        PrincipalDetails userDetails = (PrincipalDetails) userDetailsService.loadUserByUsername(this.getUserid(token));
-//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-//    }
-
     // 토큰에서 회원 정보 추출
     public String getUserIdFromAccessToken(String token) {
         return getUserIdFromTokenUsingKey(token, accessKey);
@@ -104,5 +99,19 @@ public class JwtTokenProvider {
         // 현재 시간
         Long now = new Date().getTime();
         return expiration.getTime() - now;
+    }
+
+    // RefreshToken validate
+    public void validateRefreshToken(String refreshTokenCode) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(refreshKey)
+                    .build()
+                    .parseClaimsJws(refreshTokenCode);
+        } catch (ExpiredJwtException expiredJwtException) {
+            throw new TodoaryException(EXPIRED_JWT);
+        } catch (Exception exception) {
+            throw new TodoaryException(INVALID_JWT);
+        }
     }
 }

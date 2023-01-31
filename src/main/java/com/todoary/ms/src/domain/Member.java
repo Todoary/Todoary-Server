@@ -68,11 +68,12 @@ public class Member extends BaseTimeEntity{
     /*---Constructor---*/
 
     @Builder
-    public Member(String name, String nickname, String email, String password, ProviderAccount providerAccount, Boolean isTermsEnable) {
+    public Member(String name, String nickname, String email, String password, String role, ProviderAccount providerAccount, Boolean isTermsEnable) {
         this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
+        this.role = role;
         this.providerAccount = providerAccount;
         this.isTermsEnable = isTermsEnable;
     }
@@ -130,5 +131,9 @@ public class Member extends BaseTimeEntity{
 
     public void changeNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public boolean hasRefreshTokenCode(String refreshTokenCode) {
+        return this.getRefreshToken().hasCode(refreshTokenCode);
     }
 }

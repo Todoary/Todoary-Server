@@ -2,6 +2,7 @@ package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.repository.MemberRepository;
+import com.todoary.ms.src.web.dto.MemberJoinParam;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,17 +29,21 @@ class MemberServiceTest {
     @Test
     public void 멤버_회원가입() throws Exception {
         //given
-        Member member = createMember();
+        MemberJoinParam memberJoinParam = createMemberJoinParam();
 
         //when
-        Long joinMemberId = memberService.join(member);
+        Long joinMemberId = memberService.join(memberJoinParam);
 
         //then
-        assertThat(joinMemberId).isEqualTo(member.getId());
+        assertThat(memberService.findById(joinMemberId).getName()).isEqualTo(memberJoinParam.getName());
     }
 
-    Member createMember() {
-        Member member = Member.builder().build();
-        return member;
+    MemberJoinParam createMemberJoinParam() {
+        return new MemberJoinParam("memberA",
+                "nicknameA",
+                "emailA",
+                "passwordA",
+                "ROLE_USER",
+                true);
     }
 }
