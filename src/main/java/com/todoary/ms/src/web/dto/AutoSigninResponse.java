@@ -1,11 +1,11 @@
-package com.todoary.ms.src.domain.token;
+package com.todoary.ms.src.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AuthenticationToken {
+public class AutoSigninResponse {
     private String accessToken;
     private String refreshToken;
 }

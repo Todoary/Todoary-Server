@@ -4,10 +4,8 @@ import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.auth.model.PrincipalDetails;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
-import com.todoary.ms.src.domain.token.AuthenticationToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.exception.common.TodoaryException;
-import com.todoary.ms.util.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,30 +40,11 @@ public class JpaAuthService {
         return memberId == Long.parseLong(jwtTokenProvider.getUserIdFromAccessToken(accessTokenCode));
     }
 
-
     public RefreshToken saveRefreshToken(Member member) {
         RefreshToken refreshToken = new RefreshToken(member, jwtTokenProvider.createRefreshToken(member.getId()));
 
         refreshTokenService.save(refreshToken);
         return refreshToken;
-    }
-
-    public AuthenticationToken issueAuthenticationToken(Long memberId) {
-        Member findMember = memberService.findById(memberId);
-
-        AccessToken accessToken = new AccessToken(jwtTokenProvider.createAccessToken(memberId));
-        RefreshToken refreshToken = saveRefreshToken(findMember);
-
-        return new AuthenticationToken(accessToken.getCode(), refreshToken.getCode());
-    }
-
-    public AuthenticationToken issueAuthenticationToken(String refreshTokenCode) {
-        return issueAuthenticationToken(Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshTokenCode)));
-    }
-
-    public AuthenticationToken issueAuthenticationToken(Authentication authentication) {
-        Long memberId = ((PrincipalDetails) authentication.getPrincipal()).getMember().getId();
-        return new AuthenticationToken(jwtTokenProvider.createAccessToken(memberId), "");
     }
 
     public Authentication authenticate(String email, String password) {
@@ -80,5 +59,26 @@ public class JpaAuthService {
             // authenticate 실패했을 때 예외 발생
             throw new TodoaryException(USERS_AUTHENTICATION_FAILURE);
         }
+    }
+
+    public AccessToken issueAccessToken(Long memberId) {
+        Member findMember = memberService.findById(memberId);
+
+        return new AccessToken(jwtTokenProvider.createAccessToken(memberId));
+    }
+
+    public AccessToken issueAccessToken(String refreshTokenCode) {
+        return issueAccessToken(Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshTokenCode)));
+    }
+
+    public RefreshToken issueRefreshToken(Long memberId) {
+        Member findMember = memberService.findById(memberId);
+        RefreshToken refreshToken = saveRefreshToken(findMember);
+
+        return refreshToken;
+    }
+
+    public RefreshToken issueRefreshToken(String refreshTokenCode) {
+        return issueRefreshToken(Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshTokenCode)));
     }
 }

@@ -3,26 +3,16 @@ package com.todoary.ms.src.service;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
-import com.todoary.ms.src.domain.token.AuthenticationToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.lang.reflect.Field;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @Transactional
 @SpringBootTest
@@ -95,25 +85,27 @@ class JpaAuthServiceTest {
         Member member = createMember();
 
         //when
-        AuthenticationToken authenticationToken = authService.issueAuthenticationToken(member.getId());
+        AccessToken accessToken = authService.issueAccessToken(member.getId());
+        RefreshToken refreshToken = authService.issueRefreshToken(member.getId());
 
         //then
-        assertThat(authService.decodableAccessToken(authenticationToken.getAccessToken(), member.getId())).isTrue();
-        assertThat(authService.decodableRefreshToken(authenticationToken.getRefreshToken(), member.getId())).isTrue();
+        assertThat(authService.decodableAccessToken(accessToken.getCode(), member.getId())).isTrue();
+        assertThat(authService.decodableRefreshToken(refreshToken.getCode(), member.getId())).isTrue();
     }
 
     @Test
     public void refreshToken으로_accessToken과_refreshToken발행() throws Exception {
         //given
         Member member = createMemberHasRefreshToken();
-        RefreshToken refreshToken = refreshTokenService.findByMemberId(member.getId());
+        RefreshToken findRefreshToken = refreshTokenService.findByMemberId(member.getId());
 
         //when
-        AuthenticationToken authenticationToken = authService.issueAuthenticationToken(refreshToken.getCode());
+        AccessToken accessToken = authService.issueAccessToken(findRefreshToken.getCode());
+        RefreshToken refreshToken = authService.issueRefreshToken(findRefreshToken.getCode());
 
         //then
-        assertThat(authService.decodableAccessToken(authenticationToken.getAccessToken(), member.getId())).isTrue();
-        assertThat(authService.decodableRefreshToken(authenticationToken.getRefreshToken(), member.getId())).isTrue();
+        assertThat(authService.decodableAccessToken(accessToken.getCode(), member.getId())).isTrue();
+        assertThat(authService.decodableRefreshToken(refreshToken.getCode(), member.getId())).isTrue();
     }
 
     Member createMember() {

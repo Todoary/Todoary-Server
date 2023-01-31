@@ -1,6 +1,8 @@
 package com.todoary.ms.src.web.controller;
 
-import com.todoary.ms.src.domain.token.AuthenticationToken;
+import com.todoary.ms.src.auth.model.PrincipalDetails;
+import com.todoary.ms.src.domain.token.AccessToken;
+import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.service.JpaAuthService;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.*;
@@ -34,9 +36,31 @@ public class JpaAuthController {
     public BaseResponse<SigninResponse> login(@RequestBody SigninRequest signinRequest) {
         Authentication authentication = authService.authenticate(signinRequest.getEmail(), signinRequest.getPassword());
 
-        return new BaseResponse<>(new SigninResponse(authService.issueAuthenticationToken(authentication)));
+        Long memberId = getMemberIdFromAuthentication(authentication);
+        return new BaseResponse<>(new SigninResponse(authService.issueAccessToken(memberId).getCode(), ""));
     }
 
+    /**
+     * 1.2 자동 로그인 api
+     * [POST] /auth/signin/auto
+     *
+     * @param autoSigninRequest
+     * @return
+     */
+    @PostMapping("/signin/auto")
+    public BaseResponse<AutoSigninResponse> autoLogin(@RequestBody AutoSigninRequest autoSigninRequest) {
+
+        Authentication authentication = authService.authenticate(autoSigninRequest.getEmail(), autoSigninRequest.getPassword());
+
+        Long memberId = getMemberIdFromAuthentication(authentication);
+        return new BaseResponse<>(new AutoSigninResponse(authService.issueAccessToken(memberId).getCode(), authService.issueRefreshToken(memberId).getCode()));
+    }
+
+    public Long getMemberIdFromAuthentication(Authentication authentication) {
+        return ((PrincipalDetails) authentication.getPrincipal())
+                .getMember()
+                .getId();
+    }
     /**
      * 1.3 토큰 재발급 api
      * [GET] /auth/jwt
@@ -53,8 +77,10 @@ public class JpaAuthController {
         validateMemberByRefreshToken(refreshTokenCode);
 
         // accessToken, refreshToken 재발급
-        AuthenticationToken authenticationToken = authService.issueAuthenticationToken(refreshTokenCode);
-        return new BaseResponse<>(new AuthenticationTokenIssueResponse(authenticationToken));
+        AccessToken accessToken = authService.issueAccessToken(refreshTokenCode);
+        RefreshToken refreshToken = authService.issueRefreshToken(refreshTokenCode);
+
+        return new BaseResponse<>(new AuthenticationTokenIssueResponse(accessToken.getCode(), refreshToken.getCode()));
     }
 
     public void validateMemberByRefreshToken(String refreshTokenCode) {

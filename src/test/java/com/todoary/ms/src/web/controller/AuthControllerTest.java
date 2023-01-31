@@ -52,8 +52,8 @@ class AuthControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(requestBody))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.authenticationToken.accessToken").exists())
-                .andExpect(jsonPath("$.result.authenticationToken.refreshToken").exists())
+                .andExpect(jsonPath("$.result.accessToken").exists())
+                .andExpect(jsonPath("$.result.refreshToken").exists())
                 .andDo(print());
     }
     
