@@ -91,10 +91,30 @@ class AuthControllerTest {
                                 .content(loginRequestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("1000"))
-                .andDo(print())
-                .andDo(log());
+                .andExpect(jsonPath("$.result.accessToken").exists())
+                .andExpect(jsonPath("$.result.refreshToken").value(""))
+                .andDo(print());
     }
 
+    @Test
+    public void 자동로그인_테스트() throws Exception {
+        일반회원가입_테스트();
+        String autoLoginRequestBody =
+                "{" +
+                        "\"email\" : \"emailA\"," +
+                        "\"password\" : \"passwordA\"" +
+                        "}";
+
+        mockMvc.perform(
+                        post("/auth/jpa/signin/auto")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(autoLoginRequestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("1000"))
+                .andExpect(jsonPath("$.result.accessToken").exists())
+                .andExpect(jsonPath("$.result.refreshToken").exists())
+                .andDo(print());
+    }
     Member createMember() {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
         return memberService.findById(memberService.join(memberJoinParam));
