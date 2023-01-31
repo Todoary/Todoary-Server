@@ -141,4 +141,29 @@ public class MemberRepository {
             return false;
         }
     }
+
+    public Optional<Member> findByEmail(String email) {
+        try {
+            Member member = em.createQuery("select m from Member m where m.email = :email and m.status = 1", Member.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+
+            return Optional.ofNullable(member);
+        } catch (NoResultException e) {
+            return Optional.ofNullable(null);
+        }
+    }
+
+    public Optional<Member> findByProviderEmail(String email, String providerName) {
+        try {
+            Member member = em.createQuery("select m from Member m where m.providerAccount.provider = :provider and m.email = :email", Member.class)
+                    .setParameter("provider", Provider.findByProviderName(providerName))
+                    .setParameter("email", email)
+                    .getSingleResult();
+
+            return Optional.ofNullable(member);
+        } catch (NoResultException e) {
+            return Optional.ofNullable(null);
+        }
+    }
 }

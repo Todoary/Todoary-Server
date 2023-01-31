@@ -5,6 +5,7 @@ import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.AuthenticationToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
+import com.todoary.ms.src.web.dto.MemberJoinParam;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
@@ -116,19 +117,24 @@ class JpaAuthServiceTest {
     }
 
     Member createMember() {
-        Member member = Member.builder()
-                .build();
-        memberService.join(member);
-        return member;
+        MemberJoinParam memberJoinParam = createMemberJoinParam();
+        return memberService.findById(memberService.join(memberJoinParam));
     }
 
     Member createMemberHasRefreshToken() {
-        Member member = Member.builder()
-                .build();
-        memberService.join(member);
+        Member member = createMember();
 
         RefreshToken refreshToken = new RefreshToken(member, jwtTokenProvider.createRefreshToken(member.getId()));
         refreshTokenService.save(refreshToken);
         return member;
+    }
+
+    MemberJoinParam createMemberJoinParam() {
+        return new MemberJoinParam("memberA",
+                "nicknameA",
+                "emailA",
+                "passwordA",
+                "ROLE_USER",
+                true);
     }
 }
