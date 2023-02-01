@@ -6,15 +6,17 @@ import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.service.JpaAuthService;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.*;
+import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithRequest;
 
 
 @Slf4j
@@ -111,5 +113,19 @@ public class JpaAuthController {
         );
         memberService.join(memberJoinParam);
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
+    /**
+     * 1.8 이메일 중복체크 api
+     * [GET] /email/duplication?email=
+     *
+     * @param email
+     * @return
+     */
+    @GetMapping("/email/duplication")
+    public BaseResponse<String> checkEmailDuplication(@RequestParam(required = true) String email) {
+        memberService.checkEmailDuplication(email);
+
+        return new BaseResponse<>("가능한 이메일입니다.");
     }
 }

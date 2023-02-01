@@ -115,6 +115,30 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.result.refreshToken").exists())
                 .andDo(print());
     }
+
+    @Test
+    public void 이메일_중복체크_테스트_존재O() throws Exception {
+        일반회원가입_테스트();
+
+        mockMvc.perform(
+                        get("/auth/jpa/email/duplication")
+                                .queryParam("email", "emailA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("2017"))
+                .andDo(print());
+    }
+
+    @Test
+    public void 이메일_중복체크_테스트_존재X() throws Exception {
+        일반회원가입_테스트();
+
+        mockMvc.perform(
+                        get("/auth/jpa/email/duplication")
+                                .queryParam("email", "newEmail"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result").value("가능한 이메일입니다."))
+                .andDo(print());
+    }
     Member createMember() {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
         return memberService.findById(memberService.join(memberJoinParam));
