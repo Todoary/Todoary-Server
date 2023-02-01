@@ -73,4 +73,15 @@ public class MemberService {
         return memberRepository.findByProviderEmail(email, providerName).orElseThrow(
                 () -> new TodoaryException(USERS_EMPTY_USER_EMAIL));
     }
+
+    public void checkEmailDuplication(String email) {
+        if (memberRepository.isProviderEmailUsed(Provider.NONE, email)) {
+            throw new TodoaryException(POST_USERS_EXISTS_EMAIL);
+        }
+    }
+
+    public void changePassword(String email, String newPassword) {
+        Member member = findByEmail(email);
+        member.changePassword(encodePassword(newPassword));
+    }
 }

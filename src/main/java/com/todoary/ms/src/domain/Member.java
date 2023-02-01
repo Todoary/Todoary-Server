@@ -133,6 +133,10 @@ public class Member extends BaseTimeEntity{
         this.nickname = nickname;
     }
 
+    public void changePassword(String password) {
+        this.password = password;
+    }
+
     public boolean hasRefreshTokenCode(String refreshTokenCode) {
         return this.getRefreshToken().hasCode(refreshTokenCode);
     }
