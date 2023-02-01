@@ -139,6 +139,48 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.result").value("가능한 이메일입니다."))
                 .andDo(print());
     }
+    
+    @Test
+    public void 비밀번호_변경_테스트() throws Exception {
+        일반회원가입_테스트();
+
+        String email = "emailA";
+        String newPassword = "passwordB";
+
+        String changePasswordRequestBody =
+                "{" +
+                        "\"email\" : \"" + email + "\"," +
+                        "\"newPassword\" : \"" + newPassword + "\"" +
+                        "}";
+
+        mockMvc.perform(patch("/auth/jpa/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(changePasswordRequestBody))
+                .andExpect(jsonPath("$.code").value("1000"))
+                .andDo(print());
+    }
+
+    @Test
+    public void 비밀변경_후에_로그인_테스트() throws Exception {
+        비밀번호_변경_테스트();
+        
+        String loginRequestBody =
+                "{" +
+                        "\"email\" : \"emailA\"," +
+                        "\"password\" : \"passwordB\"" +
+                        "}";
+
+        mockMvc.perform(
+                        post("/auth/jpa/signin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("1000"))
+                .andExpect(jsonPath("$.result.accessToken").exists())
+                .andExpect(jsonPath("$.result.refreshToken").value(""))
+                .andDo(print());
+    }
+
     Member createMember() {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
         return memberService.findById(memberService.join(memberJoinParam));

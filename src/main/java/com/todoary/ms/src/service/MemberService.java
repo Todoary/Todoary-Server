@@ -79,4 +79,9 @@ public class MemberService {
             throw new TodoaryException(POST_USERS_EXISTS_EMAIL);
         }
     }
+
+    public void changePassword(String email, String newPassword) {
+        Member member = findByEmail(email);
+        member.changePassword(encodePassword(newPassword));
+    }
 }

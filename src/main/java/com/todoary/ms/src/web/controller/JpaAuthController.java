@@ -1,10 +1,12 @@
 package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.auth.model.PrincipalDetails;
+import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.service.JpaAuthService;
 import com.todoary.ms.src.service.MemberService;
+import com.todoary.ms.src.user.dto.PatchPasswordReq;
 import com.todoary.ms.src.web.dto.*;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
@@ -127,5 +129,18 @@ public class JpaAuthController {
         memberService.checkEmailDuplication(email);
 
         return new BaseResponse<>("가능한 이메일입니다.");
+    }
+
+    /**
+     * 1.9.2 비밀번호 재설정 API
+     * [PATCH] /auth/password
+     *
+     * @param memberPasswordChangeRequest
+     * @return
+     */
+    @PatchMapping("/password")
+    public BaseResponse<BaseResponseStatus> patchUserPassword(@RequestBody MemberPasswordChangeRequest memberPasswordChangeRequest) {
+        memberService.changePassword(memberPasswordChangeRequest.getEmail(), memberPasswordChangeRequest.getNewPassword());
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 }
