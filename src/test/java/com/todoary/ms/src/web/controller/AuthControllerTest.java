@@ -163,7 +163,7 @@ class AuthControllerTest {
     @Test
     public void 비밀변경_후에_로그인_테스트() throws Exception {
         비밀번호_변경_테스트();
-        
+
         String loginRequestBody =
                 "{" +
                         "\"email\" : \"emailA\"," +

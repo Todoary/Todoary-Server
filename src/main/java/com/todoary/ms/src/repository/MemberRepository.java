@@ -12,6 +12,7 @@ import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -165,5 +166,10 @@ public class MemberRepository {
         } catch (NoResultException e) {
             return Optional.ofNullable(null);
         }
+    }
+
+    public List<Member> findAllDailyAlarmEnabled() {
+        return em.createQuery("select m from Member m where m.dailyAlarmEnable = true", Member.class)
+                .getResultList();
     }
 }
