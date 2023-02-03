@@ -1,5 +1,6 @@
 package com.todoary.ms.src.service;
 
+import com.todoary.ms.src.alarm.model.Alarm;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
 
@@ -83,5 +86,9 @@ public class MemberService {
     public void changePassword(String email, String newPassword) {
         Member member = findByEmail(email);
         member.changePassword(encodePassword(newPassword));
+    }
+
+    public List<Member> findAllDailyAlarmEnabled() {
+        return memberRepository.findAllDailyAlarmEnabled();
     }
 }

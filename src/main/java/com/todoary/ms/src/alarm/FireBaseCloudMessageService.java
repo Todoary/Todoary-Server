@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.todoary.ms.src.alarm.model.FcmMessage;
+import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.util.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -23,36 +25,49 @@ public class FireBaseCloudMessageService {
     private final String API_URL = "https://fcm.googleapis.com/v1/projects/todoary-1304d/messages:send";
     private final ObjectMapper objectMapper;
 
-    public void sendMessageTo(String fcm_token, String title, String body) throws IOException { // targetToken : 에 해당하는 device로 보낼 것이다.
-        String message = makeMessage(fcm_token, title, body);
+    public void sendMessageTo(String fcm_token, String title, String body) { // targetToken : 에 해당하는 device로 보낼 것이다.
+        try {
+            String message = makeMessage(fcm_token, title, body);
 
-        OkHttpClient client = new OkHttpClient(); // okhttp3를 이용해 Http post request 생성
-        RequestBody requestBody = RequestBody.create(message,
-                MediaType.get("application/json; charset=utf-8"));
-        Request request = new Request.Builder()
-                .url(API_URL)
-                .post(requestBody)
-                .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) // Authorization 헤더에 access token 추가
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
-                .build();
+            OkHttpClient client = new OkHttpClient(); // okhttp3를 이용해 Http post request 생성
+            RequestBody requestBody = RequestBody.create(message,
+                    MediaType.get("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(API_URL)
+                    .post(requestBody)
+                    .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) // Authorization 헤더에 access token 추가
+                    .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
+                    .build();
 
-        Response response = client.newCall(request).execute();
+            Response response = client.newCall(request).execute();
 
-        log.info(response.body().string());
+            log.info(response.body().string());
+        } catch (IOException ioException) {
+            throw new TodoaryException(BaseResponseStatus.FCM_MESSAGE_PARSING_FAILURE);
+        }
+
     }
 
-    private String makeMessage(String fcm_token, String title, String body) throws JsonParseException, JsonProcessingException {
-        FcmMessage fcmMessage = FcmMessage.builder()
-                .message(FcmMessage.Message.builder()
-                        .token(fcm_token)
-                        .notification(FcmMessage.Notification.builder()
-                                .title(title)
-                                .body(body)
-                                .image(null)
-                                .build()
-                        ).build()).validateOnly(false).build();
-
-        return objectMapper.writeValueAsString(fcmMessage);
+    private String makeMessage(String fcm_token, String title, String body) {
+        try {
+            FcmMessage fcmMessage =
+                    FcmMessage.builder()
+                            .message(FcmMessage.Message
+                                            .builder()
+                                            .token(fcm_token)
+                                            .notification(FcmMessage.Notification
+                                                                .builder()
+                                                                .title(title)
+                                                                .body(body)
+                                                                .image(null)
+                                                                .build())
+                                    .build())
+                            .validateOnly(false)
+                            .build();
+            return objectMapper.writeValueAsString(fcmMessage);
+        } catch (JsonProcessingException e) {
+            throw new TodoaryException(BaseResponseStatus.FCM_MESSAGE_PARSING_FAILURE);
+        }
     }
 
     private String getAccessToken() throws IOException {
