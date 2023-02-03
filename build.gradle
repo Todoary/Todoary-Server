@@ -62,6 +62,9 @@ dependencies {
 	// H2 데이터베이스
 	implementation 'com.h2database:h2:2.1.214'
 
+	// 스프링 시큐리티 테스트
+	testImplementation('org.springframework.security:spring-security-test')
+
 }
 
 tasks.named('test') {
