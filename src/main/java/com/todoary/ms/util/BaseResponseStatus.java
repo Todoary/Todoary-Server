@@ -33,6 +33,7 @@ public enum BaseResponseStatus {
     USERS_DELETED_USER(false, 2012, "삭제된 유저입니다."),
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
     USERS_REFRESH_TOKEN_NOT_EXISTS(false, 2113, "유저 정보와 일치하는 Refresh Token이 없습니다."),
+    USERS_AUTHENTICATION_FAILURE(false, 2114, "유저 인증을 실패했습니다."),
 
     // 데이터가 정해진 형식보다 길 때
     DATA_TOO_LONG(false, 2101, "제한 길이를 초과했습니다."),
@@ -71,9 +72,10 @@ public enum BaseResponseStatus {
     // 5000 : AWS관련 오류
     AWS_ACCESS_DENIED(false, 5001, "접근 권한이 없습니다."),
     AWS_FILE_NOT_FOUND(false, 5002, "파일 키에 해당하는 파일이 존재하지 않습니다."),
-    AWS_FILE_CONVERT_FAIL(false, 5003, "파일 변환에 실패했습니다.");
-    // 6000 : 필요시 만들어서 쓰세요
+    AWS_FILE_CONVERT_FAIL(false, 5003, "파일 변환에 실패했습니다."),
 
+    // 6000 : Firebase 관련 오류
+    FCM_MESSAGE_PARSING_FAILURE(false, 6001, "FCM 메시지 변환에 실패했습니다.");
 
     private final boolean isSuccess;
     private final int code;

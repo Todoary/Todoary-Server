@@ -1,7 +1,7 @@
 package com.todoary.ms.src.auth.model;
 
-import com.todoary.ms.src.user.model.User;
-import lombok.Data;
+import com.todoary.ms.src.domain.Member;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -10,27 +10,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-@Data
+@Getter
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
-    private User user;
+    private Member member;
     private Map<String, Object> attributes;
+    // 새로 가입시킨 멤버인가
+    boolean isNewMember = false;
 
-    // 새로 가입시킨 유저인가
-    boolean isNewUser = false;
-
-    public PrincipalDetails(User user) {
-        this.user = user;
+    public PrincipalDetails(Member member) {
+        this.member = member;
     }
 
-    public PrincipalDetails(User user, Map<String, Object> attributes, boolean isNewUser) {
-        this.user = user;
+    public PrincipalDetails(Member member, Map<String, Object> attributes, boolean isNewMember) {
+        this.member = member;
         this.attributes = attributes;
-        this.isNewUser = isNewUser;
+        this.isNewMember = isNewMember;
     }
 
-    public boolean isNewUser() {
-        return isNewUser;
+    public boolean isNewMember() {
+        return isNewMember;
     }
 
     @Override
@@ -40,7 +39,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        return this.user.getName();
+        return this.member.getName();
     }
 
     @Override
@@ -49,7 +48,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return user.getRole();
+                return member.getRole();
             }
         });
         return collection;
@@ -57,12 +56,12 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
-        return this.user.getPassword();
+        return this.member.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return this.user.getName();
+        return this.member.getName();
     }
 
     @Override
@@ -84,6 +83,4 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     public boolean isEnabled() {
         return true;
     }
-
-
 }

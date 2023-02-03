@@ -35,16 +35,11 @@ public class AlarmController {
         System.out.println(postAlarmReq.getFcm_token() + " "
                 + postAlarmReq.getTitle() + " " + postAlarmReq.getBody());
 
-        try {
-            firebaseCloudMessageService.sendMessageTo(
-                    postAlarmReq.getFcm_token(),
-                    postAlarmReq.getTitle(),
-                    postAlarmReq.getBody());
-            return ResponseEntity.ok().build();
-        } catch (IOException e) {
-            ErrorLogWriter.writeExceptionWithMessage(e, "push message failed");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        firebaseCloudMessageService.sendMessageTo(
+                postAlarmReq.getFcm_token(),
+                postAlarmReq.getTitle(),
+                postAlarmReq.getBody());
+        return ResponseEntity.ok().build();
     }
 
     @Scheduled(cron = "0 0/1 * 1/1 * ?")
@@ -58,15 +53,10 @@ public class AlarmController {
 
         List<Alarm> alarms_todo = alarmDao.selectByDateTime_todo(target_date, target_time);
         for (Alarm alarm : alarms_todo) {
-            try {
-                firebaseCloudMessageService.sendMessageTo(
-                        alarm.getFcm_token(),
-                        "Todoary 알림",
-                        alarm.getTitle());
-            } catch (IOException e) {
-                ErrorLogWriter.writeExceptionWithMessage(e, "Todoary 알림 failed | " + alarm.toString());
-                throw new RuntimeException(e);
-            }
+            firebaseCloudMessageService.sendMessageTo(
+                    alarm.getFcm_token(),
+                    "Todoary 알림",
+                    alarm.getTitle());
         }
     }
 
@@ -75,15 +65,10 @@ public class AlarmController {
 
         List<Alarm> alarms_daily = alarmDao.selectByDateTime_daily();
         for (Alarm alarm : alarms_daily) {
-            try {
-                firebaseCloudMessageService.sendMessageTo(
-                        alarm.getFcm_token(),
-                        "하루기록 알림",
-                        "하루기록을 작성해보세요.");
-            } catch (IOException e) {
-                ErrorLogWriter.writeExceptionWithMessage(e, "하루기록 알림 failed | " + alarm.toString());
-                throw new RuntimeException(e);
-            }
+            firebaseCloudMessageService.sendMessageTo(
+                    alarm.getFcm_token(),
+                    "하루기록 알림",
+                    "하루기록을 작성해보세요.");
         }
 
     }
@@ -95,15 +80,10 @@ public class AlarmController {
 
         List<Alarm> alarms_remind = alarmDao.selectByDateTime_remind(target_date);
         for (Alarm alarm : alarms_remind) {
-            try {
-                firebaseCloudMessageService.sendMessageTo(
-                        alarm.getFcm_token(),
-                        "리마인드 알림",
-                        "하루기록을 작성한 지 일주일이 경과했습니다.");
-            } catch (IOException e) {
-                ErrorLogWriter.writeExceptionWithMessage(e, "리마인드 알림 failed | " + alarm.toString());
-                throw new RuntimeException(e);
-            }
+            firebaseCloudMessageService.sendMessageTo(
+                    alarm.getFcm_token(),
+                    "리마인드 알림",
+                    "하루기록을 작성한 지 일주일이 경과했습니다.");
         }
     }
 
