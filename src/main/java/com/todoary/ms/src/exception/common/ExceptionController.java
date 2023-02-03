@@ -5,6 +5,7 @@ import com.todoary.ms.util.BaseResponseStatus;
 import com.todoary.ms.util.ErrorLogWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -21,6 +22,13 @@ public class ExceptionController {
         ErrorLogWriter.writeExceptionWithRequest(exception, httpServletRequest);
         return ResponseEntity.ok()
                 .body(BaseResponse.from(exception.getStatus()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    private ResponseEntity<BaseResponse<BaseResponseStatus>> handleBadRequest(MethodArgumentNotValidException exception, HttpServletRequest httpServletRequest) {
+        ErrorLogWriter.writeExceptionWithRequest(exception, httpServletRequest);
+        return ResponseEntity.ok()
+                .body(BaseResponse.from(BaseResponseStatus.valueOf(exception.getBindingResult().getFieldError().getDefaultMessage())));
     }
 
     @ExceptionHandler({Exception.class})
