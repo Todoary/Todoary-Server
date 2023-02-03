@@ -43,7 +43,7 @@ public enum BaseResponseStatus {
     // category 도메인 에러
     DUPLICATE_CATEGORY(false, 2104, "같은이름의 카테고리가 이미 존재합니다."),
 
-    TITLE_TOO_LONG(false, 2105, "카테고리 제목이 제한길이 이상입니다. ("+CATEGORY_TITLE_MAX_LENGTH+" 글자까지 가능)"),
+    CATEGORY_TITLE_TOO_LONG(false, 2105, "카테고리 제목이 제한길이 이상입니다. ("+CATEGORY_TITLE_MAX_LENGTH+" 글자까지 가능)"),
 
     EMPTY_COLOR_CATEGORY(false, 2106, "카테고리 색상을 입력해주세요."),
 

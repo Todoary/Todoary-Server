@@ -1,12 +1,12 @@
 package com.todoary.ms.src.category.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class PostCategoryRes {
     private Long categoryId;
 }
