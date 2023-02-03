@@ -2,6 +2,8 @@ package com.todoary.ms.util;
 
 import lombok.Getter;
 
+import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
+
 /**
  * 에러 코드 관리
  */
@@ -40,6 +42,10 @@ public enum BaseResponseStatus {
 
     // category 도메인 에러
     DUPLICATE_CATEGORY(false, 2104, "같은이름의 카테고리가 이미 존재합니다."),
+
+    TITLE_TOO_LONG(false, 2105, "카테고리 제목이 제한길이 이상입니다. ("+CATEGORY_TITLE_MAX_LENGTH+" 글자까지 가능)"),
+
+    EMPTY_COLOR_CATEGORY(false, 2106, "카테고리 색상을 입력해주세요."),
 
     INVALID_PROVIDER(false, 2013, "올바르지 않은 provider입니다. (예: google)"),
 

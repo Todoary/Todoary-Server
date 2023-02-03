@@ -4,16 +4,14 @@ import com.ibm.icu.text.BreakIterator;
 import lombok.Getter;
 
 @Getter
-public enum ColumnLengthInfo {
-    CATEGORY_TITLE_MAX_LENGTH(5),
-    DIARY_TITLE_MAX_LENGTH(20),
-    TODO_TITLE_MAX_LENGTH(20);
+public class ColumnLengthInfo {
+    public static final int CATEGORY_TITLE_MAX_LENGTH = 5;
+    public static final int DIARY_TITLE_MAX_LENGTH = 20;
+    public static final int TODO_TITLE_MAX_LENGTH = 20;
 
-    private final int length;
-
-    private ColumnLengthInfo(int length) {
-        this.length = length;
+    private ColumnLengthInfo() {
     }
+
 
     /**
      * 사용자가 인식하는 글자 단위로 개수 세기
