@@ -1,16 +1,22 @@
 package com.todoary.ms.src.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class TodoUpdateAlarmRequest {
     @JsonProperty("isAlarmEnabled")
     private boolean isAlarmEnabled;
-    private String targetDate;
-    private String targetTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate targetDate;
+
+    @DateTimeFormat(pattern = "kk:mm")
+    private LocalTime targetTime;
 }

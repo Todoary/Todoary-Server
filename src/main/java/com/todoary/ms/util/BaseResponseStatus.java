@@ -3,6 +3,7 @@ package com.todoary.ms.util;
 import lombok.Getter;
 
 import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
+import static com.todoary.ms.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
 
 /**
  * 에러 코드 관리
@@ -53,6 +54,8 @@ public enum BaseResponseStatus {
     // 300대 -> 3. todo 도메인 에러
     USERS_CATEGORY_NOT_EXISTS(false, 2301, "해당하는 유저와 일치하는 카테고리가 없습니다."),
     USERS_TODO_NOT_EXISTS(false, 2302, "해당하는 유저와 일치하는 투두가 없습니다."),
+    TODO_TITLE_TOO_LONG(false, 2303, "투두 제목이 제한길이 이상입니다. ("+TODO_TITLE_MAX_LENGTH+" 글자까지 가능)"),
+    EMPTY_TODO_DATE(false, 2304, "투두 날짜를 입력해주세요."),
 
     // [POST] /users
     POST_USERS_EXISTS_EMAIL(false, 2017, "중복된 이메일입니다."),
