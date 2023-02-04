@@ -1,15 +1,11 @@
 package com.todoary.ms.src.web.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoary.ms.src.category.dto.PostCategoryRes;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.JpaCategoryService;
 import com.todoary.ms.src.web.dto.CategoryRequest;
 import com.todoary.ms.src.web.dto.CategoryResponse;
-import com.todoary.ms.util.BaseResponse;
-import com.todoary.ms.util.BaseResponseStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration;
@@ -20,9 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.UnsupportedEncodingException;
 import java.util.stream.IntStream;
 
+import static com.todoary.ms.src.web.controller.TestUtils.getResponseObject;
 import static com.todoary.ms.util.BaseResponseStatus.*;
 import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
 import static com.todoary.ms.util.ColumnLengthInfo.getGraphemeLength;
@@ -185,18 +181,6 @@ class JpaCategoryControllerTest {
                 .andReturn();
         // then
         assertThat(getResponseObject(result)).isEqualTo(SUCCESS);
-    }
-
-    static BaseResponseStatus getResponseObject(MvcResult result) throws UnsupportedEncodingException, JsonProcessingException {
-        return getResponseObject(result, BaseResponseStatus.class);
-    }
-
-    static <T> T getResponseObject(MvcResult result, Class<T> type) throws JsonProcessingException, UnsupportedEncodingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(BaseResponse.class, type);
-        String json = result.getResponse().getContentAsString();
-        BaseResponse<T> response = objectMapper.readValue(json, javaType);
-        return response.getResult();
     }
 
     private static class REQUEST_URL {
