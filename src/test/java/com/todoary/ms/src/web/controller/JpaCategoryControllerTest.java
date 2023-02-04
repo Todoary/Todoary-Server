@@ -7,6 +7,7 @@ import com.todoary.ms.src.category.dto.PostCategoryRes;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.JpaCategoryService;
 import com.todoary.ms.src.web.dto.CategoryRequest;
+import com.todoary.ms.src.web.dto.CategoryResponse;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.UnsupportedEncodingException;
+import java.util.stream.IntStream;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
 import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
@@ -27,8 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -154,6 +155,24 @@ class JpaCategoryControllerTest {
         assertThat(status).isEqualTo(EMPTY_COLOR_CATEGORY);
     }
 
+    @Test
+    @WithTodoaryMockUser
+    void 카테고리_조회O() throws Exception {
+        // given
+        CategoryResponse[] expected = IntStream.range(0, 5)
+                .mapToObj(i -> new CategoryResponse((long) i, "카테고리" + i, i))
+                .toArray(CategoryResponse[]::new);
+        given(categoryService.findCategories(any())).willReturn(expected);
+        // when
+        MvcResult result = mvc.perform(get(REQUEST_URL.RETRIEVE))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        CategoryResponse[] responses = getResponseObject(result, CategoryResponse[].class);
+        // then
+        assertThat(responses).containsExactly(expected);
+    }
+
     static <T> T getResponseObject(MvcResult result, Class<T> type) throws JsonProcessingException, UnsupportedEncodingException {
         ObjectMapper objectMapper = new ObjectMapper();
         JavaType javaType = objectMapper.getTypeFactory().constructParametricType(BaseResponse.class, type);
@@ -163,8 +182,8 @@ class JpaCategoryControllerTest {
     }
 
     private static class REQUEST_URL {
-        public static String SAVE = "/v2/category";
+        public static String SAVE = "/v2/category/";
         public static String UPDATE = "/v2/category/{categoryId}";
-        public static String RETRIEVE = "";
+        public static String RETRIEVE = "/v2/category/";
     }
 }
