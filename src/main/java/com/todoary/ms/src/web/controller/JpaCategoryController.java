@@ -49,4 +49,14 @@ public class JpaCategoryController {
             @LoginMember Long memberId){
         return new BaseResponse<>(categoryService.findCategories(memberId));
     }
+
+    // 4.4 카테고리 삭제 API
+    @DeleteMapping("/{categoryId}")
+    public BaseResponse<BaseResponseStatus> deleteCategory(
+            @LoginMember Long memberId,
+            @PathVariable Long categoryId
+    ){
+        categoryService.deleteCategory(memberId, categoryId);
+        return BaseResponse.from(SUCCESS);
+    }
 }

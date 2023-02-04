@@ -172,6 +172,20 @@ class JpaCategoryControllerTest {
         assertThat(responses).containsExactly(expected);
     }
 
+    @Test
+    @WithTodoaryMockUser
+    void id가_null이_아닐_때_카테고리_삭제O() throws Exception {
+        // given
+        Long categoryId = 1L;
+        doNothing().when(categoryService).deleteCategory(any(), any());
+        // when
+        MvcResult result = mvc.perform(delete(REQUEST_URL.DELETE, categoryId).with(csrf()))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        // then
+        assertThat(getResponseObject(result)).isEqualTo(SUCCESS);
+    }
 
     static BaseResponseStatus getResponseObject(MvcResult result) throws UnsupportedEncodingException, JsonProcessingException {
         return getResponseObject(result, BaseResponseStatus.class);
@@ -190,5 +204,6 @@ class JpaCategoryControllerTest {
         public static String SAVE = BASE;
         public static String UPDATE = BASE + "/{categoryId}";
         public static String RETRIEVE = BASE;
+        public static String DELETE = BASE + "/{categoryId}";
     }
 }
