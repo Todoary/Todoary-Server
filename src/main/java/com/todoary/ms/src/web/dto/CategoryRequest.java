@@ -15,12 +15,12 @@ import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-public class CategorySaveRequest {
+public class CategoryRequest {
     @Length(max = CATEGORY_TITLE_MAX_LENGTH, message="CATEGORY_TITLE_TOO_LONG")
     private String title;
     @NotNull(message = "EMPTY_COLOR_CATEGORY")
     private Integer color;
-    public CategorySaveRequest(String title, Integer color) {
+    public CategoryRequest(String title, Integer color) {
         this.title = title;
         this.color = color;
     }
