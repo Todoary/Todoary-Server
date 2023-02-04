@@ -31,6 +31,7 @@ public class JpaCategoryController {
         return new BaseResponse<>(new PostCategoryRes(categoryId));
     }
 
+    // 4.2 카테고리 수정 API
     @PatchMapping("/{categoryId}")
     public BaseResponse<BaseResponseStatus> modifyCategory(
             @LoginMember Long memberId,
@@ -40,4 +41,6 @@ public class JpaCategoryController {
         categoryService.updateCategory(memberId, categoryId, request);
         return BaseResponse.from(SUCCESS);
     }
+
+
 }

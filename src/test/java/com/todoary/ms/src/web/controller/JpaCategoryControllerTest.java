@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoary.ms.src.category.dto.PostCategoryRes;
+import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.JpaCategoryService;
 import com.todoary.ms.src.web.dto.CategoryRequest;
 import com.todoary.ms.util.BaseResponse;
@@ -13,14 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.UnsupportedEncodingException;
 
-import static com.todoary.ms.util.BaseResponseStatus.CATEGORY_TITLE_TOO_LONG;
-import static com.todoary.ms.util.BaseResponseStatus.EMPTY_COLOR_CATEGORY;
+import static com.todoary.ms.util.BaseResponseStatus.*;
 import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
 import static com.todoary.ms.util.ColumnLengthInfo.getGraphemeLength;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -42,7 +41,7 @@ class JpaCategoryControllerTest {
     private JpaCategoryService categoryService;
 
     @Test
-    @WithMockUser
+    @WithTodoaryMockUser
     void 카테고리_제목이_최대_길이_이하일때_생성O() throws Exception {
         // given
         Long categoryId = 1L;
@@ -50,7 +49,7 @@ class JpaCategoryControllerTest {
         PostCategoryRes expected = new PostCategoryRes(categoryId);
         // when
         CategoryRequest requestDto = new CategoryRequest("카테고리", 10);
-        MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).requestAttr("user_id", 10L).with(csrf())
+        MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).with(csrf())
                                                   .contentType(MediaType.APPLICATION_JSON)
                                                   .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
@@ -62,7 +61,7 @@ class JpaCategoryControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithTodoaryMockUser
     void 카테고리_제목이_최대_길이_초과일때_생성X() throws Exception {
         // given
         String title = "오";
@@ -71,7 +70,7 @@ class JpaCategoryControllerTest {
         title = title.repeat(repeatCount);
         CategoryRequest requestDto = new CategoryRequest(title, 10);
         // when
-        MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).requestAttr("user_id", 10L).with(csrf())
+        MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).with(csrf())
                                                .contentType(MediaType.APPLICATION_JSON)
                                                .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
@@ -83,12 +82,12 @@ class JpaCategoryControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithTodoaryMockUser
     void 카테고리_색상이_null일때_생성X() throws Exception {
         // given
         CategoryRequest requestDto = new CategoryRequest("title", null);
         // when
-        MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).requestAttr("user_id", 10L).with(csrf())
+        MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).with(csrf())
                                                .contentType(MediaType.APPLICATION_JSON)
                                                .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
@@ -100,22 +99,25 @@ class JpaCategoryControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithTodoaryMockUser
     void 카테고리_제목이_최대_길이_이하일때_수정O() throws Exception {
         // given
         doNothing().when(categoryService).updateCategory(any(), any(), any());
         // when
         CategoryRequest requestDto = new CategoryRequest("카테고리", 10);
-        mvc.perform(patch(REQUEST_URL.UPDATE, 1L).requestAttr("user_id", 10L).with(csrf())
-                                               .contentType(MediaType.APPLICATION_JSON)
-                                               .content(new ObjectMapper().writeValueAsString(requestDto)))
+        MvcResult result = mvc.perform(patch(REQUEST_URL.UPDATE, 1L).with(csrf())
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
-                .andDo(print());
-        // then nothing thrown
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result, BaseResponseStatus.class);
+        // then
+        assertThat(status).isEqualTo(SUCCESS);
     }
 
     @Test
-    @WithMockUser
+    @WithTodoaryMockUser
     void 카테고리_제목이_최대_길이_초과일때_수정X() throws Exception {
         // given
         String title = "오";
@@ -124,7 +126,7 @@ class JpaCategoryControllerTest {
         title = title.repeat(repeatCount);
         // when
         CategoryRequest requestDto = new CategoryRequest(title, 10);
-        MvcResult result = mvc.perform(patch(REQUEST_URL.UPDATE, 1L).requestAttr("user_id", 10L).with(csrf())
+        MvcResult result = mvc.perform(patch(REQUEST_URL.UPDATE, 1L).with(csrf())
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
@@ -136,12 +138,12 @@ class JpaCategoryControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithTodoaryMockUser
     void 카테고리_색상이_null일때_수정X() throws Exception {
         // given
         CategoryRequest requestDto = new CategoryRequest("title", null);
         // when
-        MvcResult result = mvc.perform(patch(REQUEST_URL.UPDATE, 10).requestAttr("user_id", 10L).with(csrf())
+        MvcResult result = mvc.perform(patch(REQUEST_URL.UPDATE, 10).with(csrf())
                                                .contentType(MediaType.APPLICATION_JSON)
                                                .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
@@ -163,5 +165,6 @@ class JpaCategoryControllerTest {
     private static class REQUEST_URL {
         public static String SAVE = "/v2/category";
         public static String UPDATE = "/v2/category/{categoryId}";
+        public static String RETRIEVE = "";
     }
 }

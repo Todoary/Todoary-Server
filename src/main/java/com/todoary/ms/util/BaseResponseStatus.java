@@ -28,6 +28,7 @@ public enum BaseResponseStatus {
     INVALID_APPLE_AUTH(false, 2008, "유효하지 않은 토큰 입니다."),
     PARSE_USER_ERROR(false, 2009, "애플 유저 조회에 실패하였습니다."),
 
+    EMPTY_USER(false, 2010, "회원 정보가 존재하지 않습니다."),
 
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),

@@ -9,7 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.todoary.ms.util.BaseResponseStatus.INVALID_AUTH;
+import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -30,24 +30,24 @@ class LoginMemberArgumentResolverTest {
     }
 
     @Test
-    @WithMockUser(roles = "USER")
-    void servlet에_user_id_가_있을_경우_어노테이션에_주입O() throws Exception {
+    @WithMockUser(username="1")
+    void security에_user_id_가_있을_경우_어노테이션에_주입O() throws Exception {
         // given
         Long expectId = 1L;
         // when
-        mvc.perform(get("/test/login-member").requestAttr("user_id", expectId))
+        mvc.perform(get("/test/login-member"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(expectId.toString()));
     }
 
     @Test
-    @WithMockUser(roles = "USER")
-    void servlet에_user_id_가_없을_경우_어노테이션에_주입X() throws Exception {
+    @WithMockUser(username="asdf12324")
+    void security에_user_id_가_잘못됐을_경우_어노테이션에_주입X() throws Exception {
         // when
         mvc.perform(get("/test/login-member"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.isSuccess").value(INVALID_AUTH.isSuccess()))
-                .andExpect(jsonPath("$.code").value(INVALID_AUTH.getCode()))
-                .andExpect(jsonPath("$.message").value(INVALID_AUTH.getMessage()));
+                .andExpect(jsonPath("$.isSuccess").value(INVALID_JWT.isSuccess()))
+                .andExpect(jsonPath("$.code").value(INVALID_JWT.getCode()))
+                .andExpect(jsonPath("$.message").value(INVALID_JWT.getMessage()));
     }
 }
