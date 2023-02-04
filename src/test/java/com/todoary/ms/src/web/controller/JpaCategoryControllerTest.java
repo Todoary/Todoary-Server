@@ -12,8 +12,10 @@ import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -34,6 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(JpaCategoryController.class)
+// MvcResult 한글 깨짐
+@Import(HttpEncodingAutoConfiguration.class)
 class JpaCategoryControllerTest {
 
     @Autowired
@@ -51,8 +55,8 @@ class JpaCategoryControllerTest {
         // when
         CategoryRequest requestDto = new CategoryRequest("카테고리", 10);
         MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).with(csrf())
-                                                  .contentType(MediaType.APPLICATION_JSON)
-                                                  .content(new ObjectMapper().writeValueAsString(requestDto)))
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -77,9 +81,8 @@ class JpaCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        BaseResponseStatus status = getResponseObject(result, BaseResponseStatus.class);
         // then
-        assertThat(status).isEqualTo(CATEGORY_TITLE_TOO_LONG);
+        assertThat(getResponseObject(result)).isEqualTo(CATEGORY_TITLE_TOO_LONG);
     }
 
     @Test
@@ -94,9 +97,8 @@ class JpaCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        BaseResponseStatus status = getResponseObject(result, BaseResponseStatus.class);
         // then
-        assertThat(status).isEqualTo(EMPTY_COLOR_CATEGORY);
+        assertThat(getResponseObject(result)).isEqualTo(EMPTY_COLOR_CATEGORY);
     }
 
     @Test
@@ -107,14 +109,13 @@ class JpaCategoryControllerTest {
         // when
         CategoryRequest requestDto = new CategoryRequest("카테고리", 10);
         MvcResult result = mvc.perform(patch(REQUEST_URL.UPDATE, 1L).with(csrf())
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .content(new ObjectMapper().writeValueAsString(requestDto)))
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        BaseResponseStatus status = getResponseObject(result, BaseResponseStatus.class);
         // then
-        assertThat(status).isEqualTo(SUCCESS);
+        assertThat(getResponseObject(result)).isEqualTo(SUCCESS);
     }
 
     @Test
@@ -128,14 +129,13 @@ class JpaCategoryControllerTest {
         // when
         CategoryRequest requestDto = new CategoryRequest(title, 10);
         MvcResult result = mvc.perform(patch(REQUEST_URL.UPDATE, 1L).with(csrf())
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .content(new ObjectMapper().writeValueAsString(requestDto)))
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(new ObjectMapper().writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        BaseResponseStatus status = getResponseObject(result, BaseResponseStatus.class);
         // then
-        assertThat(status).isEqualTo(CATEGORY_TITLE_TOO_LONG);
+        assertThat(getResponseObject(result)).isEqualTo(CATEGORY_TITLE_TOO_LONG);
     }
 
     @Test
@@ -150,9 +150,8 @@ class JpaCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        BaseResponseStatus status = getResponseObject(result, BaseResponseStatus.class);
         // then
-        assertThat(status).isEqualTo(EMPTY_COLOR_CATEGORY);
+        assertThat(getResponseObject(result)).isEqualTo(EMPTY_COLOR_CATEGORY);
     }
 
     @Test
@@ -173,6 +172,11 @@ class JpaCategoryControllerTest {
         assertThat(responses).containsExactly(expected);
     }
 
+
+    static BaseResponseStatus getResponseObject(MvcResult result) throws UnsupportedEncodingException, JsonProcessingException {
+        return getResponseObject(result, BaseResponseStatus.class);
+    }
+
     static <T> T getResponseObject(MvcResult result, Class<T> type) throws JsonProcessingException, UnsupportedEncodingException {
         ObjectMapper objectMapper = new ObjectMapper();
         JavaType javaType = objectMapper.getTypeFactory().constructParametricType(BaseResponse.class, type);
@@ -182,8 +186,9 @@ class JpaCategoryControllerTest {
     }
 
     private static class REQUEST_URL {
-        public static String SAVE = "/v2/category/";
-        public static String UPDATE = "/v2/category/{categoryId}";
-        public static String RETRIEVE = "/v2/category/";
+        public static String BASE = "/v2/category";
+        public static String SAVE = BASE;
+        public static String UPDATE = BASE + "/{categoryId}";
+        public static String RETRIEVE = BASE;
     }
 }
