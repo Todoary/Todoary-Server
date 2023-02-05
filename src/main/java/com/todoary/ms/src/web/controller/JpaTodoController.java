@@ -6,6 +6,7 @@ import com.todoary.ms.src.todo.dto.PostTodoRes;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
 import com.todoary.ms.util.BaseResponse;
+import com.todoary.ms.util.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
+
+import static com.todoary.ms.util.BaseResponseStatus.SUCCESS;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,9 +30,19 @@ public class JpaTodoController {
             @LoginMember Long memberId,
             @RequestBody @Valid TodoRequest request
     ) {
-        System.out.println("request = " + request);
         Long todoId = todoService.saveTodo(memberId, request);
         return new BaseResponse<>(new PostTodoRes(todoId));
+    }
+
+    // 3.2 투두 수정
+    @PatchMapping("/{todoId}")
+    public BaseResponse<BaseResponseStatus> modifyTodo(
+            @LoginMember Long memberId,
+            @PathVariable("todoId") Long todoId,
+            @RequestBody @Valid TodoRequest request
+    ) {
+        todoService.updateTodo(memberId, todoId, request);
+        return BaseResponse.from(SUCCESS);
     }
 
     // 3.4 투두 날짜별 조회

@@ -32,8 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -227,11 +226,55 @@ class JpaTodoControllerTest {
         assertThat(status).isEqualTo(ILLEGAL_DATE);
     }
 
+    @Test
+    @WithTodoaryMockUser
+    void 투두_수정O() throws Exception {
+        TodoRequest requestDto = TodoRequest.builder()
+                .title("제목")
+                .categoryId(10L)
+                .targetDate(LocalDate.of(2022, 2, 4))
+                .targetTime(LocalTime.of(21, 40))
+                .build();
+        // when
+        MvcResult result = mvc.perform(patch(REQUEST_URL.MODIFY, 1L).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus response = getResponseObject(result);
+        // then
+        assertThat(response).isEqualTo(SUCCESS);
+    }
+
+    // 투두 생성과 똑같은 request dto 사용하므로 나머지는 생략
+    @Test
+    @WithTodoaryMockUser
+    void 투두_카테고리_null일때_수정X() throws Exception {
+        // given
+        Long categoryId = null;
+        TodoRequest requestDto = TodoRequest.builder()
+                .title("제목")
+                .categoryId(categoryId)
+                .targetDate(LocalDate.of(2022, 2, 4))
+                .build();
+        // when
+        MvcResult result = mvc.perform(patch(REQUEST_URL.MODIFY, 1L).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(USERS_CATEGORY_NOT_EXISTS);
+    }
+
     static class REQUEST_URL {
-        private static String BASE = "/v2/todo";
-        public static String SAVE = BASE;
-        public static String UPDATE = BASE;
-        public static String RETRIEVE_DATE = BASE + "/date/{date}";
-        public static String DELETE = BASE;
+        private static final String BASE = "/v2/todo";
+        public static final String SAVE = BASE;
+        public static final String MODIFY = BASE + "/{todoId}";
+        public static final String RETRIEVE_DATE = BASE + "/date/{date}";
+        public static final String DELETE = BASE;
     }
 }
