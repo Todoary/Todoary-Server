@@ -10,6 +10,7 @@ import java.time.LocalTime;
 
 @ToString
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public class TodoResponse {
     private Long todoId;
     private Boolean isPinned;

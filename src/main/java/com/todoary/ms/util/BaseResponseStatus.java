@@ -35,6 +35,10 @@ public enum BaseResponseStatus {
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     USERS_EMPTY_USER_EMAIL(false, 2011, "유저 이메일 값을 확인해주세요."),
     USERS_DELETED_USER(false, 2012, "삭제된 유저입니다."),
+
+    ILLEGAL_ARGUMENT(false, 2013, "잘못된 입력입니다."),
+    ILLEGAL_DATE(false, 2014, "날짜 형식을 확인해주세요."),
+
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
     USERS_REFRESH_TOKEN_NOT_EXISTS(false, 2113, "유저 정보와 일치하는 Refresh Token이 없습니다."),
     USERS_AUTHENTICATION_FAILURE(false, 2114, "유저 인증을 실패했습니다."),

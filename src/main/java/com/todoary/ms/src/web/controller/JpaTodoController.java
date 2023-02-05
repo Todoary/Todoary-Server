@@ -4,14 +4,16 @@ import com.todoary.ms.src.config.auth.LoginMember;
 import com.todoary.ms.src.service.JpaTodoService;
 import com.todoary.ms.src.todo.dto.PostTodoRes;
 import com.todoary.ms.src.web.dto.TodoRequest;
+import com.todoary.ms.src.web.dto.TodoResponse;
 import com.todoary.ms.util.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +27,18 @@ public class JpaTodoController {
             @LoginMember Long memberId,
             @RequestBody @Valid TodoRequest request
     ) {
+        System.out.println("request = " + request);
         Long todoId = todoService.saveTodo(memberId, request);
         return new BaseResponse<>(new PostTodoRes(todoId));
+    }
+
+    // 3.4 투두 날짜별 조회
+    @GetMapping("/date/{date}")
+    public BaseResponse<List<TodoResponse>> retrieveTodosByDate(
+            @LoginMember Long memberId,
+            @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate targetDate
+    ) {
+        List<TodoResponse> todos = todoService.findTodosByDate(memberId, targetDate);
+        return new BaseResponse<>(todos);
     }
 }

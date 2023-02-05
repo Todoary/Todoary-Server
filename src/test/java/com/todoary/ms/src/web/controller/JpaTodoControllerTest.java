@@ -5,6 +5,7 @@ import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.JpaTodoService;
 import com.todoary.ms.src.todo.dto.PostTodoRes;
 import com.todoary.ms.src.web.dto.TodoRequest;
+import com.todoary.ms.src.web.dto.TodoResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,20 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
+import static com.todoary.ms.src.web.controller.JpaTodoControllerTest.REQUEST_URL.RETRIEVE_DATE;
+import static com.todoary.ms.src.web.controller.TestUtils.getResponseObject;
+import static com.todoary.ms.src.web.controller.TestUtils.getResponseObjectList;
 import static com.todoary.ms.util.BaseResponseStatus.*;
 import static com.todoary.ms.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
 import static com.todoary.ms.util.ColumnLengthInfo.getGraphemeLength;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,13 +57,13 @@ class JpaTodoControllerTest {
     void 투두_제목_최대_이하일때_생성O() throws Exception {
         // given
         Long expected = 1L;
-        given(todoService.saveTodo(any(),any())).willReturn(expected);
+        given(todoService.saveTodo(any(), any())).willReturn(expected);
 
         String title = "제목";
         TodoRequest requestDto = TodoRequest.builder()
                 .title(title)
                 .categoryId(10L)
-                .targetDate(LocalDate.of(2022,2,4))
+                .targetDate(LocalDate.of(2022, 2, 4))
                 .targetTime(LocalTime.of(21, 40))
                 .build();
         // when
@@ -66,7 +73,7 @@ class JpaTodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        PostTodoRes response = TestUtils.getResponseObject(result, PostTodoRes.class);
+        PostTodoRes response = getResponseObject(result, PostTodoRes.class);
         // then
         assertThat(response.getTodoId()).isEqualTo(expected);
     }
@@ -82,7 +89,7 @@ class JpaTodoControllerTest {
         TodoRequest requestDto = TodoRequest.builder()
                 .title(title)
                 .categoryId(10L)
-                .targetDate(LocalDate.of(2022,2,4))
+                .targetDate(LocalDate.of(2022, 2, 4))
                 .build();
         // when
         MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).with(csrf())
@@ -91,7 +98,7 @@ class JpaTodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        BaseResponseStatus status = TestUtils.getResponseObject(result);
+        BaseResponseStatus status = getResponseObject(result);
         // then
         assertThat(status).isEqualTo(TODO_TITLE_TOO_LONG);
     }
@@ -104,7 +111,7 @@ class JpaTodoControllerTest {
         TodoRequest requestDto = TodoRequest.builder()
                 .title("제목")
                 .categoryId(categoryId)
-                .targetDate(LocalDate.of(2022,2,4))
+                .targetDate(LocalDate.of(2022, 2, 4))
                 .build();
         // when
         MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).with(csrf())
@@ -113,7 +120,7 @@ class JpaTodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        BaseResponseStatus status = TestUtils.getResponseObject(result);
+        BaseResponseStatus status = getResponseObject(result);
         // then
         assertThat(status).isEqualTo(USERS_CATEGORY_NOT_EXISTS);
     }
@@ -133,22 +140,44 @@ class JpaTodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        BaseResponseStatus status = TestUtils.getResponseObject(result);
+        BaseResponseStatus status = getResponseObject(result);
         // then
         assertThat(status).isEqualTo(EMPTY_TODO_DATE);
     }
+
+    @Test
+    @WithTodoaryMockUser
+    void 투두_날짜_형식이_틀릴때_생성X() throws Exception {
+        // given
+        TodoRequest requestDto = TodoRequest.builder()
+                .title("제목")
+                .categoryId(10L)
+                .build();
+        String json = objectMapper.writeValueAsString(requestDto).replace("\"targetDate\":null", "\"targetDate\":\"1234\"");
+        // when
+        MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(json))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(ILLEGAL_ARGUMENT);
+    }
+
     @Test
     @WithTodoaryMockUser
     void 투두_제목_최대_이하일때_수정O() throws Exception {
         // given
         Long expected = 1L;
-        given(todoService.saveTodo(any(),any())).willReturn(expected);
+        given(todoService.saveTodo(any(), any())).willReturn(expected);
 
         String title = "제목";
         TodoRequest requestDto = TodoRequest.builder()
                 .title(title)
                 .categoryId(10L)
-                .targetDate(LocalDate.of(2022,2,4))
+                .targetDate(LocalDate.of(2022, 2, 4))
                 .build();
         // when
         MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).with(csrf())
@@ -157,16 +186,52 @@ class JpaTodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        PostTodoRes response = TestUtils.getResponseObject(result, PostTodoRes.class);
+        PostTodoRes response = getResponseObject(result, PostTodoRes.class);
         // then
         assertThat(response.getTodoId()).isEqualTo(expected);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 날짜_형식_맞을때_날짜별_투두_조회O() throws Exception {
+        // given
+        LocalDate targetDate = LocalDate.of(2023, 2, 7);
+        List<TodoResponse> expected = List.of(
+                TodoResponse.builder().title("todo1").targetDate(targetDate).build(),
+                TodoResponse.builder().title("todo2").targetDate(targetDate).build()
+        );
+        given(todoService.findTodosByDate(any(), eq(targetDate))).willReturn(expected);
+        // when
+        MvcResult result = mvc.perform(get(RETRIEVE_DATE, targetDate))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        List<TodoResponse> response = getResponseObjectList(result, TodoResponse.class, objectMapper);
+        // then
+        System.out.println("response = " + response);
+        assertThat(response).containsAll(expected);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 날짜_형식_틀릴때_날짜별_투두_조회X() throws Exception {
+        // given
+        String incorrectDate = "1234";
+        // when
+        MvcResult result = mvc.perform(get(RETRIEVE_DATE, incorrectDate))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(ILLEGAL_DATE);
     }
 
     static class REQUEST_URL {
         private static String BASE = "/v2/todo";
         public static String SAVE = BASE;
         public static String UPDATE = BASE;
-        public static String RETRIEVE = BASE;
+        public static String RETRIEVE_DATE = BASE + "/date/{date}";
         public static String DELETE = BASE;
     }
 }
