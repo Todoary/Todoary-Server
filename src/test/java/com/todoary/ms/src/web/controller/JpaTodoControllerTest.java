@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static com.todoary.ms.src.web.controller.JpaTodoControllerTest.REQUEST_URL.RETRIEVE_CATEGORY;
 import static com.todoary.ms.src.web.controller.JpaTodoControllerTest.REQUEST_URL.RETRIEVE_DATE;
 import static com.todoary.ms.src.web.controller.TestUtils.getResponseObject;
 import static com.todoary.ms.src.web.controller.TestUtils.getResponseObjectList;
@@ -285,11 +286,32 @@ class JpaTodoControllerTest {
         assertThat(status).isEqualTo(SUCCESS);
     }
 
+    @Test
+    @WithTodoaryMockUser
+    void 투두_카테고리별_조회O() throws Exception {
+        // given
+        Long categoryId = 5L;
+        List<TodoResponse> expected = List.of(
+                TodoResponse.builder().categoryId(categoryId).build(),
+                TodoResponse.builder().categoryId(categoryId).build()
+        );
+        given(todoService.findTodosByCategoryStartingToday(any(), eq(categoryId))).willReturn(expected);
+        // when
+        MvcResult result = mvc.perform(get(RETRIEVE_CATEGORY, categoryId))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        List<TodoResponse> response = getResponseObjectList(result, TodoResponse.class, objectMapper);
+        // then
+        assertThat(response).containsAll(expected);
+    }
+
     static class REQUEST_URL {
         private static final String BASE = "/v2/todo";
         public static final String SAVE = BASE;
         public static final String MODIFY = BASE + "/{todoId}";
         public static final String RETRIEVE_DATE = BASE + "/date/{date}";
+        public static final String RETRIEVE_CATEGORY = BASE + "/category/{categoryId}";
         public static final String DELETE = BASE + "/{todoId}";
     }
 }

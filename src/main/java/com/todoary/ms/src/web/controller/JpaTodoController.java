@@ -12,7 +12,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -62,6 +61,17 @@ public class JpaTodoController {
             @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate targetDate
     ) {
         List<TodoResponse> todos = todoService.findTodosByDate(memberId, targetDate);
+        return new BaseResponse<>(todos);
+    }
+
+    // 3.5 투두 카테고리별 조회
+    // * 오늘 날짜 이전은 포함하지 않는다
+    @GetMapping("/category/{categoryId}")
+    public BaseResponse<List<TodoResponse>> retrieveTodosByCategoryStartingToday(
+            @LoginMember Long memberId,
+            @PathVariable("categoryId") Long categoryId
+    ) {
+        List<TodoResponse> todos = todoService.findTodosByCategoryStartingToday(memberId, categoryId);
         return new BaseResponse<>(todos);
     }
 }
