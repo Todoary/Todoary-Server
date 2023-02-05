@@ -8,16 +8,14 @@ import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
-import com.todoary.ms.src.web.dto.TodoUpdateAlarmRequest;
+import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 import static com.todoary.ms.util.BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS;
@@ -83,11 +81,11 @@ public class JpaTodoService {
     }
 
     @Transactional
-    public void updateTodoAlarm(Long memberId, Long todoId, TodoUpdateAlarmRequest request) {
+    public void updateTodoAlarm(Long memberId, Long todoId, TodoAlarmRequest request) {
         Member member = findMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.updateAlarm(
-                request.isAlarmEnabled(),
+                request.getIsAlarmEnabled(),
                 request.getTargetDate(),
                 request.getTargetTime()
         );

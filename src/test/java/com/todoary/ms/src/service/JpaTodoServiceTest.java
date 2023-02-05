@@ -9,7 +9,7 @@ import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
-import com.todoary.ms.src.web.dto.TodoUpdateAlarmRequest;
+import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +20,6 @@ import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -112,7 +111,7 @@ class JpaTodoServiceTest {
         LocalTime expectedTime = LocalTime.of(19, 48);
         boolean isAlarmEnabled = true;
         todoService.updateTodoAlarm(
-                member.getId(), todoId, TodoUpdateAlarmRequest.builder()
+                member.getId(), todoId, TodoAlarmRequest.builder()
                         .isAlarmEnabled(isAlarmEnabled)
                         .targetDate(expectedDate)
                         .targetTime(expectedTime)

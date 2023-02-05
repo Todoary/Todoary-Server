@@ -6,6 +6,7 @@ import com.todoary.ms.src.service.JpaTodoService;
 import com.todoary.ms.src.todo.dto.PostTodoRes;
 import com.todoary.ms.src.web.controller.JpaTodoController.MarkTodoRequest;
 import com.todoary.ms.src.web.controller.JpaTodoController.PinTodoRequest;
+import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -165,7 +166,7 @@ class JpaTodoControllerTest {
                 .andReturn();
         BaseResponseStatus status = getResponseObject(result);
         // then
-        assertThat(status).isEqualTo(ILLEGAL_ARGUMENT);
+        assertThat(status).isEqualTo(ILLEGAL_DATETIME);
     }
 
     @Test
@@ -226,7 +227,7 @@ class JpaTodoControllerTest {
                 .andReturn();
         BaseResponseStatus status = getResponseObject(result);
         // then
-        assertThat(status).isEqualTo(ILLEGAL_DATE);
+        assertThat(status).isEqualTo(ILLEGAL_DATETIME);
     }
 
     @Test
@@ -457,7 +458,116 @@ class JpaTodoControllerTest {
                 .andReturn();
         BaseResponseStatus status = getResponseObject(result);
         // then
-        assertThat(status).isEqualTo(ILLEGAL_DATE);
+        assertThat(status).isEqualTo(ILLEGAL_DATETIME);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 투두_알람_수정O() throws Exception {
+        // given
+        TodoAlarmRequest request = TodoAlarmRequest.builder()
+                .isAlarmEnabled(true)
+                .targetDate(LocalDate.of(2022, 10, 10))
+                .targetTime(LocalTime.of(22, 33))
+                .build();
+        // when
+        MvcResult result = mvc.perform(patch(MODIFY_ALARM, 10L).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(SUCCESS);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 알람여부_null일때_수정X() throws Exception {
+        // given
+        TodoAlarmRequest request = TodoAlarmRequest.builder()
+                .isAlarmEnabled(null)
+                .targetDate(LocalDate.of(2022, 10, 10))
+                .targetTime(LocalTime.of(22, 33))
+                .build();
+        // when
+        MvcResult result = mvc.perform(patch(MODIFY_ALARM, 10L).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(NULL_ARGUMENT);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 날짜_null일때_수정X() throws Exception {
+        // given
+        TodoAlarmRequest request = TodoAlarmRequest.builder()
+                .isAlarmEnabled(false)
+                .targetDate(null)
+                .targetTime(LocalTime.of(22, 33))
+                .build();
+        // when
+        MvcResult result = mvc.perform(patch(MODIFY_ALARM, 10L).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(EMPTY_TODO_DATE);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 날짜_형식_틀릴때_수정X() throws Exception {
+        // given
+        TodoAlarmRequest request = TodoAlarmRequest.builder()
+                .isAlarmEnabled(false)
+                .targetDate(null)
+                .targetTime(LocalTime.of(22, 33))
+                .build();
+        String json = objectMapper.writeValueAsString(request)
+                .replace("\"targetDate\":null", "\"targetDate\":\"1234\"");
+        // when
+        MvcResult result = mvc.perform(patch(MODIFY_ALARM, 10L).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(json))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(ILLEGAL_DATETIME);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 시간_형식_틀릴때_수정X() throws Exception {
+        // given
+        TodoAlarmRequest request = TodoAlarmRequest.builder()
+                .isAlarmEnabled(false)
+                .targetDate(LocalDate.of(2022, 11, 17))
+                .targetTime(null)
+                .build();
+        String json = objectMapper.writeValueAsString(request)
+                .replace("\"targetTime\":null", "\"targetTime\":\"1234\"");
+        // when
+        MvcResult result = mvc.perform(patch(MODIFY_ALARM, 10L).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(json))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(ILLEGAL_DATETIME);
     }
 
     static class REQUEST_URL {
@@ -470,5 +580,6 @@ class JpaTodoControllerTest {
         public static final String MARK = BASE + "/check";
         public static final String PIN = BASE + "/pin";
         public static final String RETRIEVE_MONTH_DAYS = BASE + "/days/{yearMonth}";
+        public static final String MODIFY_ALARM = BASE + "/{todoId}/alarm";
     }
 }

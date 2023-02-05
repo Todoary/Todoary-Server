@@ -3,6 +3,7 @@ package com.todoary.ms.src.web.controller;
 import com.todoary.ms.src.config.auth.LoginMember;
 import com.todoary.ms.src.service.JpaTodoService;
 import com.todoary.ms.src.todo.dto.PostTodoRes;
+import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
 import com.todoary.ms.util.BaseResponse;
@@ -105,6 +106,17 @@ public class JpaTodoController {
     ) {
         List<Integer> days = todoService.findDaysHavingTodoInMonth(memberId, yearMonth);
         return new BaseResponse<>(days);
+    }
+
+    // 3.9 투두 알람 수정
+    @PatchMapping("/{todoId}/alarm")
+    public BaseResponse<BaseResponseStatus> modifyTodoAlram(
+            @LoginMember Long memberId,
+            @PathVariable("todoId") Long todoId,
+            @RequestBody @Valid TodoAlarmRequest request
+    ) {
+        todoService.updateTodoAlarm(memberId, todoId, request);
+        return BaseResponse.from(SUCCESS);
     }
 
     @ToString

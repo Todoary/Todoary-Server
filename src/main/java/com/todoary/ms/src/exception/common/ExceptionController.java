@@ -1,10 +1,10 @@
 package com.todoary.ms.src.exception.common;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import com.todoary.ms.util.ErrorLogWriter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -15,7 +15,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
@@ -46,9 +45,9 @@ public class ExceptionController {
         String typeName = Optional.ofNullable(exception.getRequiredType())
                 .map(Class::getSimpleName)
                 .orElse("");
-        if (typeName.equals("LocalDate") || typeName.equals("YearMonth")){
+        if (isDateType(typeName)) {
             return ResponseEntity.ok()
-                    .body(BaseResponse.from(ILLEGAL_DATE));
+                    .body(BaseResponse.from(ILLEGAL_DATETIME));
         }
         return ResponseEntity.ok()
                 .body(BaseResponse.from(ILLEGAL_ARGUMENT));
@@ -57,6 +56,14 @@ public class ExceptionController {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     private ResponseEntity<BaseResponse<BaseResponseStatus>> handleBadRequest(HttpMessageNotReadableException exception, HttpServletRequest httpServletRequest) {
         ErrorLogWriter.writeExceptionWithRequest(exception, httpServletRequest);
+        Throwable cause = exception.getCause();
+        if (cause instanceof InvalidFormatException) {
+            String simpleName = ((InvalidFormatException) cause).getTargetType().getSimpleName();
+            if (isDateType(simpleName)) {
+                return ResponseEntity.ok()
+                        .body(BaseResponse.from(ILLEGAL_DATETIME));
+            }
+        }
         return ResponseEntity.ok()
                 .body(BaseResponse.from(ILLEGAL_ARGUMENT));
     }
@@ -66,5 +73,9 @@ public class ExceptionController {
         ErrorLogWriter.writeExceptionWithRequest(exception, httpServletRequest);
         return ResponseEntity.ok()
                 .body(BaseResponse.from(INTERNAL_SERVER_ERROR));
+    }
+
+    private boolean isDateType(String simpleName) {
+        return simpleName.equals("LocalDate") || simpleName.equals("YearMonth") || simpleName.equals("LocalTime");
     }
 }

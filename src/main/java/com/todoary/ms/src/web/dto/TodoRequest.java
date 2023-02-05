@@ -30,7 +30,6 @@ public class TodoRequest {
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private LocalDate targetDate;
 
-    // 직렬화 형식 지정
     @DateTimeFormat(pattern="HH:mm")
     private LocalTime targetTime;
 

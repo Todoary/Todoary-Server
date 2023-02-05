@@ -37,7 +37,7 @@ public enum BaseResponseStatus {
     USERS_DELETED_USER(false, 2012, "삭제된 유저입니다."),
 
     ILLEGAL_ARGUMENT(false, 2013, "잘못된 입력입니다."),
-    ILLEGAL_DATE(false, 2014, "날짜 형식을 확인해주세요."),
+    ILLEGAL_DATETIME(false, 2014, "날짜나 시간 형식을 확인해주세요."),
 
     NULL_ARGUMENT(false, 2015, "입력값이 있어야 합니다."),
 
