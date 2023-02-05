@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.JpaTodoService;
 import com.todoary.ms.src.todo.dto.PostTodoRes;
+import com.todoary.ms.src.web.controller.JpaTodoController.MarkTodoRequest;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -21,8 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import static com.todoary.ms.src.web.controller.JpaTodoControllerTest.REQUEST_URL.RETRIEVE_CATEGORY;
-import static com.todoary.ms.src.web.controller.JpaTodoControllerTest.REQUEST_URL.RETRIEVE_DATE;
+import static com.todoary.ms.src.web.controller.JpaTodoControllerTest.REQUEST_URL.*;
 import static com.todoary.ms.src.web.controller.TestUtils.getResponseObject;
 import static com.todoary.ms.src.web.controller.TestUtils.getResponseObjectList;
 import static com.todoary.ms.util.BaseResponseStatus.*;
@@ -306,6 +306,66 @@ class JpaTodoControllerTest {
         assertThat(response).containsAll(expected);
     }
 
+    @Test
+    @WithTodoaryMockUser
+    void 투두_체크박스_체크O() throws Exception {
+        // given
+        MarkTodoRequest request = MarkTodoRequest.builder()
+                .todoId(1L)
+                .isChecked(true)
+                .build();
+        // when
+        MvcResult result = mvc.perform(patch(MARK).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(SUCCESS);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 투두_id_비어있을때_체크X() throws Exception {
+        // given
+        MarkTodoRequest request = MarkTodoRequest.builder()
+                .todoId(null)
+                .isChecked(true)
+                .build();
+        // when
+        MvcResult result = mvc.perform(patch(MARK).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(NULL_ARGUMENT);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 투두_체크여부_비어있을때_체크X() throws Exception {
+        // given
+        MarkTodoRequest request = MarkTodoRequest.builder()
+                .todoId(10L)
+                .isChecked(null)
+                .build();
+        // when
+        MvcResult result = mvc.perform(patch(MARK).with(csrf())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(NULL_ARGUMENT);
+    }
+
     static class REQUEST_URL {
         private static final String BASE = "/v2/todo";
         public static final String SAVE = BASE;
@@ -313,5 +373,6 @@ class JpaTodoControllerTest {
         public static final String RETRIEVE_DATE = BASE + "/date/{date}";
         public static final String RETRIEVE_CATEGORY = BASE + "/category/{categoryId}";
         public static final String DELETE = BASE + "/{todoId}";
+        public static final String MARK = BASE + "/check";
     }
 }

@@ -7,11 +7,12 @@ import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -73,5 +74,25 @@ public class JpaTodoController {
     ) {
         List<TodoResponse> todos = todoService.findTodosByCategoryStartingToday(memberId, categoryId);
         return new BaseResponse<>(todos);
+    }
+
+    // 3.6 투두 체크박스 체크 상태 변경
+    @PatchMapping("/check")
+    public BaseResponse<BaseResponseStatus> markTodoAsDone(
+            @LoginMember Long memberId,
+            @RequestBody @Valid MarkTodoRequest request
+    ) {
+        todoService.markTodoAsDone(memberId, request.getTodoId(), request.getIsChecked());
+        return BaseResponse.from(SUCCESS);
+    }
+
+    @ToString @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor
+    @Builder
+    public static class MarkTodoRequest {
+        @NotNull(message = "NULL_ARGUMENT")
+        private Long todoId;
+        @NotNull(message = "NULL_ARGUMENT")
+        private Boolean isChecked;
     }
 }
