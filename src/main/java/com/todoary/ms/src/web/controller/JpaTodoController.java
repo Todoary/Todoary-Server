@@ -86,13 +86,37 @@ public class JpaTodoController {
         return BaseResponse.from(SUCCESS);
     }
 
-    @ToString @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor
+    // 3.7 투두 핀 고정 상태 변경
+    @PatchMapping("/pin")
+    public BaseResponse<BaseResponseStatus> pinTodo(
+            @LoginMember Long memberId,
+            @RequestBody @Valid PinTodoRequest request
+    ) {
+        todoService.pinTodo(memberId, request.getTodoId(), request.getIsPinned());
+        return BaseResponse.from(SUCCESS);
+    }
+
+    @ToString
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor
     @Builder
     public static class MarkTodoRequest {
         @NotNull(message = "NULL_ARGUMENT")
         private Long todoId;
         @NotNull(message = "NULL_ARGUMENT")
         private Boolean isChecked;
+    }
+
+    @ToString
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor
+    @Builder
+    public static class PinTodoRequest {
+        @NotNull(message = "NULL_ARGUMENT")
+        private Long todoId;
+        @NotNull(message = "NULL_ARGUMENT")
+        private Boolean isPinned;
     }
 }
