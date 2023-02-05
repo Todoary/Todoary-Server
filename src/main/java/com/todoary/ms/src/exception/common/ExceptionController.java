@@ -46,7 +46,7 @@ public class ExceptionController {
         String typeName = Optional.ofNullable(exception.getRequiredType())
                 .map(Class::getSimpleName)
                 .orElse("");
-        if (typeName.equals("LocalDate")){
+        if (typeName.equals("LocalDate") || typeName.equals("YearMonth")){
             return ResponseEntity.ok()
                     .body(BaseResponse.from(ILLEGAL_DATE));
         }

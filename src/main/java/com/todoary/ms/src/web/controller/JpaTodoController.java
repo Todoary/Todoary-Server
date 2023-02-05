@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import static com.todoary.ms.util.BaseResponseStatus.SUCCESS;
@@ -94,6 +95,16 @@ public class JpaTodoController {
     ) {
         todoService.pinTodo(memberId, request.getTodoId(), request.getIsPinned());
         return BaseResponse.from(SUCCESS);
+    }
+
+    // 3.8 월별 투두 존재 날짜 조회
+    @GetMapping("/days/{yearMonth}")
+    public BaseResponse<List<Integer>> retrieveDaysHavingTodoInMonth(
+            @LoginMember Long memberId,
+            @PathVariable("yearMonth") @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth
+    ) {
+        List<Integer> days = todoService.findDaysHavingTodoInMonth(memberId, yearMonth);
+        return new BaseResponse<>(days);
     }
 
     @ToString

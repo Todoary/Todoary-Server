@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -297,9 +298,9 @@ class JpaTodoServiceTest {
                         new TodoRequest("todo", true, date, LocalTime.of(10, 8), category.getId())
                 ));
         // when
-        int[] january = todoService.findDaysHavingTodoInMonth(member.getId(), "2023-01");
-        int[] february = todoService.findDaysHavingTodoInMonth(member.getId(), "2023-02");
-        int[] march = todoService.findDaysHavingTodoInMonth(member.getId(), "2023-03");
+        List<Integer> january = todoService.findDaysHavingTodoInMonth(member.getId(), YearMonth.of(2023, 1));
+        List<Integer> february = todoService.findDaysHavingTodoInMonth(member.getId(), YearMonth.of(2023, 2));
+        List<Integer> march = todoService.findDaysHavingTodoInMonth(member.getId(), YearMonth.of(2023, 3));
         // then
         assertThat(january).hasSize(3);
         assertThat(february).hasSize(1);

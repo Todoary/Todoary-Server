@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
@@ -108,33 +109,16 @@ public class JpaTodoService {
     }
 
     @Transactional(readOnly = true)
-    public int[] findDaysHavingTodoInMonth(Long memberId, String yearAndMonth) {
+    public List<Integer> findDaysHavingTodoInMonth(Long memberId, YearMonth yearMonth) {
         Member member = findMemberById(memberId);
 
-        StringTokenizer st = new StringTokenizer(yearAndMonth, "-");
-        LocalDate firstDay = LocalDate.of(
-                Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()), 1);
-        LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
+        LocalDate firstDay = yearMonth.atDay(1);
+        LocalDate lastDay = yearMonth.atEndOfMonth();
 
         return todoRepository.findBetweenDaysAndMember(firstDay, lastDay, member)
                 .stream().map(todo -> todo.getTargetDate().getDayOfMonth())
-                .collect(Collectors.toSet())
-                .stream().mapToInt(Number::intValue).toArray();
-    }
-
-    public static LocalDate convertToLocalDate(String date) {
-        StringTokenizer st = new StringTokenizer(date, "-");
-        int year = Integer.parseInt(st.nextToken());
-        int month = Integer.parseInt(st.nextToken());
-        int dayOfMonth = Integer.parseInt(st.nextToken());
-        return LocalDate.of(year, month, dayOfMonth);
-    }
-
-    public static LocalTime convertToLocalTime(String time) {
-        StringTokenizer st = new StringTokenizer(time, ":");
-        int hour = Integer.parseInt(st.nextToken());
-        int minute = Integer.parseInt(st.nextToken());
-        return LocalTime.of(hour, minute);
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private Member findMemberById(Long memberId) {

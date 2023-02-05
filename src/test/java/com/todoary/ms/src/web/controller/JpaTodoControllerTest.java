@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.List;
 
 import static com.todoary.ms.src.web.controller.JpaTodoControllerTest.REQUEST_URL.*;
@@ -427,6 +428,38 @@ class JpaTodoControllerTest {
         assertThat(status).isEqualTo(NULL_ARGUMENT);
     }
 
+    @Test
+    @WithTodoaryMockUser
+    void 월별_투두_존재_날짜_조회O() throws Exception {
+        // given
+        YearMonth yearMonth = YearMonth.of(2023, 1);
+        List<Integer> expected = List.of(1, 10);
+        given(todoService.findDaysHavingTodoInMonth(any(), eq(yearMonth))).willReturn(expected);
+        // when
+        MvcResult result = mvc.perform(get(RETRIEVE_MONTH_DAYS, yearMonth))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        List<Integer> response = getResponseObjectList(result, Integer.class, objectMapper);
+        // then
+        assertThat(response).containsAll(expected);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 날짜_형식_틀리면_월별_투두_조회X() throws Exception {
+        // given
+        String illegalYearMonth = "1234";
+        // when
+        MvcResult result = mvc.perform(get(RETRIEVE_MONTH_DAYS, illegalYearMonth))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(ILLEGAL_DATE);
+    }
+
     static class REQUEST_URL {
         private static final String BASE = "/v2/todo";
         public static final String SAVE = BASE;
@@ -436,5 +469,6 @@ class JpaTodoControllerTest {
         public static final String DELETE = BASE + "/{todoId}";
         public static final String MARK = BASE + "/check";
         public static final String PIN = BASE + "/pin";
+        public static final String RETRIEVE_MONTH_DAYS = BASE + "/days/{yearMonth}";
     }
 }
