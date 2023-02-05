@@ -45,6 +45,16 @@ public class JpaTodoController {
         return BaseResponse.from(SUCCESS);
     }
 
+    // 3.3 투두 삭제
+    @DeleteMapping("/{todoId}")
+    public BaseResponse<BaseResponseStatus> deleteTodo(
+            @LoginMember Long memberId,
+            @PathVariable("todoId") Long todoId
+    ) {
+        todoService.deleteTodo(memberId, todoId);
+        return BaseResponse.from(SUCCESS);
+    }
+
     // 3.4 투두 날짜별 조회
     @GetMapping("/date/{date}")
     public BaseResponse<List<TodoResponse>> retrieveTodosByDate(

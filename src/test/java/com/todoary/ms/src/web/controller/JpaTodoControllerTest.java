@@ -270,11 +270,26 @@ class JpaTodoControllerTest {
         assertThat(status).isEqualTo(USERS_CATEGORY_NOT_EXISTS);
     }
 
+    @Test
+    @WithTodoaryMockUser
+    void 투두_삭제O() throws Exception {
+        // given
+
+        // when
+        MvcResult result = mvc.perform(delete(REQUEST_URL.DELETE, 1L).with(csrf()))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(SUCCESS);
+    }
+
     static class REQUEST_URL {
         private static final String BASE = "/v2/todo";
         public static final String SAVE = BASE;
         public static final String MODIFY = BASE + "/{todoId}";
         public static final String RETRIEVE_DATE = BASE + "/date/{date}";
-        public static final String DELETE = BASE;
+        public static final String DELETE = BASE + "/{todoId}";
     }
 }
