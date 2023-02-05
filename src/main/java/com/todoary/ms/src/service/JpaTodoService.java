@@ -100,10 +100,10 @@ public class JpaTodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<TodoResponse> findTodosByCategory(Long memberId, Long categoryId) {
+    public List<TodoResponse> findTodosByCategoryStartingToday(Long memberId, Long categoryId) {
         Member member = findMemberById(memberId);
         Category category = findCategoryByIdAndMember(categoryId, member);
-        return todoRepository.findByCategory(category)
+        return todoRepository.findByCategoryStartingToday(category)
                 .stream().map(TodoResponse::from).collect(Collectors.toList());
     }
 

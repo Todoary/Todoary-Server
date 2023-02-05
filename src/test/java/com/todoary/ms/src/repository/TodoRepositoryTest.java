@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,13 +36,13 @@ class TodoRepositoryTest {
         LocalDate targetDate = LocalDate.of(2023, 2, 22);
         LocalTime targetTime = LocalTime.of(22, 17);
         Todo todo = todoRepository.save(Todo.builder()
-                .title(title)
-                .category(category)
-                .member(member)
-                .targetDate(targetDate)
-                .targetTime(targetTime)
-                .isAlarmEnabled(true)
-                .build());
+                                                .title(title)
+                                                .category(category)
+                                                .member(member)
+                                                .targetDate(targetDate)
+                                                .targetTime(targetTime)
+                                                .isAlarmEnabled(true)
+                                                .build());
         // when
         Todo found = todoRepository.findById(todo.getId()).get();
         // then
@@ -63,13 +64,13 @@ class TodoRepositoryTest {
         LocalDate date = LocalDate.of(2022, 12, 25);
         LocalTime time = LocalTime.of(10, 2);
         Todo todo = todoRepository.save(Todo.builder()
-                .title("todo1")
-                .category(category)
-                .member(member)
-                .targetDate(date.plusDays(1))
-                .targetTime(time)
-                .isAlarmEnabled(true)
-                .build());
+                                                .title("todo1")
+                                                .category(category)
+                                                .member(member)
+                                                .targetDate(date.plusDays(1))
+                                                .targetTime(time)
+                                                .isAlarmEnabled(true)
+                                                .build());
         String title = "todo";
         Category expectedCategory = createCategoryWithTitle(member, "category2");
 
@@ -87,13 +88,13 @@ class TodoRepositoryTest {
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
         Todo todo = todoRepository.save(Todo.builder()
-                .title("title")
-                .category(category)
-                .member(member)
-                .targetDate(LocalDate.of(2000, 11, 11))
-                .targetTime(LocalTime.of(11, 11))
-                .isAlarmEnabled(true)
-                .build());
+                                                .title("title")
+                                                .category(category)
+                                                .member(member)
+                                                .targetDate(LocalDate.of(2000, 11, 11))
+                                                .targetTime(LocalTime.of(11, 11))
+                                                .isAlarmEnabled(true)
+                                                .build());
         Long todoId = todo.getId();
         // when
         todo.removeAssociations();
@@ -113,22 +114,22 @@ class TodoRepositoryTest {
         LocalDate targetDate = LocalDate.of(2023, 01, 04);
         LocalTime targetTime = LocalTime.of(12, 23);
         Todo todo = todoRepository.save(Todo.builder()
-                .title(title)
-                .category(category)
-                .member(member)
-                .targetDate(targetDate)
-                .targetTime(targetTime)
-                .isAlarmEnabled(true)
-                .build());
+                                                .title(title)
+                                                .category(category)
+                                                .member(member)
+                                                .targetDate(targetDate)
+                                                .targetTime(targetTime)
+                                                .isAlarmEnabled(true)
+                                                .build());
         // 다른 날짜의 투두. 조회에 포함되면 안됨
         todoRepository.save(Todo.builder()
-                .title("tododododo")
-                .category(category)
-                .member(member)
-                .targetDate(targetDate.minusDays(1))
-                .targetTime(targetTime)
-                .isAlarmEnabled(true)
-                .build());
+                                    .title("tododododo")
+                                    .category(category)
+                                    .member(member)
+                                    .targetDate(targetDate.minusDays(1))
+                                    .targetTime(targetTime)
+                                    .isAlarmEnabled(true)
+                                    .build());
         // when
         List<Todo> todos = todoRepository.findByDateAndMember(targetDate, member);
         // then
@@ -137,28 +138,31 @@ class TodoRepositoryTest {
     }
 
     @Test
-    void 특정_Category의_Todo_조회() {
+    void Category의_투두_조회시_오늘부터만_조회() {
         // given
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
         String title = "todo";
-        LocalDate targetDate = LocalDate.of(2023, 2, 22);
+        LocalDate now = LocalDate.now();
+        System.out.println("now = " + now);
         LocalTime targetTime = LocalTime.of(22, 17);
-        Todo todo = todoRepository.save(Todo.builder()
-                .title(title)
-                .category(category)
-                .member(member)
-                .targetDate(targetDate)
-                .targetTime(targetTime)
-                .isAlarmEnabled(true)
-                .build());
+        IntStream.range(-2, 3) // -2 <= < 3
+                .mapToObj(day -> Todo.builder()
+                        .title(title)
+                        .category(category)
+                        .member(member)
+                        .targetDate(now.plusDays(day))
+                        .targetTime(targetTime)
+                        .isAlarmEnabled(true)
+                        .build())
+                .forEach(todo -> todoRepository.save(todo));
         // when
-        List<Todo> todos = todoRepository.findByCategory(category);
+        List<Todo> todos = todoRepository.findByCategoryStartingToday(category);
         // then
-        assertThat(todos).hasSize(1);
-        assertThat(todos.get(0)).isEqualTo(todo);
-        assertThat(category.getTodos()).hasSize(1);
-        assertThat(category.getTodos().get(0)).isEqualTo(todo);
+        assertThat(todos).hasSize(3); // 2일전, 1일전, 오늘, 내일, 모레이므로 3개만 조회된다
+        assertThat(todos)
+                .map(Todo::getTargetDate)
+                .allMatch(date -> date.isAfter(now) || date.isEqual(now));
     }
 
     @Test
@@ -177,13 +181,13 @@ class TodoRepositoryTest {
         LocalTime targetTime = LocalTime.of(22, 17);
         for (LocalDate date : dates) {
             todoRepository.save(Todo.builder()
-                    .title(title)
-                    .category(category)
-                    .member(member)
-                    .targetDate(date)
-                    .targetTime(targetTime)
-                    .isAlarmEnabled(true)
-                    .build());
+                                        .title(title)
+                                        .category(category)
+                                        .member(member)
+                                        .targetDate(date)
+                                        .targetTime(targetTime)
+                                        .isAlarmEnabled(true)
+                                        .build());
         }
         LocalDate firstDay = LocalDate.of(year, month, 1);
         LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());

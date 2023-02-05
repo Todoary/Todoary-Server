@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -213,64 +215,68 @@ class JpaTodoServiceTest {
     }
 
     @Test
-    void 특정_Category의_Todo_조회() {
+    void 특정_Category의_Todo_조회시_오늘부터만_조회() {
         // given
         Member member = createMember();
         Category category1 = createCategoryWithTitle(member, "category1");
         Category category2 = createCategoryWithTitle(member, "category2");
-        LocalDate otherDate = LocalDate.of(2021, 11, 11);
-        LocalDate date = LocalDate.of(2022, 1, 2);
-        todoService.saveTodo(
-                member.getId(),
-                new TodoRequest("todo1", true, date, LocalTime.of(10, 10), category1.getId())
-        );
-        Long todoId = todoService.saveTodo(
-                member.getId(),
-                new TodoRequest("todo2", true, date, LocalTime.of(12, 20), category2.getId())
-        );
-        todoService.saveTodo(
-                member.getId(),
-                new TodoRequest("todo3", true, otherDate, LocalTime.of(15, 10), category1.getId())
-        );
+        LocalDate now = LocalDate.now();
+        LocalDate beforeNow = now.minusDays(1);
+        IntStream.range(0, 5)
+                .forEach(__ -> todoService.saveTodo(
+                        member.getId(),
+                        TodoRequest.builder()
+                                .targetDate(beforeNow)
+                                .categoryId(category1.getId())
+                                .build()
+                ));
+        IntStream.range(0, 3)
+                .forEach(__ -> todoService.saveTodo(
+                        member.getId(),
+                        TodoRequest.builder()
+                                .targetDate(now)
+                                .categoryId(category1.getId())
+                                .build()
+                ));
         // when
-        List<TodoResponse> todos1 = todoService.findTodosByCategory(member.getId(), category1.getId());
-        List<TodoResponse> todos2 = todoService.findTodosByCategory(member.getId(), category2.getId());
+        List<TodoResponse> todos1 = todoService.findTodosByCategoryStartingToday(member.getId(), category1.getId());
+        List<TodoResponse> todos2 = todoService.findTodosByCategoryStartingToday(member.getId(), category2.getId());
         // then
-        assertThat(todos1).hasSize(2);
-        assertThat(todos2).hasSize(1);
-        assertThat(todos2.get(0).getTodoId()).isEqualTo(todoId);
+        assertThat(todos1).hasSize(3);
+        assertThat(todos2).isEmpty();
     }
 
     @Test
-    void Todo_조회시_날짜_알람시간_생성시간_순으로_정렬() {
+    void 카테고리별_Todo_조회시_날짜_알람시간_생성시간_순으로_정렬() {
         // given
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
+        LocalDate now = LocalDate.now();
         LocalDate[] dates = {
-                LocalDate.of(2022, 1, 10),
-                LocalDate.of(2022, 1, 5),
-                LocalDate.of(2022, 1, 5),
-                LocalDate.of(2022, 1, 5),
-                LocalDate.of(2022, 1, 12)};
+                now.plusDays(10),
+                now.plusDays(5),
+                now.plusDays(5),
+                now.plusDays(5),
+                now.plusDays(12)};
         LocalTime[] times = {
                 LocalTime.of(10, 0),
                 LocalTime.of(12, 0),
                 LocalTime.of(9, 45),
-                LocalTime.of(13, 0),
-                LocalTime.of(14, 0)};
-        List<Long> todoIds = new ArrayList<>();
-        for (int i = 0; i < dates.length; i++) {
-            todoIds.add(todoService.saveTodo(
-                    member.getId(),
-                    new TodoRequest("todo1", true, dates[i], times[i], category.getId())
-            ));
-        }
+                null,
+                LocalTime.of(22,15)};
+        List<Long> todoIds = IntStream.range(0, 5)
+                .mapToObj(i -> todoService.saveTodo(member.getId(), TodoRequest.builder()
+                        .targetDate(dates[i])
+                        .targetTime(times[i])
+                                .categoryId(category.getId())
+                        .build()))
+                .collect(Collectors.toList());
         // when
-        List<TodoResponse> todos = todoService.findTodosByCategory(member.getId(), category.getId());
+        List<TodoResponse> todos = todoService.findTodosByCategoryStartingToday(member.getId(), category.getId());
         // then
         assertThat(todos)
                 .extracting(TodoResponse::getTodoId)
-                .containsExactly(todoIds.get(2), todoIds.get(1), todoIds.get(3), todoIds.get(0), todoIds.get(4));
+                .containsExactly(todoIds.get(3), todoIds.get(2), todoIds.get(1), todoIds.get(0), todoIds.get(4));
     }
 
     @Test
