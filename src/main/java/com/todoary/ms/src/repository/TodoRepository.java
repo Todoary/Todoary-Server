@@ -36,8 +36,8 @@ public class TodoRepository {
                 .getResultList();
     }
 
-    public List<Todo> findByCategory(Category category) {
-        return em.createQuery("select t from Todo t where t.category = :category order by t.targetDate, t.targetTime, t.createdAt", Todo.class)
+    public List<Todo> findByCategoryStartingToday(Category category) {
+        return em.createQuery("select t from Todo t where t.category = :category and t.targetDate >= current_date order by t.targetDate, t.targetTime, t.createdAt", Todo.class)
                 .setParameter("category", category)
                 .getResultList();
     }

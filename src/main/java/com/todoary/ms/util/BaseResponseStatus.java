@@ -3,6 +3,7 @@ package com.todoary.ms.util;
 import lombok.Getter;
 
 import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
+import static com.todoary.ms.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
 
 /**
  * 에러 코드 관리
@@ -34,6 +35,12 @@ public enum BaseResponseStatus {
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     USERS_EMPTY_USER_EMAIL(false, 2011, "유저 이메일 값을 확인해주세요."),
     USERS_DELETED_USER(false, 2012, "삭제된 유저입니다."),
+
+    ILLEGAL_ARGUMENT(false, 2013, "잘못된 입력입니다."),
+    ILLEGAL_DATETIME(false, 2014, "날짜나 시간 형식을 확인해주세요."),
+
+    NULL_ARGUMENT(false, 2015, "입력값이 있어야 합니다."),
+
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
     USERS_REFRESH_TOKEN_NOT_EXISTS(false, 2113, "유저 정보와 일치하는 Refresh Token이 없습니다."),
     USERS_AUTHENTICATION_FAILURE(false, 2114, "유저 인증을 실패했습니다."),
@@ -53,6 +60,8 @@ public enum BaseResponseStatus {
     // 300대 -> 3. todo 도메인 에러
     USERS_CATEGORY_NOT_EXISTS(false, 2301, "해당하는 유저와 일치하는 카테고리가 없습니다."),
     USERS_TODO_NOT_EXISTS(false, 2302, "해당하는 유저와 일치하는 투두가 없습니다."),
+    TODO_TITLE_TOO_LONG(false, 2303, "투두 제목이 제한길이 이상입니다. ("+TODO_TITLE_MAX_LENGTH+" 글자까지 가능)"),
+    EMPTY_TODO_DATE(false, 2304, "투두 날짜를 입력해주세요."),
 
     // [POST] /users
     POST_USERS_EXISTS_EMAIL(false, 2017, "중복된 이메일입니다."),

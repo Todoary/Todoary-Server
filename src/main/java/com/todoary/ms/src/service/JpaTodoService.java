@@ -1,20 +1,21 @@
 package com.todoary.ms.src.service;
 
-import com.todoary.ms.src.domain.*;
+import com.todoary.ms.src.domain.Category;
+import com.todoary.ms.src.domain.Member;
+import com.todoary.ms.src.domain.Todo;
 import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
+import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
-import com.todoary.ms.src.web.dto.TodoSaveRequest;
-import com.todoary.ms.src.web.dto.TodoUpdateAlarmRequest;
-import com.todoary.ms.src.web.dto.TodoUpdateRequest;
+import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.StringTokenizer;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.todoary.ms.util.BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS;
@@ -35,7 +36,7 @@ public class JpaTodoService {
     }
 
     @Transactional
-    public Long saveTodo(Long memberId, TodoSaveRequest request) {
+    public Long saveTodo(Long memberId, TodoRequest request) {
         Member member = findMemberById(memberId);
         Category category = findCategoryByIdAndMember(request.getCategoryId(), member);
         return todoRepository.save(
@@ -44,7 +45,7 @@ public class JpaTodoService {
     }
 
     @Transactional
-    public void updateTodo(Long memberId, Long todoId, TodoUpdateRequest request) {
+    public void updateTodo(Long memberId, Long todoId, TodoRequest request) {
         Member member = findMemberById(memberId);
         Category category = findCategoryByIdAndMember(request.getCategoryId(), member);
         Todo todo = findTodoByIdAndMember(todoId, member);
@@ -52,8 +53,8 @@ public class JpaTodoService {
                 request.getTitle(),
                 category,
                 request.isAlarmEnabled(),
-                JpaTodoService.convertToLocalDate(request.getTargetDate()),
-                JpaTodoService.convertToLocalTime(request.getTargetTime())
+                request.getTargetDate(),
+                request.getTargetTime()
         );
     }
 
@@ -80,59 +81,42 @@ public class JpaTodoService {
     }
 
     @Transactional
-    public void updateTodoAlarm(Long memberId, Long todoId, TodoUpdateAlarmRequest request) {
+    public void updateTodoAlarm(Long memberId, Long todoId, TodoAlarmRequest request) {
         Member member = findMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.updateAlarm(
-                request.isAlarmEnabled(),
-                JpaTodoService.convertToLocalDate(request.getTargetDate()),
-                JpaTodoService.convertToLocalTime(request.getTargetTime())
+                request.getIsAlarmEnabled(),
+                request.getTargetDate(),
+                request.getTargetTime()
         );
     }
 
     @Transactional(readOnly = true)
-    public TodoResponse[] findTodosByDate(Long memberId, String targetDate) {
+    public List<TodoResponse> findTodosByDate(Long memberId, LocalDate targetDate) {
         Member member = findMemberById(memberId);
-        return todoRepository.findByDateAndMember(JpaTodoService.convertToLocalDate(targetDate), member)
-                .stream().map(TodoResponse::from).toArray(TodoResponse[]::new);
+        return todoRepository.findByDateAndMember(targetDate, member)
+                .stream().map(TodoResponse::from).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public TodoResponse[] findTodosByCategory(Long memberId, Long categoryId) {
+    public List<TodoResponse> findTodosByCategoryStartingToday(Long memberId, Long categoryId) {
         Member member = findMemberById(memberId);
         Category category = findCategoryByIdAndMember(categoryId, member);
-        return todoRepository.findByCategory(category)
-                .stream().map(TodoResponse::from).toArray(TodoResponse[]::new);
+        return todoRepository.findByCategoryStartingToday(category)
+                .stream().map(TodoResponse::from).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public int[] findDaysHavingTodoInMonth(Long memberId, String yearAndMonth) {
+    public List<Integer> findDaysHavingTodoInMonth(Long memberId, YearMonth yearMonth) {
         Member member = findMemberById(memberId);
 
-        StringTokenizer st = new StringTokenizer(yearAndMonth, "-");
-        LocalDate firstDay = LocalDate.of(
-                Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()), 1);
-        LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
+        LocalDate firstDay = yearMonth.atDay(1);
+        LocalDate lastDay = yearMonth.atEndOfMonth();
 
         return todoRepository.findBetweenDaysAndMember(firstDay, lastDay, member)
                 .stream().map(todo -> todo.getTargetDate().getDayOfMonth())
-                .collect(Collectors.toSet())
-                .stream().mapToInt(Number::intValue).toArray();
-    }
-
-    public static LocalDate convertToLocalDate(String date) {
-        StringTokenizer st = new StringTokenizer(date, "-");
-        int year = Integer.parseInt(st.nextToken());
-        int month = Integer.parseInt(st.nextToken());
-        int dayOfMonth = Integer.parseInt(st.nextToken());
-        return LocalDate.of(year, month, dayOfMonth);
-    }
-
-    public static LocalTime convertToLocalTime(String time) {
-        StringTokenizer st = new StringTokenizer(time, ":");
-        int hour = Integer.parseInt(st.nextToken());
-        int minute = Integer.parseInt(st.nextToken());
-        return LocalTime.of(hour, minute);
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private Member findMemberById(Long memberId) {

@@ -1,9 +1,6 @@
 package com.todoary.ms.src.domain;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -11,6 +8,7 @@ import java.time.LocalTime;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@ToString
 public class Todo extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "todo_id")
