@@ -39,7 +39,7 @@ public class CategoryController {
 
     @PostMapping("")
     public BaseResponse<PostCategoryRes> postCategory(HttpServletRequest request, @RequestBody PostCategoryReq postCategoryReq) {
-        if (ColumnLengthInfo.getGraphemeLength(postCategoryReq.getTitle()) > ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH.getLength())
+        if (ColumnLengthInfo.getGraphemeLength(postCategoryReq.getTitle()) > ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH)
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
@@ -63,7 +63,7 @@ public class CategoryController {
     public BaseResponse<BaseResponseStatus> patchCategory(HttpServletRequest request,
                                                           @PathVariable("categoryId") Long categoryId,
                                                           @RequestBody PostCategoryReq postCategoryReq) {
-        if (ColumnLengthInfo.getGraphemeLength(postCategoryReq.getTitle()) > ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH.getLength())
+        if (ColumnLengthInfo.getGraphemeLength(postCategoryReq.getTitle()) > ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH)
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());

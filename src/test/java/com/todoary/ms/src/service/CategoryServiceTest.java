@@ -1,13 +1,12 @@
 package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.domain.Category;
-import com.todoary.ms.src.web.dto.CategoryUpdateRequest;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.CategoryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.CategoryResponse;
-import com.todoary.ms.src.web.dto.CategorySaveRequest;
+import com.todoary.ms.src.web.dto.CategoryRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,7 +45,7 @@ class CategoryServiceTest {
         String expectedTitle = "title";
         Integer expectedColor = 10;
         // when
-        Long categoryId = categoryService.saveCategory(member.getId(), new CategorySaveRequest(expectedTitle, expectedColor));
+        Long categoryId = categoryService.saveCategory(member.getId(), new CategoryRequest(expectedTitle, expectedColor));
         // then
         Category found = categoryRepository.findById(categoryId).get();
         assertThat(found.getTitle()).isEqualTo(expectedTitle);
@@ -59,7 +58,7 @@ class CategoryServiceTest {
         Member member = createMember();
         String title = "title";
         Integer color = 10;
-        categoryService.saveCategory(member.getId(), new CategorySaveRequest(title, color));
+        categoryService.saveCategory(member.getId(), new CategoryRequest(title, color));
 
         // 아래 코드는 junit의 assertThrows를 이용하면 아래와 같다.
         // TodoaryException exception = Assertions.assertThrows(TodoaryException.class, () -> {
@@ -69,7 +68,7 @@ class CategoryServiceTest {
         // then
         assertThatThrownBy(() -> {
             // when
-            categoryService.saveCategory(member.getId(), new CategorySaveRequest(title, 20));
+            categoryService.saveCategory(member.getId(), new CategoryRequest(title, 20));
         })
                 .isInstanceOf(TodoaryException.class)
                 .matches(e -> ((TodoaryException) e).getStatus().equals(DUPLICATE_CATEGORY));
@@ -79,11 +78,11 @@ class CategoryServiceTest {
     void Category_수정한다() {
         // given
         Member member = createMember();
-        Long categoryId = categoryService.saveCategory(member.getId(), new CategorySaveRequest("title", 10));
+        Long categoryId = categoryService.saveCategory(member.getId(), new CategoryRequest("title", 10));
         String expectedTitle = "title2";
         Integer expectedColor = 17;
         // when
-        categoryService.updateCategory(member.getId(), categoryId, new CategoryUpdateRequest(expectedTitle, expectedColor));
+        categoryService.updateCategory(member.getId(), categoryId, new CategoryRequest(expectedTitle, expectedColor));
         Category found = categoryRepository.findById(categoryId).get();
         // then
         assertThat(found.getTitle()).isEqualTo(expectedTitle);
@@ -96,15 +95,15 @@ class CategoryServiceTest {
         Member member = createMember();
         String title = "title";
         Integer color = 10;
-        Long categoryId = categoryService.saveCategory(member.getId(), new CategorySaveRequest(title, color));
-        Long otherCategoryId = categoryService.saveCategory(member.getId(), new CategorySaveRequest("title12341235", 30));
+        Long categoryId = categoryService.saveCategory(member.getId(), new CategoryRequest(title, color));
+        Long otherCategoryId = categoryService.saveCategory(member.getId(), new CategoryRequest("title12341235", 30));
         // when
         // 같은 카테고리를 똑같은 이름으로 수정하는 것은 괜찮음
-        categoryService.updateCategory(member.getId(), categoryId, new CategoryUpdateRequest(title, 15));
+        categoryService.updateCategory(member.getId(), categoryId, new CategoryRequest(title, 15));
         // then
         assertThatThrownBy(() -> {
             // 다른 카테고리와 똑같은 이름으로 수정할 수는 없다.
-            categoryService.updateCategory(member.getId(), otherCategoryId, new CategoryUpdateRequest(title, 15));
+            categoryService.updateCategory(member.getId(), otherCategoryId, new CategoryRequest(title, 15));
         })
                 .isInstanceOf(TodoaryException.class)
                 .matches(e -> ((TodoaryException) e).getStatus().equals(DUPLICATE_CATEGORY));
@@ -114,7 +113,7 @@ class CategoryServiceTest {
     void Category_삭제한다() {
         // given
         Member member = createMember();
-        Long categoryId = categoryService.saveCategory(member.getId(), new CategorySaveRequest("title", 10));
+        Long categoryId = categoryService.saveCategory(member.getId(), new CategoryRequest("title", 10));
         // when
         categoryService.deleteCategory(member.getId(), categoryId);
         // then
@@ -126,12 +125,12 @@ class CategoryServiceTest {
     void 멤버의_모든_카테고리_조회() {
         // given
         Member member = createMember();
-        List<CategorySaveRequest> requests = List.of(
-                new CategorySaveRequest("title1", 10),
-                new CategorySaveRequest("title2", 15),
-                new CategorySaveRequest("title3", 10)
+        List<CategoryRequest> requests = List.of(
+                new CategoryRequest("title1", 10),
+                new CategoryRequest("title2", 15),
+                new CategoryRequest("title3", 10)
         );
-        for (CategorySaveRequest request : requests)
+        for (CategoryRequest request : requests)
             categoryService.saveCategory(member.getId(), request);
         // when
         CategoryResponse[] categories = categoryService.findCategories(member.getId());

@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 import static com.todoary.ms.util.BaseResponseStatus.SUCCESS;
 
 @Getter
-@AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @JsonPropertyOrder({"isSuccess", "code", "message", "result"})
 public class BaseResponse<T> {
     @JsonProperty("isSuccess")
@@ -34,6 +35,12 @@ public class BaseResponse<T> {
         this.isSuccess = status.isSuccess();
         this.message = status.getMessage();
         this.code = status.getCode();
+    }
+
+    public static BaseResponse<BaseResponseStatus> from(BaseResponseStatus status) {
+        return new BaseResponse<>(
+                status.isSuccess(), status.getMessage(), status.getCode(), status
+        );
     }
 }
 
