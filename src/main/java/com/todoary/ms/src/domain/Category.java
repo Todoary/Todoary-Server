@@ -71,7 +71,4 @@ public class Category extends BaseTimeEntity {
         return this.member == member;
     }
 
-    private Member getMember() {
-        return member;
-    }
 }
