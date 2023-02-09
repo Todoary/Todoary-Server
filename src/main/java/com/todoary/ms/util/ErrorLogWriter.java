@@ -1,12 +1,13 @@
 package com.todoary.ms.util;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-@Slf4j
 public class ErrorLogWriter {
+    private static final Logger log = LoggerFactory.getLogger(ErrorLogWriter.class.getSimpleName());
 
     /**
      * jwt 헤더가 포함된 request 로그를 남길 때 user id 정보를 로그에 같이 남긴다.
@@ -39,8 +40,8 @@ public class ErrorLogWriter {
      * @param exception
      * @param request
      */
-    public static void writeExceptionWithRequest(Exception exception, HttpServletRequest request) {
-        log.error("{} - Authorization: {} | uri: {} {} | query string: {}", exception.getMessage(), request.getHeader("Authorization"),
+    public static void writeExceptionWithRequest(String causedMethodName, Exception exception, HttpServletRequest request) {
+        log.error("[{}] {} - Authorization: {} | uri: {} {} | query string: {}", causedMethodName, exception.getMessage(), request.getHeader("Authorization"),
                 request.getMethod(), request.getRequestURI(), parameterMapToString(request.getParameterMap()));
     }
 
@@ -51,8 +52,8 @@ public class ErrorLogWriter {
      * @param request
      * @param messageBody
      */
-    public static void writeExceptionWithRequest(Exception exception, HttpServletRequest request, String messageBody) {
-        log.error("{} - Authorization: {} | uri: {} {} | query string: {} | body: {}", exception.getMessage(), request.getHeader("Authorization"),
+    public static void writeExceptionWithRequest(String causedMethodName, Exception exception, HttpServletRequest request, String messageBody) {
+        log.error("[{}] {} - Authorization: {} | uri: {} {} | query string: {} | body: {}", causedMethodName, exception.getMessage(), request.getHeader("Authorization"),
                 request.getMethod(), request.getRequestURI(), parameterMapToString(request.getParameterMap()), messageBody);
     }
 

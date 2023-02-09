@@ -1,7 +1,7 @@
 package com.todoary.ms.src.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.todoary.ms.src.category.dto.PostCategoryRes;
+import com.todoary.ms.src.web.dto.CategorySaveResponse;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.JpaCategoryService;
 import com.todoary.ms.src.web.dto.CategoryRequest;
@@ -47,7 +47,7 @@ class JpaCategoryControllerTest {
         // given
         Long categoryId = 1L;
         given(categoryService.saveCategory(any(), any())).willReturn(categoryId);
-        PostCategoryRes expected = new PostCategoryRes(categoryId);
+        CategorySaveResponse expected = new CategorySaveResponse(categoryId);
         // when
         CategoryRequest requestDto = new CategoryRequest("카테고리", 10);
         MvcResult result = mvc.perform(post(REQUEST_URL.SAVE).with(csrf())
@@ -56,7 +56,7 @@ class JpaCategoryControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        PostCategoryRes response = getResponseObject(result, PostCategoryRes.class);
+        CategorySaveResponse response = getResponseObject(result, CategorySaveResponse.class);
         // then
         assertThat(response).isEqualTo(expected);
     }

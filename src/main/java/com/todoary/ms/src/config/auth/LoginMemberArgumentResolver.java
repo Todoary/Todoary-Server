@@ -14,6 +14,11 @@ import java.util.Optional;
 import static com.todoary.ms.util.BaseResponseStatus.EMPTY_USER;
 import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
 
+/**
+ * {@link LoginMember}의 Resolver
+ *
+ * <p>Resolver 등록은 {@link com.todoary.ms.src.config.WebConfig}
+ */
 @Component
 public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolver {
 

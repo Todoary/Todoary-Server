@@ -1,4 +1,4 @@
-package com.todoary.ms.src.category.dto;
+package com.todoary.ms.src.web.dto;
 
 import lombok.*;
 
@@ -7,6 +7,6 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class PostCategoryRes {
+public class CategorySaveResponse {
     private Long categoryId;
 }

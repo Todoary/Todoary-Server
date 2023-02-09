@@ -1,6 +1,6 @@
 package com.todoary.ms.src.web.controller;
 
-import com.todoary.ms.src.category.dto.PostCategoryRes;
+import com.todoary.ms.src.web.dto.CategorySaveResponse;
 import com.todoary.ms.src.config.auth.LoginMember;
 import com.todoary.ms.src.service.JpaCategoryService;
 import com.todoary.ms.src.web.dto.CategoryRequest;
@@ -25,11 +25,11 @@ public class JpaCategoryController {
 
     // 4.1 카테고리 생성 API
     @PostMapping("")
-    public BaseResponse<PostCategoryRes> createCategory(
+    public BaseResponse<CategorySaveResponse> createCategory(
             @LoginMember Long memberId,
             @RequestBody @Valid CategoryRequest request) {
         Long categoryId = categoryService.saveCategory(memberId, request);
-        return new BaseResponse<>(new PostCategoryRes(categoryId));
+        return new BaseResponse<>(new CategorySaveResponse(categoryId));
     }
 
     // 4.2 카테고리 수정 API
