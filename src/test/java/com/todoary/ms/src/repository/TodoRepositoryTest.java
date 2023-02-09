@@ -157,7 +157,7 @@ class TodoRepositoryTest {
                         .build())
                 .forEach(todo -> todoRepository.save(todo));
         // when
-        List<Todo> todos = todoRepository.findByCategoryStartingToday(category);
+        List<Todo> todos = todoRepository.findByCategoryAndDateStarting(category, LocalDate.now());
         // then
         assertThat(todos).hasSize(3); // 2일전, 1일전, 오늘, 내일, 모레이므로 3개만 조회된다
         assertThat(todos)

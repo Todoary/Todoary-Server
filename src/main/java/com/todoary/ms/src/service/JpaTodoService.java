@@ -102,7 +102,7 @@ public class JpaTodoService {
     public List<TodoResponse> findTodosByCategoryStartingToday(Long memberId, Long categoryId) {
         Member member = findMemberById(memberId);
         Category category = findCategoryByIdAndMember(categoryId, member);
-        return todoRepository.findByCategoryStartingToday(category)
+        return todoRepository.findByCategoryAndDateStarting(category, LocalDate.now())
                 .stream().map(TodoResponse::from).collect(Collectors.toList());
     }
 
