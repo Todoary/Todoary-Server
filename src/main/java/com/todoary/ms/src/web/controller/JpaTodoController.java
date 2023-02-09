@@ -2,7 +2,7 @@ package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.config.auth.LoginMember;
 import com.todoary.ms.src.service.JpaTodoService;
-import com.todoary.ms.src.todo.dto.PostTodoRes;
+import com.todoary.ms.src.web.dto.TodoSaveResponse;
 import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
@@ -28,12 +28,12 @@ public class JpaTodoController {
 
     // 3.1 투두 생성 api
     @PostMapping("")
-    public BaseResponse<PostTodoRes> createTodo(
+    public BaseResponse<TodoSaveResponse> createTodo(
             @LoginMember Long memberId,
             @RequestBody @Valid TodoRequest request
     ) {
         Long todoId = todoService.saveTodo(memberId, request);
-        return new BaseResponse<>(new PostTodoRes(todoId));
+        return new BaseResponse<>(new TodoSaveResponse(todoId));
     }
 
     // 3.2 투두 수정

@@ -3,7 +3,7 @@ package com.todoary.ms.src.web.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.JpaTodoService;
-import com.todoary.ms.src.todo.dto.PostTodoRes;
+import com.todoary.ms.src.web.dto.TodoSaveResponse;
 import com.todoary.ms.src.web.controller.JpaTodoController.MarkTodoRequest;
 import com.todoary.ms.src.web.controller.JpaTodoController.PinTodoRequest;
 import com.todoary.ms.src.web.dto.TodoAlarmRequest;
@@ -76,7 +76,7 @@ class JpaTodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        PostTodoRes response = getResponseObject(result, PostTodoRes.class);
+        TodoSaveResponse response = getResponseObject(result, TodoSaveResponse.class);
         // then
         assertThat(response.getTodoId()).isEqualTo(expected);
     }
@@ -189,7 +189,7 @@ class JpaTodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        PostTodoRes response = getResponseObject(result, PostTodoRes.class);
+        TodoSaveResponse response = getResponseObject(result, TodoSaveResponse.class);
         // then
         assertThat(response.getTodoId()).isEqualTo(expected);
     }

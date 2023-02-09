@@ -3,7 +3,6 @@ package com.todoary.ms.src.auth;
 import com.todoary.ms.src.auth.dto.*;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.auth.model.AppleUserInfo;
-import com.todoary.ms.src.auth.model.PrincipalDetails;
 import com.todoary.ms.src.auth.model.Token;
 import com.todoary.ms.src.user.UserProvider;
 import com.todoary.ms.src.user.UserService;
@@ -24,7 +23,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +33,6 @@ import java.util.Collection;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
 import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithMessage;
-import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithRequest;
 
 @Slf4j
 @RestController
@@ -156,7 +153,6 @@ public class AuthController {
         try {
             AssertRefreshTokenEqualAndValid(refreshToken);
         } catch (BaseException exception) {
-            writeExceptionWithRequest(exception, request, postAccessReq.toString());
             return new BaseResponse<>(exception.getStatus());
         }
 
@@ -165,7 +161,6 @@ public class AuthController {
             Long user_id = Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshToken));
             user = userProvider.retrieveById(user_id);
         } catch (BaseException e) {
-            writeExceptionWithRequest(e, request, postAccessReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
 
@@ -174,7 +169,6 @@ public class AuthController {
             PostAccessRes postAccessRes = new PostAccessRes(newTokens);
             return new BaseResponse<>(postAccessRes);
         } catch (BaseException exception) {
-            writeExceptionWithRequest(exception, request, postAccessReq.toString());
             return new BaseResponse<>(exception.getStatus());
         }
     }
@@ -197,7 +191,6 @@ public class AuthController {
                     Token token = authService.registerNewTokenForUser(user.getId());
                     return new BaseResponse<>(new GoogleSigninResponse(false, token));
                 } catch (BaseException e) {
-                    writeExceptionWithRequest(e, servletRequest, request.toString());
                     return new BaseResponse<>(e.getStatus());
                 }
             } else {
@@ -230,7 +223,6 @@ public class AuthController {
             userService.createUser(user, postUserReq.isTermsEnable());
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            writeExceptionWithRequest(e, request, postUserReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -249,7 +241,6 @@ public class AuthController {
             userService.createOauth2User(postSignupOauth2Req);
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException exception) {
-            writeExceptionWithRequest(exception, request, postSignupOauth2Req.toString());
             return new BaseResponse<>(exception.getStatus());
         }
     }
@@ -270,7 +261,6 @@ public class AuthController {
                 return new BaseResponse<>(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
             }
         } catch (BaseException exception) {
-            writeExceptionWithRequest(exception, request);
             return new BaseResponse<>(exception.getStatus());
         }
     }
@@ -292,7 +282,6 @@ public class AuthController {
                 return new BaseResponse<>(BaseResponseStatus.USERS_EMPTY_USER_EMAIL);
             }
         } catch (BaseException exception) {
-            writeExceptionWithRequest(exception, request);
             return new BaseResponse<>(exception.getStatus());
         }
     }
@@ -311,7 +300,6 @@ public class AuthController {
             userService.changePassword(patchPasswordReq);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch (BaseException e) {
-            writeExceptionWithRequest(e, request, patchPasswordReq.toString());
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -340,7 +328,6 @@ public class AuthController {
             String client_secret = appleUtil.createClientSecret();
             tokenResponse = appleUtil.validateAuthorizationGrantCode(client_secret, postSignupAppleReq.getCode());
         } catch (IOException e) {
-            writeExceptionWithMessage(e, e.getMessage());
             return new BaseResponse<>(APPLE_Client_SECRET_ERROR);
         }
 
@@ -368,7 +355,6 @@ public class AuthController {
                 token = authService.registerNewTokenForUser(userId);
                 getAppleUserRes = new GetAppleUserRes(true, appleUserInfo.getName(), appleUserInfo.getEmail(), provider, provider_id, token, appleRefreshToken);
             } catch (BaseException exception) {
-                writeExceptionWithRequest(exception, request, postSignupOauth2Req.toString());
                 return new BaseResponse<>(exception.getStatus());
             }
         } else {

@@ -2,7 +2,7 @@ package com.todoary.ms.src.category;
 
 import com.todoary.ms.src.category.dto.GetCategoryRes;
 import com.todoary.ms.src.category.dto.PostCategoryReq;
-import com.todoary.ms.src.category.dto.PostCategoryRes;
+import com.todoary.ms.src.web.dto.CategorySaveResponse;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -38,13 +38,13 @@ public class CategoryController {
      */
 
     @PostMapping("")
-    public BaseResponse<PostCategoryRes> postCategory(HttpServletRequest request, @RequestBody PostCategoryReq postCategoryReq) {
+    public BaseResponse<CategorySaveResponse> postCategory(HttpServletRequest request, @RequestBody PostCategoryReq postCategoryReq) {
         if (ColumnLengthInfo.getGraphemeLength(postCategoryReq.getTitle()) > ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH)
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long user_id = Long.parseLong(request.getAttribute("user_id").toString());
             Long categoryId = categoryService.createCategory(user_id, postCategoryReq);
-            return new BaseResponse<>(new PostCategoryRes(categoryId));
+            return new BaseResponse<>(new CategorySaveResponse(categoryId));
         } catch (BaseException e) {
             writeExceptionWithAuthorizedRequest(e, request, postCategoryReq.toString());
             return new BaseResponse<>(e.getStatus());

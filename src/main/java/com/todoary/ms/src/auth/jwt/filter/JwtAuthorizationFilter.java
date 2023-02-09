@@ -2,7 +2,6 @@ package com.todoary.ms.src.auth.jwt.filter;
 
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.user.UserProvider;
-import com.todoary.ms.util.ErrorLogWriter;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +39,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if(request.getRequestURI().startsWith("/auth")
             || request.getRequestURI().startsWith("/favicon")
             || request.getRequestURI().startsWith("/swagger")){ // "/auth/*" uri들은 jwt체크 불필요
-            log.info("JWT 인증 필요 없음 | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
             chain.doFilter(request,response);
             return;
         }
@@ -53,8 +51,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         .parseClaimsJws(jwtHeader);
 
                 Long user_id = Long.parseLong(jwtTokenProvider.getUserIdFromAccessToken(jwtHeader));
-//                log.info("인증 완료, uri: " + requestUri + " 인증 정보: " + authentication.getName());
-
 
                 Collection<GrantedAuthority> userAuthorities = new ArrayList<>(); // 리팩토링 필요
                 userAuthorities.add(new GrantedAuthority() {
@@ -63,19 +59,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         return "ROLE_USER";
                     }
                 });
-
                 Authentication authentication = new UsernamePasswordAuthenticationToken(user_id, "", userAuthorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
                 request.setAttribute("user_id", user_id);
             } catch (ExpiredJwtException e) {
                 log.info("토큰이 만료됨, uri: {} {}", request.getMethod(), requestUri);
             } catch (Exception e) {
                 log.info("토큰이 유효하지 않음, uri: {} {}", request.getMethod(), requestUri);
             }
-            log.info("JWT 인증 완료 | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
-        }else{
-            log.info("JWT 인증 불가능 (Authorization 헤더 없음) | uri: {} {} | query string: {}", request.getMethod(), request.getRequestURI(), ErrorLogWriter.parameterMapToString(request.getParameterMap()));
         }
         chain.doFilter(request, response);
     }

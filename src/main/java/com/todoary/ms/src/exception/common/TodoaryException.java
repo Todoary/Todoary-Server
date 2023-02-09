@@ -8,7 +8,7 @@ public class TodoaryException extends RuntimeException{
     private BaseResponseStatus status;
 
     public TodoaryException(BaseResponseStatus status) {
-        super(status.getMessage());
+        super(status.name());
         this.status = status;
     }
 }
