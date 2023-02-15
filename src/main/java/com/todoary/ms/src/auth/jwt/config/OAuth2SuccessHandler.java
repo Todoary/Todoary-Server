@@ -35,14 +35,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         PrincipalDetails oAuth2User = (PrincipalDetails) authentication.getPrincipal();
 
         GetOauth2SuccessRes getOauth2SuccessRes;
-        if (oAuth2User.isNewUser()) { // 새로 가입한 유저
-            GetOauth2UserRes getOauth2UserRes = new GetOauth2UserRes(oAuth2User.getUser().getName(),
-                    oAuth2User.getUser().getEmail(), oAuth2User.getUser().getProvider(), oAuth2User.getUser().getProvider_id());
+        if (oAuth2User.isNewMember()) { // 새로 가입한 유저
+            GetOauth2UserRes getOauth2UserRes = new GetOauth2UserRes(oAuth2User.getMember().getName(),
+                    oAuth2User.getMember().getEmail(), oAuth2User.getMember().getProviderAccount().getProvider().toString(), oAuth2User.getMember().getProviderAccount().getProviderId());
             getOauth2SuccessRes = new GetOauth2SuccessRes(true, getOauth2UserRes);
         } else { // 기존 유저
-            String accessToken = jwtTokenProvider.createAccessToken(oAuth2User.getUser().getId());
-            String refreshToken = jwtTokenProvider.createRefreshToken(oAuth2User.getUser().getId());
-            authService.registerRefreshToken(oAuth2User.getUser().getId(), refreshToken);
+            String accessToken = jwtTokenProvider.createAccessToken(oAuth2User.getMember().getId());
+            String refreshToken = jwtTokenProvider.createRefreshToken(oAuth2User.getMember().getId());
+            authService.registerRefreshToken(oAuth2User.getMember().getId(), refreshToken);
             Token token = new Token(accessToken, refreshToken);
             getOauth2SuccessRes = new GetOauth2SuccessRes(false, token);
         }

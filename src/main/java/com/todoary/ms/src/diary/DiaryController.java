@@ -44,7 +44,7 @@ public class DiaryController {
      */
     @PostMapping("/{createdDate}")
     public BaseResponse<BaseResponseStatus> postDiary(HttpServletRequest request, @RequestBody PostDiaryReq postDiaryReq, @PathVariable("createdDate") String createdDate) {
-        if (ColumnLengthInfo.getGraphemeLength(postDiaryReq.getTitle()) > ColumnLengthInfo.DIARY_TITLE_MAX_LENGTH.getLength())
+        if (ColumnLengthInfo.getGraphemeLength(postDiaryReq.getTitle()) > ColumnLengthInfo.DIARY_TITLE_MAX_LENGTH)
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);

@@ -2,6 +2,7 @@ package com.todoary.ms.src.todo;
 
 import com.todoary.ms.src.todo.dto.*;
 import com.todoary.ms.src.user.UserProvider;
+import com.todoary.ms.src.web.dto.TodoSaveResponse;
 import com.todoary.ms.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,13 +43,13 @@ public class TodoController {
      * @return BaseResponseStatus
      */
     @PostMapping("")
-    public BaseResponse<PostTodoRes> postTodo(HttpServletRequest request, @RequestBody PostTodoReq postTodoReq) {
-        if (ColumnLengthInfo.getGraphemeLength(postTodoReq.getTitle()) > ColumnLengthInfo.TODO_TITLE_MAX_LENGTH.getLength())
+    public BaseResponse<TodoSaveResponse> postTodo(HttpServletRequest request, @RequestBody PostTodoReq postTodoReq) {
+        if (ColumnLengthInfo.getGraphemeLength(postTodoReq.getTitle()) > ColumnLengthInfo.TODO_TITLE_MAX_LENGTH)
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);
             Long todoId = todoService.createTodo(userId, postTodoReq);
-            return new BaseResponse<>(new PostTodoRes(todoId));
+            return new BaseResponse<>(new TodoSaveResponse(todoId));
         } catch (BaseException e) {
             ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request, postTodoReq.toString());
             return new BaseResponse<>(e.getStatus());
@@ -68,7 +69,7 @@ public class TodoController {
     public BaseResponse<BaseResponseStatus> patchTodo(HttpServletRequest request,
                                                       @PathVariable("todoId") Long todoId,
                                                       @RequestBody PostTodoReq postTodoReq) {
-        if (ColumnLengthInfo.getGraphemeLength(postTodoReq.getTitle()) > ColumnLengthInfo.TODO_TITLE_MAX_LENGTH.getLength())
+        if (ColumnLengthInfo.getGraphemeLength(postTodoReq.getTitle()) > ColumnLengthInfo.TODO_TITLE_MAX_LENGTH)
             return new BaseResponse<>(BaseResponseStatus.DATA_TOO_LONG);
         try {
             Long userId = getUserIdFromRequest(request);

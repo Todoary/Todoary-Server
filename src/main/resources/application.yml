@@ -1,93 +1,69 @@
 server:
-  port: 9000
+  port:
 
 spring:
-  #  datasource:
-  #    driver-class-name: com.mysql.cj.jdbc.Driver
-  #    url: jdbc:mysql://todoary-db-mysql.cuwt4o0bncub.ap-northeast-2.rds.amazonaws.com:3306/security
-  #    username: root
-  #    password: UMC_todoary_0705
+  profiles:
+    include: test
+
+  datasource:
+    driver-class-name:
+    url:
+    username:
+    password:
   security:
     oauth2:
       client:
         registration:
-          google: # /oauth2/authorization/google ? ??? ???? ??.
-            client-id: 228048803861-td7e2j54ta1d0no0oeu33955vtegu5bp.apps.googleusercontent.com
-            client-secret: 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
+          google:
+            client-id:
+            client-secret:
             scope:
-              - email
-              - profile
-
-  # file upload max size
+  
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size:
+      max-request-size:
 
-  datasource:
-    hikari:
-      jdbc-url: jdbc:h2:mem:testdb;MODE=MYSQL
-      username: sa
   # JPA settings
   jpa:
     hibernate:
-      ddl-auto: create-drop # 스프링 부트의 메모리 db사용 기본 전략 drop - create - drop // create : drop - create
+      ddl-auto:
     properties:
-      show-sql: true
+      show-sql:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL57Dialect
-        storage_engine: innodb
-        format_sql: true
-  h2:
-    console:
-      enabled: true
+        format_sql:
 
 logging:
-  config: classpath:logback-spring.xml
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.type: trace
-  slack:
-    webhook-uri: https://hooks.slack.com/services/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
-# AWS Account Credentials
+    org.hibernate.SQL:
+    org.hibernate.type:
+
+  # AWS Account Credentials
+
 cloud:
   aws:
     credentials:
-      access-key: AKIAUG2QCOB4OVD3MKU4
-      secret-key: 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
-    # AWS S3 bucket Info
+      access-key:
+      secret-key:
+
+  # AWS S3 bucket Info
     s3:
-      bucket: todoarybucket # 개발용 - todoarybucket , 릴리즈 - todoarybucket-release
+      bucket:
 
     region:
-      static: ap-northeast-2
+      static:
     stack:
-      auto: false
+      auto:
 
 jwt:
   secret:
-    access: Z29sZGdneXVsLXRvZG9hcnktand0LXRlc3QtZ29sZGdneXVsLXRvZG9hcnktand0LXRlc3QtZ29sZGdneXVsLXRvZG9hcnktand0LXRlc3QK
-    refresh: Z29sZGdneXVsLXRvZG9hcnktand0LXRlc3QtZ29sZGdneXVsLXRvZGZ29sZGdneXVsLXRvZG9hcnktand0LXRlc3QtZ29sZGdneXVsLXRvZG
-  time: # milliseconds
-    access: 7200000 # 2시간
-    refresh: 7776000000 # 90일
+    access:
+    refresh:
+  time:
+    access:
+    refresh:
 
 fcm:
   secret:
-    time: 4
-    day: THU
-
-# swagger
-swagger:
-  host: localhost:9000 # 서버의 경우 todoary.com
-
-
-apple:
-  token-url: https://appleid.apple.com/auth/token
-  publickey-url: https://appleid.apple.com/auth/keys
-  website-url: https://todoary.com/auth/apple/redirect
-  iss: https://appleid.apple.com
-  aud: com.todoary.ms.services
-  team-id: 65XRT42S6C
-  key-id: Q97Q56DJS6
-  key-path: static/AuthKey_Q97Q56DJS6.p8
+    time:
+    day:

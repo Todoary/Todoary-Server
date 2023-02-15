@@ -7,8 +7,7 @@ import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.CategoryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.CategoryResponse;
-import com.todoary.ms.src.web.dto.CategorySaveRequest;
-import com.todoary.ms.src.web.dto.CategoryUpdateRequest;
+import com.todoary.ms.src.web.dto.CategoryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,14 +27,14 @@ public class JpaCategoryService {
     }
 
     @Transactional
-    public Long saveCategory(Long memberId, CategorySaveRequest request) {
+    public Long saveCategory(Long memberId, CategoryRequest request) {
         Member member = findMemberById(memberId);
         validateMembersCategoryTitle(member, request.getTitle());
         return categoryRepository.save(request.toEntity(member)).getId();
     }
 
     @Transactional
-    public void updateCategory(Long memberId, Long categoryId, CategoryUpdateRequest request) {
+    public void updateCategory(Long memberId, Long categoryId, CategoryRequest request) {
         Member member = findMemberById(memberId);
         Category target = findCategoryByIdAndMember(categoryId, member);
         Color nextColor = new Color(request.getColor());

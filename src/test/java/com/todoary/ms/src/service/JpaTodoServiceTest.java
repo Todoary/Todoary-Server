@@ -1,13 +1,15 @@
 package com.todoary.ms.src.service;
 
-import com.todoary.ms.src.domain.*;
+import com.todoary.ms.src.domain.Category;
+import com.todoary.ms.src.domain.Color;
+import com.todoary.ms.src.domain.Member;
+import com.todoary.ms.src.domain.Todo;
 import com.todoary.ms.src.repository.CategoryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
+import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
-import com.todoary.ms.src.web.dto.TodoSaveRequest;
-import com.todoary.ms.src.web.dto.TodoUpdateAlarmRequest;
-import com.todoary.ms.src.web.dto.TodoUpdateRequest;
+import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,16 +17,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@Transactional @SpringBootTest
+@Transactional
+@SpringBootTest
 class JpaTodoServiceTest {
     @Autowired
     EntityManager em;
@@ -46,9 +52,15 @@ class JpaTodoServiceTest {
         // given
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
-        String date = "2022-01-04";
-        String time = "22:17";
-        TodoSaveRequest request = new TodoSaveRequest("todo", true, date, time, category.getId());
+        LocalDate date = LocalDate.of(2022, 1, 4);
+        LocalTime time = LocalTime.of(19, 48);
+        TodoRequest request = TodoRequest.builder()
+                .title("todo")
+                .isAlarmEnabled(true)
+                .targetDate(date)
+                .targetTime(time)
+                .categoryId(category.getId())
+                .build();
         // when
         Long todoId = todoService.saveTodo(member.getId(), request);
         Todo todo = todoRepository.findById(todoId).get();
@@ -56,8 +68,8 @@ class JpaTodoServiceTest {
         assertThat(member.getTodos()).hasSize(1);
         assertThat(category.getTodos()).hasSize(1);
         assertThat(category.getTodos().get(0)).isEqualTo(todo);
-        assertThat(todo.getTargetDate().toString()).isEqualTo(date);
-        assertThat(todo.getTargetTime().toString()).isEqualTo(time);
+        assertThat(todo.getTargetDate()).isEqualTo(date);
+        assertThat(todo.getTargetTime()).isEqualTo(time);
     }
 
     @Test
@@ -65,19 +77,25 @@ class JpaTodoServiceTest {
         // given
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
-        TodoSaveRequest request = new TodoSaveRequest("todo", true, "2022-01-02", "15:10", category.getId());
+        TodoRequest request = TodoRequest.builder()
+                .title("todo")
+                .isAlarmEnabled(true)
+                .targetDate(LocalDate.of(2022, 1, 4))
+                .targetTime(LocalTime.of(19, 40))
+                .categoryId(category.getId())
+                .build();
         Long todoId = todoService.saveTodo(member.getId(), request);
         // when
         Category expectedCategory = createCategoryWithTitle(member, "category2");
         String title = "todo~!";
-        String date = "2022-01-04";
-        String time = "22:17";
-        todoService.updateTodo(member.getId(), todoId, new TodoUpdateRequest(title, false, date, time, expectedCategory.getId()));
+        LocalDate expectedDate = LocalDate.of(2022, 1, 4);
+        LocalTime expectedTime = LocalTime.of(19, 48);
+        todoService.updateTodo(member.getId(), todoId, new TodoRequest(title, false, expectedDate, expectedTime, expectedCategory.getId()));
         Todo todo = todoRepository.findById(todoId).get();
         // then
         assertThat(todo.getTitle()).isEqualTo(title);
-        assertThat(todo.getTargetDate().toString()).isEqualTo(date);
-        assertThat(todo.getTargetTime().toString()).isEqualTo(time);
+        assertThat(todo.getTargetDate()).isEqualTo(expectedDate);
+        assertThat(todo.getTargetTime()).isEqualTo(expectedTime);
         assertThat(todo.getCategory()).isEqualTo(expectedCategory);
         assertThat(category.getTodos()).isEmpty();
         assertThat(expectedCategory.getTodos()).contains(todo);
@@ -87,20 +105,22 @@ class JpaTodoServiceTest {
     void Todo_알람_관련만_수정() {
         // given
         Member member = createMember();
-        Category category = createCategoryWithTitle(member, "category");
-        TodoSaveRequest request = new TodoSaveRequest("todo", false, "2022-01-02", "15:10", category.getId());
-        Long todoId = todoService.saveTodo(member.getId(), request);
+        Long todoId = createDefaultTodo(member);
         // when
-        String date = "2022-01-04";
-        String time = "22:17";
+        LocalDate expectedDate = LocalDate.of(2022, 1, 4);
+        LocalTime expectedTime = LocalTime.of(19, 48);
         boolean isAlarmEnabled = true;
         todoService.updateTodoAlarm(
-                member.getId(), todoId, new TodoUpdateAlarmRequest(isAlarmEnabled, date, time));
+                member.getId(), todoId, TodoAlarmRequest.builder()
+                        .isAlarmEnabled(isAlarmEnabled)
+                        .targetDate(expectedDate)
+                        .targetTime(expectedTime)
+                        .build());
         Todo todo = todoRepository.findById(todoId).get();
         // then
         assertThat(todo.getIsAlarmEnabled()).isEqualTo(isAlarmEnabled);
-        assertThat(todo.getTargetDate().toString()).isEqualTo(date);
-        assertThat(todo.getTargetTime().toString()).isEqualTo(time);
+        assertThat(todo.getTargetDate()).isEqualTo(expectedDate);
+        assertThat(todo.getTargetTime()).isEqualTo(expectedTime);
     }
 
     @Test
@@ -108,7 +128,13 @@ class JpaTodoServiceTest {
         // given
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
-        TodoSaveRequest request = new TodoSaveRequest("todo", true, "2022-01-02", "15:10", category.getId());
+        TodoRequest request = TodoRequest.builder()
+                .title("todo")
+                .isAlarmEnabled(true)
+                .targetDate(LocalDate.of(2022, 1, 4))
+                .targetTime(LocalTime.of(19, 40))
+                .categoryId(category.getId())
+                .build();
         Long todoId = todoService.saveTodo(member.getId(), request);
         // when
         todoService.deleteTodo(member.getId(), todoId);
@@ -123,7 +149,13 @@ class JpaTodoServiceTest {
         // given
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
-        TodoSaveRequest request = new TodoSaveRequest("todo", true, "2022-01-02", "15:10", category.getId());
+        TodoRequest request = TodoRequest.builder()
+                .title("todo")
+                .isAlarmEnabled(true)
+                .targetDate(LocalDate.of(2022, 1, 4))
+                .targetTime(LocalTime.of(19, 40))
+                .categoryId(category.getId())
+                .build();
         Long todoId = todoService.saveTodo(member.getId(), request);
         // when
         em.remove(category);
@@ -135,9 +167,7 @@ class JpaTodoServiceTest {
     void Todo_체크_표시한다() {
         // given
         Member member = createMember();
-        Category category = createCategoryWithTitle(member, "category");
-        TodoSaveRequest request = new TodoSaveRequest("todo", true, "2022-01-02", "15:10", category.getId());
-        Long todoId = todoService.saveTodo(member.getId(), request);
+        Long todoId = createDefaultTodo(member);
         // when
         todoService.markTodoAsDone(member.getId(), todoId, true);
         // then
@@ -148,9 +178,7 @@ class JpaTodoServiceTest {
     void Todo_고정한다() {
         // given
         Member member = createMember();
-        Category category = createCategoryWithTitle(member, "category");
-        TodoSaveRequest request = new TodoSaveRequest("todo", true, "2022-01-02", "15:10", category.getId());
-        Long todoId = todoService.saveTodo(member.getId(), request);
+        Long todoId = createDefaultTodo(member);
         // when
         todoService.pinTodo(member.getId(), todoId, true);
         // then
@@ -163,21 +191,22 @@ class JpaTodoServiceTest {
         Member member = createMember();
         Category category1 = createCategoryWithTitle(member, "category1");
         Category category2 = createCategoryWithTitle(member, "category2");
-        String date = "2022-01-02";
+        LocalDate otherDate = LocalDate.of(2021, 11, 11);
+        LocalDate date = LocalDate.of(2022, 1, 2);
         Long todoId1 = todoService.saveTodo(
                 member.getId(),
-                new TodoSaveRequest("todo1", true, date, "15:10", category1.getId())
+                new TodoRequest("todo1", true, date, LocalTime.of(10, 10), category1.getId())
         );
         Long todoId2 = todoService.saveTodo(
                 member.getId(),
-                new TodoSaveRequest("todo2", true, date, "12:20", category2.getId())
+                new TodoRequest("todo2", true, date, LocalTime.of(12, 20), category2.getId())
         );
         todoService.saveTodo(
                 member.getId(),
-                new TodoSaveRequest("todo3", true, "2022-01-05", "15:10", category1.getId())
+                new TodoRequest("todo3", true, otherDate, LocalTime.of(15, 10), category1.getId())
         );
         // when
-        TodoResponse[] todos = todoService.findTodosByDate(member.getId(), date);
+        List<TodoResponse> todos = todoService.findTodosByDate(member.getId(), date);
         // then
         assertThat(todos).hasSize(2);
         assertThat(todos)
@@ -186,108 +215,68 @@ class JpaTodoServiceTest {
     }
 
     @Test
-    void 특정_Category의_Todo_조회() {
+    void 특정_Category의_Todo_조회시_오늘부터만_조회() {
         // given
         Member member = createMember();
         Category category1 = createCategoryWithTitle(member, "category1");
         Category category2 = createCategoryWithTitle(member, "category2");
-        String date = "2022-01-02";
-        todoService.saveTodo(
-                member.getId(),
-                new TodoSaveRequest("todo1", true, date, "15:10", category1.getId())
-        );
-        Long todoId = todoService.saveTodo(
-                member.getId(),
-                new TodoSaveRequest("todo2", true, date, "12:20", category2.getId())
-        );
-        todoService.saveTodo(
-                member.getId(),
-                new TodoSaveRequest("todo3", true, "2022-01-05", "15:10", category1.getId())
-        );
+        LocalDate now = LocalDate.now();
+        LocalDate beforeNow = now.minusDays(1);
+        IntStream.range(0, 5)
+                .forEach(__ -> todoService.saveTodo(
+                        member.getId(),
+                        TodoRequest.builder()
+                                .targetDate(beforeNow)
+                                .categoryId(category1.getId())
+                                .build()
+                ));
+        IntStream.range(0, 3)
+                .forEach(__ -> todoService.saveTodo(
+                        member.getId(),
+                        TodoRequest.builder()
+                                .targetDate(now)
+                                .categoryId(category1.getId())
+                                .build()
+                ));
         // when
-        TodoResponse[] todos1 = todoService.findTodosByCategory(member.getId(), category1.getId());
-        TodoResponse[] todos2 = todoService.findTodosByCategory(member.getId(), category2.getId());
+        List<TodoResponse> todos1 = todoService.findTodosByCategoryStartingToday(member.getId(), category1.getId());
+        List<TodoResponse> todos2 = todoService.findTodosByCategoryStartingToday(member.getId(), category2.getId());
         // then
-        assertThat(todos1).hasSize(2);
-        assertThat(todos2).hasSize(1);
-        assertThat(todos2[0].getTodoId()).isEqualTo(todoId);
+        assertThat(todos1).hasSize(3);
+        assertThat(todos2).isEmpty();
     }
 
     @Test
-    void Todo_조회시_날짜_알람시간_생성시간_순으로_정렬() {
+    void 카테고리별_Todo_조회시_날짜_알람시간_생성시간_순으로_정렬() {
         // given
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
-        String[] dates = {"2022-01-10", "2022-01-05", "2022-01-05", "2022-01-05", "2022-01-12"};
-        String[] times = {"10:00", "12:00", "09:45", "13:00", "14:00"};
-        List<Long> todoIds = new ArrayList<>();
-        for (int i = 0; i < dates.length; i++) {
-            todoIds.add(todoService.saveTodo(
-                    member.getId(),
-                    new TodoSaveRequest("todo1", true, dates[i], times[i], category.getId())
-            ));
-        }
+        LocalDate now = LocalDate.now();
+        LocalDate[] dates = {
+                now.plusDays(10),
+                now.plusDays(5),
+                now.plusDays(5),
+                now.plusDays(5),
+                now.plusDays(12)};
+        LocalTime[] times = {
+                LocalTime.of(10, 0),
+                LocalTime.of(12, 0),
+                LocalTime.of(9, 45),
+                null,
+                LocalTime.of(22,15)};
+        List<Long> todoIds = IntStream.range(0, 5)
+                .mapToObj(i -> todoService.saveTodo(member.getId(), TodoRequest.builder()
+                        .targetDate(dates[i])
+                        .targetTime(times[i])
+                                .categoryId(category.getId())
+                        .build()))
+                .collect(Collectors.toList());
         // when
-        TodoResponse[] todos = todoService.findTodosByCategory(member.getId(), category.getId());
+        List<TodoResponse> todos = todoService.findTodosByCategoryStartingToday(member.getId(), category.getId());
         // then
-        System.out.println("Arrays.toString(todos) = " + Arrays.toString(todos));
         assertThat(todos)
                 .extracting(TodoResponse::getTodoId)
-                .containsExactly(todoIds.get(2), todoIds.get(1), todoIds.get(3), todoIds.get(0), todoIds.get(4));
-    }
-
-    @Test
-    void Todo_조회_시_생성시간_형식_확인() {
-        // given
-        Member member = createMember();
-        Category category = createCategoryWithTitle(member, "category");
-        Pattern createdTimeFormat = Pattern.compile("^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01]) (0[0-9]|1[0-9]|2[0-3]):(0[1-9]|[0-5][0-9]):(0[1-9]|[0-5][0-9])$");
-        String date = "2023-01-04";
-        todoService.saveTodo(
-                member.getId(),
-                new TodoSaveRequest("todo1", true, date, "15:10", category.getId())
-        );
-        // when
-        TodoResponse todo = todoService.findTodosByDate(member.getId(), date)[0];
-        // then
-        System.out.println("todo.getCreatedTime() = " + todo.getCreatedTime());
-        assertThat(todo.getCreatedTime()).matches(createdTimeFormat);
-    }
-
-    @Test
-    void Todo_조회_시_target_날짜_형식_확인() {
-        // given
-        Member member = createMember();
-        Category category = createCategoryWithTitle(member, "category");
-        Pattern targetDateFormat = Pattern.compile("^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$");
-        String date = "2023-01-04";
-        todoService.saveTodo(
-                member.getId(),
-                new TodoSaveRequest("todo1", true, date, "15:10", category.getId())
-        );
-        // when
-        TodoResponse todo = todoService.findTodosByDate(member.getId(), date)[0];
-        // then
-        assertThat(todo.getTargetDate()).matches(targetDateFormat);
-    }
-
-    @Test
-    void Todo_조회_시_target_시간_형식_확인() {
-        // given
-        Member member = createMember();
-        Category category = createCategoryWithTitle(member, "category");
-        Pattern targetTimeFormat = Pattern.compile("^(0[0-9]|1[0-9]|2[0-3]):(0[1-9]|[0-5][0-9])$");
-        String date = "2023-01-01";
-        String time = "22:22";
-        todoService.saveTodo(
-                member.getId(),
-                new TodoSaveRequest("todo1", true, date, time, category.getId())
-        );
-        // when
-        TodoResponse todo = todoService.findTodosByDate(member.getId(), date)[0];
-        // then
-        System.out.println("todo.getTargetTime() = " + todo.getTargetTime());
-        assertThat(todo.getTargetTime()).matches(targetTimeFormat);
+                .containsExactly(todoIds.get(3), todoIds.get(2), todoIds.get(1), todoIds.get(0), todoIds.get(4));
     }
 
     @Test
@@ -295,17 +284,22 @@ class JpaTodoServiceTest {
         // given
         Member member = createMember();
         Category category = createCategoryWithTitle(member, "category");
-        String[] dates = {"2023-01-01", "2023-01-20", "2023-01-20", "2023-01-30", "2023-02-10", "2023-03-25"};
-        for (String date : dates) {
-            todoService.saveTodo(
-                    member.getId(),
-                    new TodoSaveRequest("todo3", true, date, "10:10", category.getId())
-            );
-        }
+        LocalDate[] dates = {
+                LocalDate.of(2023, 1, 1),
+                LocalDate.of(2023, 1, 20),
+                LocalDate.of(2023, 1, 20),
+                LocalDate.of(2023, 1, 30),
+                LocalDate.of(2023, 2, 10),
+                LocalDate.of(2023, 3, 25)};
+        Arrays.stream(dates)
+                .forEach(date -> todoService.saveTodo(
+                        member.getId(),
+                        new TodoRequest("todo", true, date, LocalTime.of(10, 8), category.getId())
+                ));
         // when
-        int[] january = todoService.findDaysHavingTodoInMonth(member.getId(), "2023-01");
-        int[] february = todoService.findDaysHavingTodoInMonth(member.getId(), "2023-02");
-        int[] march = todoService.findDaysHavingTodoInMonth(member.getId(), "2023-03");
+        List<Integer> january = todoService.findDaysHavingTodoInMonth(member.getId(), YearMonth.of(2023, 1));
+        List<Integer> february = todoService.findDaysHavingTodoInMonth(member.getId(), YearMonth.of(2023, 2));
+        List<Integer> march = todoService.findDaysHavingTodoInMonth(member.getId(), YearMonth.of(2023, 3));
         // then
         assertThat(january).hasSize(3);
         assertThat(february).hasSize(1);
@@ -324,5 +318,17 @@ class JpaTodoServiceTest {
         em.persist(category);
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
         return category;
+    }
+
+    private Long createDefaultTodo(Member member) {
+        Category category = createCategoryWithTitle(member, "category");
+        TodoRequest request = TodoRequest.builder()
+                .title("todo")
+                .isAlarmEnabled(true)
+                .targetDate(LocalDate.of(2022, 1, 4))
+                .targetTime(LocalTime.of(19, 40))
+                .categoryId(category.getId())
+                .build();
+        return todoService.saveTodo(member.getId(), request);
     }
 }
