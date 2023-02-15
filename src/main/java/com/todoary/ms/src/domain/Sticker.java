@@ -1,7 +1,14 @@
 package com.todoary.ms.src.domain;
 
-import javax.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
+\
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Sticker extends BaseTimeEntity {
     @Id
@@ -9,7 +16,24 @@ public class Sticker extends BaseTimeEntity {
     @Column(name = "sticker_id")
     private Long id;
 
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diary_id")
+    private Diary diary;
 
-    private String stickerImgUrl;
+    @Embedded
+    private Sticker sticker;
+
+    private Double locationX;
+
+    private Double locationY;
+
+    private Double width;
+
+    private Double height;
+
+    private Double rotation;
+
+    @Column(nullable = false)
+    private Boolean flipped = false;
+
 }
