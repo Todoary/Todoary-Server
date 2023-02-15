@@ -1,9 +1,11 @@
 package com.todoary.ms.src.repository;
 
+import com.querydsl.core.types.Predicate;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Color;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Todo;
+import com.todoary.ms.src.service.todo.TodoStartingTodayCondition;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -156,8 +158,9 @@ class TodoRepositoryTest {
                         .isAlarmEnabled(true)
                         .build())
                 .forEach(todo -> todoRepository.save(todo));
+        Predicate condition = new TodoStartingTodayCondition().getPredicate();
         // when
-        List<Todo> todos = todoRepository.findByCategoryAndDateStarting(category, LocalDate.now());
+        List<Todo> todos = todoRepository.findByCategoryAndSatisfy(category, condition);
         // then
         assertThat(todos).hasSize(3); // 2일전, 1일전, 오늘, 내일, 모레이므로 3개만 조회된다
         assertThat(todos)

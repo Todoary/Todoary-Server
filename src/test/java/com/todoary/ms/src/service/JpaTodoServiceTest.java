@@ -7,6 +7,7 @@ import com.todoary.ms.src.domain.Todo;
 import com.todoary.ms.src.repository.CategoryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
+import com.todoary.ms.src.service.todo.JpaTodoService;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
 import com.todoary.ms.src.web.dto.TodoAlarmRequest;
@@ -239,8 +240,8 @@ class JpaTodoServiceTest {
                                 .build()
                 ));
         // when
-        List<TodoResponse> todos1 = todoService.findTodosByCategoryStartingToday(member.getId(), category1.getId());
-        List<TodoResponse> todos2 = todoService.findTodosByCategoryStartingToday(member.getId(), category2.getId());
+        List<TodoResponse> todos1 = todoService.findTodosByCategory(member.getId(), category1.getId());
+        List<TodoResponse> todos2 = todoService.findTodosByCategory(member.getId(), category2.getId());
         // then
         assertThat(todos1).hasSize(3);
         assertThat(todos2).isEmpty();
@@ -262,6 +263,7 @@ class JpaTodoServiceTest {
                 LocalTime.of(10, 0),
                 LocalTime.of(12, 0),
                 LocalTime.of(9, 45),
+                // 시간 없는 건 가장 나중으로 정렬된다
                 null,
                 LocalTime.of(22,15)};
         List<Long> todoIds = IntStream.range(0, 5)
@@ -272,11 +274,11 @@ class JpaTodoServiceTest {
                         .build()))
                 .collect(Collectors.toList());
         // when
-        List<TodoResponse> todos = todoService.findTodosByCategoryStartingToday(member.getId(), category.getId());
+        List<TodoResponse> todos = todoService.findTodosByCategory(member.getId(), category.getId());
         // then
         assertThat(todos)
                 .extracting(TodoResponse::getTodoId)
-                .containsExactly(todoIds.get(3), todoIds.get(2), todoIds.get(1), todoIds.get(0), todoIds.get(4));
+                .containsExactly(todoIds.get(2), todoIds.get(1), todoIds.get(3), todoIds.get(0), todoIds.get(4));
     }
 
     @Test
