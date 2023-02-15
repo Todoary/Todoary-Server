@@ -1,14 +1,11 @@
 package com.todoary.ms.src.service;
 
-import com.todoary.ms.src.alarm.model.Alarm;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
-import com.todoary.ms.src.domain.ProviderAccount;
+import com.todoary.ms.src.domain.*;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.MemberRepository;
-import com.todoary.ms.src.web.dto.MemberJoinParam;
+import com.todoary.ms.src.web.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -91,4 +88,56 @@ public class MemberService {
     public List<Member> findAllDailyAlarmEnabled() {
         return memberRepository.findAllDailyAlarmEnabled();
     }
+
+
+    @Transactional
+    public void updateProfile(Long memberId, MemberProfileRequest request) {
+        Member member = findById(memberId);
+        member.update(
+                request.getNickname(),
+                request.getIntroduce()
+        );
+    }
+
+    @Transactional
+    public Member findProfileById(Long memberId) {
+        return memberRepository.findProfileById(memberId)
+                .orElseThrow(() -> new TodoaryException(USERS_DELETED_USER));
+    }
+
+    @Transactional
+    public void activeTodoAlarm(Long memberId,boolean toDoAlarmEnable) {
+        Member member = findById(memberId);
+        member.activeTodoAlarm(toDoAlarmEnable);
+    }
+
+    @Transactional
+    public void activeDailyAlarm(Long memberId,boolean dailyAlarmEnable) {
+        Member member = findById(memberId);
+        member.activeDailyAlarm(dailyAlarmEnable);
+    }
+
+    @Transactional
+    public void activeRemindAlarm(Long memberId,boolean remindAlarmEnable) {
+        Member member = findById(memberId);
+        member.activeRemindAlarm(remindAlarmEnable);
+    }
+
+    @Transactional
+    public void activeTermsStatus(Long memberId,boolean isTermsEnable) {
+        Member member = findById(memberId);
+        member.activeTermsStatus(isTermsEnable);
+    }
+
+    @Transactional(readOnly = true)
+    public Member findAlarmStatus(Long memberId) {
+        return memberRepository.findAlarmStatus(memberId)
+                .orElseThrow(() -> new TodoaryException(USERS_DELETED_USER));
+    }
+
+    @Transactional
+    public void removeMember(Long memberId) {
+        memberRepository.updateStatus(memberId);
+    }
+
 }
