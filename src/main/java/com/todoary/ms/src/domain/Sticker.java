@@ -21,7 +21,7 @@ public class Sticker extends BaseTimeEntity {
     private Diary diary;
 
     @Embedded
-    private Sticker sticker;
+    private StickerType type;
 
     private Double locationX;
 

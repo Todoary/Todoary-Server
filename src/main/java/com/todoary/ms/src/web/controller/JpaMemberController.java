@@ -30,7 +30,7 @@ public class JpaMemberController {
             @LoginMember Long memberId,
             @RequestBody @Valid MemberProfileRequest request
     ) {
-        memberService.updateProfile(memberId,request);
+        memberService.updateProfile(memberId, request);
         return BaseResponse.from(SUCCESS);
     }
 
@@ -42,16 +42,16 @@ public class JpaMemberController {
     // 2.4 프로필 조회 api
     @GetMapping("")
     public BaseResponse<Member> retrieveMember(
-            @LoginMember Long memberId){
+            @LoginMember Long memberId) {
         return new BaseResponse<>(memberService.findProfileById(memberId));
     }
 
     // 2.5 유저 삭제 api
     @PatchMapping("/status")
-    public BaseResponse<BaseResponseStatus>patchMemberStatus(
+    public BaseResponse<BaseResponseStatus> patchMemberStatus(
             @LoginMember Long memberId
     ) {
-       memberService.removeMember(memberId);
+        memberService.removeMember(memberId);
         return BaseResponse.from(SUCCESS);
     }
 
@@ -62,32 +62,29 @@ public class JpaMemberController {
     public BaseResponse<BaseResponseStatus> patchTodoAlarmStatus(
             @LoginMember Long memberId,
             @RequestBody @Valid JpaMemberController.AlarmRequest request
-
     ) {
-        memberService.activeTodoAlarm(memberId,request.getToDoAlarmEnable());
+        memberService.activeTodoAlarm(memberId, request.getToDoAlarmEnable());
         return BaseResponse.from(SUCCESS);
     }
 
 
     // 2.7.2 하루기록 알림 활성화 api
-    @PatchMapping("/alarm/todo")
+    @PatchMapping("/alarm/diary")
     public BaseResponse<BaseResponseStatus> patchDailyAlarmStatus(
             @LoginMember Long memberId,
             @RequestBody @Valid JpaMemberController.AlarmRequest request
-
     ) {
-        memberService.activeDailyAlarm(memberId,request.getDailyAlarmEnable());
+        memberService.activeDailyAlarm(memberId, request.getDailyAlarmEnable());
         return BaseResponse.from(SUCCESS);
     }
 
     // 2.7.3 리마인드 알림 활성화 api
-    @PatchMapping("/alarm/todo")
+    @PatchMapping("/alarm/remind")
     public BaseResponse<BaseResponseStatus> patchRemindAlarmStatus(
             @LoginMember Long memberId,
             @RequestBody @Valid JpaMemberController.AlarmRequest request
-
     ) {
-        memberService.activeRemindAlarm(memberId,request.getRemindAlarmEnable());
+        memberService.activeRemindAlarm(memberId, request.getRemindAlarmEnable());
         return BaseResponse.from(SUCCESS);
     }
 
@@ -96,8 +93,7 @@ public class JpaMemberController {
     public BaseResponse<Member> getAlarmEnabled(
             @LoginMember Long memberId
     ) {
-       return new BaseResponse<>(memberService.findAlarmStatus(memberId));
-
+        return new BaseResponse<>(memberService.findAlarmStatus(memberId));
     }
 
 
@@ -106,13 +102,10 @@ public class JpaMemberController {
     public BaseResponse<BaseResponseStatus> patchTermsStatus(
             @LoginMember Long memberId,
             @RequestBody @Valid JpaMemberController.TermsRequest request
-
     ) {
-        memberService.activeTermsStatus(memberId,request.getIsTermsEnable());
+        memberService.activeTermsStatus(memberId, request.getIsTermsEnable());
         return BaseResponse.from(SUCCESS);
     }
-
-
 
     @ToString
     @Getter
