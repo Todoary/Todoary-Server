@@ -45,3 +45,8 @@ src/main/resources/application-secret.yml
 Temp**Test.java
 src/main/resources/application-test.yml
 src/test/resources/application.yml
+src/main/resources/application.yml
+src/main/resources/application-release.yml
+src/main/resources/application-local-rds.yml
+src/main/resources/application-local-h2.yml
+src/main/resources/application-dev.yml

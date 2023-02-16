@@ -15,7 +15,7 @@ configurations {
 }
 
 springBoot {
-	mainClass = 'com.todoary.ms.TodoaryApplication'
+    mainClass = 'com.todoary.ms.TodoaryApplication'
 }
 
 repositories {
@@ -23,50 +23,77 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'junit:junit:4.13.1'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'mysql:mysql-connector-java'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'junit:junit:4.13.1'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'mysql:mysql-connector-java'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	implementation('javax.xml.bind:jaxb-api')
-	implementation('io.jsonwebtoken:jjwt-api:0.11.5')
-	implementation('io.jsonwebtoken:jjwt-impl:0.11.5')
-	implementation('io.jsonwebtoken:jjwt-jackson:0.11.5')
-	implementation('com.nimbusds:nimbus-jose-jwt:3.10')
-	implementation ('org.bouncycastle:bcpkix-jdk15on:1.70')
+    implementation('javax.xml.bind:jaxb-api')
+    implementation('io.jsonwebtoken:jjwt-api:0.11.5')
+    implementation('io.jsonwebtoken:jjwt-impl:0.11.5')
+    implementation('io.jsonwebtoken:jjwt-jackson:0.11.5')
+    implementation('com.nimbusds:nimbus-jose-jwt:3.10')
+    implementation('org.bouncycastle:bcpkix-jdk15on:1.70')
 
-	implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.1'
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.1'
 
-	// Security, Authentication
-	implementation ('org.springframework.boot:spring-boot-starter-security')
-	implementation ('org.springframework.boot:spring-boot-starter-validation')
+    // Security, Authentication
+    implementation('org.springframework.boot:spring-boot-starter-security')
+    implementation('org.springframework.boot:spring-boot-starter-validation')
 
-	// Oauth2
-	implementation ('org.springframework.boot:spring-boot-starter-oauth2-client:2.7.0')
+    // Oauth2
+    implementation('org.springframework.boot:spring-boot-starter-oauth2-client:2.7.0')
 
-	// Swagger
-	implementation ('io.springfox:springfox-boot-starter:3.0.0')
-	// FireBase
-	implementation 'com.google.firebase:firebase-admin:7.1.1'
-	implementation group : 'com.squareup.okhttp3', name : 'okhttp', version : '4.2.2'
+    // Swagger
+    implementation('io.springfox:springfox-boot-starter:3.0.0')
+    // FireBase
+    implementation 'com.google.firebase:firebase-admin:7.1.1'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.2'
 
-	// Slack
-	implementation 'com.github.maricn:logback-slack-appender:1.4.0'
+    // Slack
+    implementation 'com.github.maricn:logback-slack-appender:1.4.0'
 
-	// emoji 포함 길이
-	implementation group: 'com.ibm.icu', name: 'icu4j', version: '63.1'
+    // emoji 포함 길이
+    implementation group: 'com.ibm.icu', name: 'icu4j', version: '63.1'
 
-	// H2 데이터베이스
-	implementation 'com.h2database:h2:2.1.214'
+    // H2 데이터베이스
+    implementation 'com.h2database:h2:2.1.214'
 
-	// 스프링 시큐리티 테스트
-	testImplementation('org.springframework.security:spring-security-test')
+    // 스프링 시큐리티 테스트
+    testImplementation('org.springframework.security:spring-security-test')
 
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+task copyMainResources {
+    doLast {
+        println '*********** main copy start ***********'
+        copy {
+            from './config'
+            include '*.yml'
+            into './src/main/resources'
+        }
+        println '*********** main copy end *************'
+    }
+}
+
+task copyTestResources {
+    doLast {
+        println '*********** test copy start ***********'
+        copy {
+            from './config/application-local-h2.yml'
+            into './src/test/resources'
+            rename 'application-local-h2.yml', 'application.yml'
+        }
+        println '*********** test copy end *************'
+    }
+}
+
+processResources.dependsOn copyMainResources
+processTestResources.dependsOn copyTestResources
