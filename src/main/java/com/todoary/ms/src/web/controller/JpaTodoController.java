@@ -1,7 +1,7 @@
 package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.config.auth.LoginMember;
-import com.todoary.ms.src.service.JpaTodoService;
+import com.todoary.ms.src.service.todo.JpaTodoService;
 import com.todoary.ms.src.web.dto.TodoSaveResponse;
 import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import com.todoary.ms.src.web.dto.TodoRequest;
@@ -74,7 +74,7 @@ public class JpaTodoController {
             @LoginMember Long memberId,
             @PathVariable("categoryId") Long categoryId
     ) {
-        List<TodoResponse> todos = todoService.findTodosByCategoryStartingToday(memberId, categoryId);
+        List<TodoResponse> todos = todoService.findTodosByCategory(memberId, categoryId);
         return new BaseResponse<>(todos);
     }
 

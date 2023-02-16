@@ -1,20 +1,30 @@
 package com.todoary.ms.src.repository;
 
+import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Todo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static com.todoary.ms.src.domain.QTodo.todo;
+
 @Repository
 public class TodoRepository {
-    @PersistenceContext
-    private EntityManager em;
+    private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
+
+    @Autowired
+    public TodoRepository(EntityManager em) {
+        this.em = em;
+        this.queryFactory = new JPAQueryFactory(em);
+    }
 
     public Todo save(Todo todo) {
         em.persist(todo);
@@ -36,11 +46,12 @@ public class TodoRepository {
                 .getResultList();
     }
 
-    public List<Todo> findByCategoryAndDateStarting(Category category, LocalDate startingDate) {
-        return em.createQuery("select t from Todo t where t.category = :category and t.targetDate >= :startingDate order by t.targetDate, t.targetTime, t.createdAt", Todo.class)
-                .setParameter("category", category)
-                .setParameter("startingDate", startingDate)
-                .getResultList();
+    public List<Todo> findByCategoryAndSatisfy(Category category, Predicate condition) {
+        return queryFactory.selectFrom(todo)
+                .where(todo.category.eq(category))
+                .where(condition)
+                .orderBy(todo.targetDate.asc(), todo.targetTime.asc().nullsLast(), todo.createdAt.asc())
+                .fetch();
     }
 
     public List<Todo> findBetweenDaysAndMember(LocalDate firstDay, LocalDate lastDay, Member member) {

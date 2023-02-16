@@ -1,4 +1,4 @@
-package com.todoary.ms.src.service;
+package com.todoary.ms.src.service.todo;
 
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
@@ -6,10 +6,11 @@ import com.todoary.ms.src.domain.Todo;
 import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
+import com.todoary.ms.src.service.JpaCategoryService;
+import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
-import com.todoary.ms.src.web.dto.TodoAlarmRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,19 +22,13 @@ import java.util.stream.Collectors;
 import static com.todoary.ms.util.BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS;
 import static com.todoary.ms.util.BaseResponseStatus.USERS_EMPTY_USER_ID;
 
+@RequiredArgsConstructor
 @Service
 public class JpaTodoService {
     private final TodoRepository todoRepository;
-
     private final MemberRepository memberRepository;
     private final JpaCategoryService categoryService;
-
-    @Autowired
-    public JpaTodoService(TodoRepository todoRepository, MemberRepository memberRepository, JpaCategoryService categoryService) {
-        this.todoRepository = todoRepository;
-        this.memberRepository = memberRepository;
-        this.categoryService = categoryService;
-    }
+    private final TodoByCategoryCondition todoByCategoryCondition;
 
     @Transactional
     public Long saveTodo(Long memberId, TodoRequest request) {
@@ -99,10 +94,10 @@ public class JpaTodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<TodoResponse> findTodosByCategoryStartingToday(Long memberId, Long categoryId) {
+    public List<TodoResponse> findTodosByCategory(Long memberId, Long categoryId) {
         Member member = findMemberById(memberId);
         Category category = findCategoryByIdAndMember(categoryId, member);
-        return todoRepository.findByCategoryAndDateStarting(category, LocalDate.now())
+        return todoRepository.findByCategoryAndSatisfy(category, todoByCategoryCondition.getPredicate())
                 .stream().map(TodoResponse::from).collect(Collectors.toList());
     }
 

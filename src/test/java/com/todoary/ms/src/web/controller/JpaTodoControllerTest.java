@@ -2,7 +2,7 @@ package com.todoary.ms.src.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
-import com.todoary.ms.src.service.JpaTodoService;
+import com.todoary.ms.src.service.todo.JpaTodoService;
 import com.todoary.ms.src.web.dto.TodoSaveResponse;
 import com.todoary.ms.src.web.controller.JpaTodoController.MarkTodoRequest;
 import com.todoary.ms.src.web.controller.JpaTodoController.PinTodoRequest;
@@ -298,7 +298,7 @@ class JpaTodoControllerTest {
                 TodoResponse.builder().categoryId(categoryId).build(),
                 TodoResponse.builder().categoryId(categoryId).build()
         );
-        given(todoService.findTodosByCategoryStartingToday(any(), eq(categoryId))).willReturn(expected);
+        given(todoService.findTodosByCategory(any(), eq(categoryId))).willReturn(expected);
         // when
         MvcResult result = mvc.perform(get(RETRIEVE_CATEGORY, categoryId))
                 .andExpect(status().isOk())
