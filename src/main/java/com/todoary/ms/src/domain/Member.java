@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,6 +125,22 @@ public class Member extends BaseTimeEntity{
         this.categories.remove(category);
     }
 
+    public void activeTodoAlarm(boolean toDoAlarmEnable){
+        this.toDoAlarmEnable = toDoAlarmEnable;
+    }
+
+    public void activeDailyAlarm(boolean dailyAlarmEnable ){
+        this.dailyAlarmEnable  = dailyAlarmEnable;
+    }
+
+    public void activeRemindAlarm(boolean remindAlarmEnable ){
+        this.remindAlarmEnable  = remindAlarmEnable;
+    }
+
+
+    public void activeTermsStatus(boolean isTermsEnable ){
+        this.isTermsEnable  = isTermsEnable;
+    }
     /*---Method---*/
     public boolean hasCategoryNamed(String title) {
         return getCategories().stream()
@@ -140,4 +158,11 @@ public class Member extends BaseTimeEntity{
     public boolean hasRefreshTokenCode(String refreshTokenCode) {
         return this.getRefreshToken().hasCode(refreshTokenCode);
     }
+
+    public void update(String nickname, String introduce) {
+        this.nickname = nickname;
+        this.introduce = introduce;
+    }
+
+
 }

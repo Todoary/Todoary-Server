@@ -1,6 +1,6 @@
 package com.todoary.ms.src.service;
 
-import com.todoary.ms.src.domain.Member;
+
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
 import org.junit.jupiter.api.Test;

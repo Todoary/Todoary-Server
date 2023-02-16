@@ -1,7 +1,14 @@
 package com.todoary.ms.src.domain;
 
-import javax.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
+import java.time.LocalDate;
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Diary extends BaseTimeEntity{
     @Id
@@ -16,4 +23,9 @@ public class Diary extends BaseTimeEntity{
     private String title;
 
     private String content;
+
+    private LocalDate createdDate;
+
+
+
 }

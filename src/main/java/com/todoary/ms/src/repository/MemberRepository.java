@@ -172,4 +172,37 @@ public class MemberRepository {
         return em.createQuery("select m from Member m where m.dailyAlarmEnable = true", Member.class)
                 .getResultList();
     }
+
+
+    public Optional<Member> findProfileById(Long memberId) {
+        try {
+            Member member = em.createQuery("select m.profileImgUrl, m.nickname, m.introduce, m.email from Member m ", Member.class)
+                    .getSingleResult();
+            return Optional.ofNullable(member);
+        } catch (NoResultException e) {
+            return Optional.ofNullable(null);
+        }
+    }
+
+    public Optional<Member> findAlarmStatus(Long memberId) {
+        try {
+            Member member = em.createQuery("select m.toDoAlarmEnable, m.dailyAlarmEnable, m.remindAlarmEnable from Member m ", Member.class)
+                    .getSingleResult();
+            return Optional.ofNullable(member);
+        } catch (NoResultException e) {
+            return Optional.ofNullable(null);
+        }
+    }
+
+    public Optional<Member> updateStatus(Long memberId) {
+        try {
+            Member member = em.createQuery("update Member m set m.status=0", Member.class)
+                    .getSingleResult();
+            return Optional.ofNullable(member);
+        } catch (NoResultException e) {
+            return Optional.ofNullable(null);
+        }
+    }
+
+
 }

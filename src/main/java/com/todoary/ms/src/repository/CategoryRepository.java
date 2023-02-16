@@ -21,6 +21,7 @@ public class CategoryRepository {
         return Optional.ofNullable(em.find(Category.class, id));
     }
 
+
     public void delete(Category category) {
         em.remove(category);
     }
