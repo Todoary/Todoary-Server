@@ -35,9 +35,6 @@ public class JpaMemberController {
     }
 
 
-    // 2.2 프로필 사진 수정 api
-
-    // 2.3 프로필 사진 삭제 api
 
     // 2.4 프로필 조회 api
     @GetMapping("")
@@ -55,7 +52,7 @@ public class JpaMemberController {
         return BaseResponse.from(SUCCESS);
     }
 
-    // 2.6 로그아웃 api
+
 
     // 2.7.1 Todoary 알림 활성화 api
     @PatchMapping("/alarm/todo")

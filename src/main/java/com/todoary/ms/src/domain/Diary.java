@@ -1,11 +1,14 @@
 package com.todoary.ms.src.domain;
 
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,6 +28,40 @@ public class Diary extends BaseTimeEntity{
     private String content;
 
     private LocalDate createdDate;
+
+    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Sticker> stickers = new ArrayList<>();
+
+    /*---Constructor---*/
+    public Diary(String title, String content, Member member) {
+        this.title = title;
+        this.content = content;
+        setMember(member);
+    }
+
+    /*---Setter---*/
+    private void setMember(Member member) {
+        if (this.member != null) {
+            this.member.removeDiary(this);
+        }
+        this.member = member;
+        member.addDiary(this);
+    }
+
+    /*---Method---*/
+    public void update(String title, String content, LocalDate createdDate) {
+        this.title = title;
+        this.content = content;
+        this.createdDate = createdDate;
+    }
+
+    public void removeAssociations() {
+        this.member.removeDiary(this);
+    }
+
+    public boolean has(Member member) {
+        return this.member == member;
+    }
 
 
 

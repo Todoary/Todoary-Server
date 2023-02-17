@@ -8,8 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +64,7 @@ public class Member extends BaseTimeEntity{
     private Boolean dailyAlarmEnable = true;
 
     private Integer status = 1;
+
 
     /*---Constructor---*/
 
@@ -140,6 +139,10 @@ public class Member extends BaseTimeEntity{
 
     public void activeTermsStatus(boolean isTermsEnable ){
         this.isTermsEnable  = isTermsEnable;
+    }
+
+    public void removeDiary(Diary diary) {
+        this.diaries.remove(diary);
     }
     /*---Method---*/
     public boolean hasCategoryNamed(String title) {
