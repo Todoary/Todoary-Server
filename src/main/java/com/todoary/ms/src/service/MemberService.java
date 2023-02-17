@@ -140,4 +140,10 @@ public class MemberService {
         memberRepository.updateStatus(memberId);
     }
 
+    @Transactional
+    public void changeProfileImg(Long memberId, String newProfileImgUrl) {
+        Member member = findById(memberId);
+
+        member.changeProfileImg(newProfileImgUrl);
+    }
 }

@@ -30,7 +30,7 @@ public class Member extends BaseTimeEntity{
     private String password;
 
     @Column(name = "profile_img_url")
-    private String profileImgUrl;
+    private String profileImgUrl = "https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg";
 
     private String introduce;
 
@@ -105,6 +105,10 @@ public class Member extends BaseTimeEntity{
         this.remindAlarm = remindAlarm;
     }
 
+    public void changeProfileImg(String newProfileImgUrl) {
+        this.profileImgUrl = newProfileImgUrl;
+    }
+
     public void addCategory(Category category) {
         this.categories.add(category);
     }
@@ -137,10 +141,10 @@ public class Member extends BaseTimeEntity{
         this.remindAlarmEnable  = remindAlarmEnable;
     }
 
-
     public void activeTermsStatus(boolean isTermsEnable ){
         this.isTermsEnable  = isTermsEnable;
     }
+
     /*---Method---*/
     public boolean hasCategoryNamed(String title) {
         return getCategories().stream()
@@ -163,6 +167,4 @@ public class Member extends BaseTimeEntity{
         this.nickname = nickname;
         this.introduce = introduce;
     }
-
-
 }

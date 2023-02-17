@@ -3,14 +3,20 @@ package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.config.auth.LoginMember;
 import com.todoary.ms.src.domain.Member;
+import com.todoary.ms.src.s3.AwsS3Service;
+import com.todoary.ms.src.s3.dto.PostProfileImgRes;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.*;
+import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.util.ErrorLogWriter;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -21,8 +27,10 @@ import static com.todoary.ms.util.BaseResponseStatus.SUCCESS;
 @RestController
 @RequestMapping("/jpa/member")
 public class JpaMemberController {
-
     private final MemberService memberService;
+    private final AwsS3Service awsS3Service;
+
+    private final String MEMBER_DEFAULT_PROFILE_IMG_URL = "https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg";
 
     // 2.1 닉네임 및 한줄소개 변경 api
     @PatchMapping("/profile")
@@ -36,8 +44,29 @@ public class JpaMemberController {
 
 
     // 2.2 프로필 사진 수정 api
+    @PatchMapping("/profile-img")
+    public BaseResponse<MemberProfileImgUrlResponse> uploadProfileImg(
+            @LoginMember Long memberId,
+            @RequestPart("profile-img") MultipartFile multipartFile) {
+        String memberProfileImgUrl = memberService.findById(memberId)
+                .getProfileImgUrl();
+        System.out.println("default : "+memberProfileImgUrl);
+
+        if (!memberProfileImgUrl.equals(MEMBER_DEFAULT_PROFILE_IMG_URL)) {
+            awsS3Service.fileDelete(memberProfileImgUrl.substring(54));
+        }
+
+        String newProfileImgUrl = awsS3Service.upload(multipartFile, memberId);
+        System.out.println("new : "+newProfileImgUrl);
+        memberService.changeProfileImg(memberId, newProfileImgUrl);
+        return new BaseResponse<>(new MemberProfileImgUrlResponse(memberId, newProfileImgUrl));
+    }
 
     // 2.3 프로필 사진 삭제 api
+    /**
+     * API 2.3은 멤버 회원 탈퇴 시에 AWS S3에 저장된 프로필 사진을 삭제하기 위함.
+     * 따라서 별도의 API 대신 memberService에 로직 추가하는 것으로 대체.
+     */
 
     // 2.4 프로필 조회 api
     @GetMapping("")
