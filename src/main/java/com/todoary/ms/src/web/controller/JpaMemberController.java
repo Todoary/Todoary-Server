@@ -70,16 +70,13 @@ public class JpaMemberController {
 
     // 2.4 프로필 조회 api
     @GetMapping("")
-    public BaseResponse<Member> retrieveMember(
-            @LoginMember Long memberId) {
+    public BaseResponse<Member> retrieveMember(@LoginMember Long memberId) {
         return new BaseResponse<>(memberService.findProfileById(memberId));
     }
 
     // 2.5 유저 삭제 api
     @PatchMapping("/status")
-    public BaseResponse<BaseResponseStatus> patchMemberStatus(
-            @LoginMember Long memberId
-    ) {
+    public BaseResponse<BaseResponseStatus> patchMemberStatus(@LoginMember Long memberId) {
         memberService.removeMember(memberId);
         return BaseResponse.from(SUCCESS);
     }
@@ -119,10 +116,15 @@ public class JpaMemberController {
 
     // 2.8 알림 활성화 여부 조회 api
     @GetMapping("/alarm")
-    public BaseResponse<Member> getAlarmEnabled(
-            @LoginMember Long memberId
-    ) {
-        return new BaseResponse<>(memberService.findAlarmStatus(memberId));
+    public BaseResponse<AlarmEnablesResponse> getAlarmEnabled(@LoginMember Long memberId) {
+        Member member = memberService.findById(memberId);
+
+        return new BaseResponse<>(new AlarmEnablesResponse(
+                member.getId(),
+                member.getToDoAlarmEnable(),
+                member.getDailyAlarmEnable(),
+                member.getRemindAlarmEnable()
+        ));
     }
 
 
