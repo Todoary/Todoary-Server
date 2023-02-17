@@ -94,13 +94,6 @@ public class MemberRepository {
         }
     }
 
-    public void deleteByProviderEmail(Provider provider, String email) {
-        em.createQuery("delete from Member m where m.providerAccount.provider = :provider and m.email = :email")
-                .setParameter("provider", provider)
-                .setParameter("email", email)
-                .executeUpdate();
-    }
-
     public void deleteByStatus() {
         LocalDateTime startDateTime = LocalDateTime.of(
                 LocalDate.now().minusDays(30)
@@ -117,18 +110,6 @@ public class MemberRepository {
                 .setParameter("startDateTime", startDateTime)
                 .setParameter("endDateTime", endDateTime)
                 .executeUpdate();
-    }
-
-    public Boolean existById(Long memberId) {
-        try {
-            em.createQuery("select m from Member m where m.id = :memberId and m.status = 1", Member.class)
-                    .setParameter("memberId", memberId)
-                    .getSingleResult();
-
-            return true;
-        } catch (NoResultException e) {
-            return false;
-        }
     }
 
     public Boolean existByRefreshToken(RefreshToken refreshToken) {
@@ -177,16 +158,6 @@ public class MemberRepository {
     public Optional<Member> findProfileById(Long memberId) {
         try {
             Member member = em.createQuery("select m.profileImgUrl, m.nickname, m.introduce, m.email from Member m ", Member.class)
-                    .getSingleResult();
-            return Optional.ofNullable(member);
-        } catch (NoResultException e) {
-            return Optional.ofNullable(null);
-        }
-    }
-
-    public Optional<Member> findAlarmStatus(Long memberId) {
-        try {
-            Member member = em.createQuery("select m.toDoAlarmEnable, m.dailyAlarmEnable, m.remindAlarmEnable from Member m ", Member.class)
                     .getSingleResult();
             return Optional.ofNullable(member);
         } catch (NoResultException e) {
