@@ -82,7 +82,7 @@ public class UserController {
                 awsS3Service.fileDelete(profile_img_fileKey.substring(54));
 
             String dirName = "todoary/users/info/" + user_id + "/profile-img";
-            String profile_img_url = awsS3Service.upload(multipartFile, dirName);
+            String profile_img_url = awsS3Service.upload(multipartFile, user_id);
             return new BaseResponse<>(userService.setProfileImg(user_id, profile_img_url));
         } catch (BaseException e) {
             ErrorLogWriter.writeExceptionWithAuthorizedRequest(e, request);

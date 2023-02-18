@@ -37,10 +37,6 @@ public class MemberService {
         return memberRepository.save(newMember);
     }
 
-    public Boolean existsById(Long memberId) {
-        return memberRepository.existById(memberId);
-    }
-
     public Member findById(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new TodoaryException(USERS_DELETED_USER));
@@ -49,7 +45,6 @@ public class MemberService {
     public Boolean existsByRefreshToken(RefreshToken refreshToken) {
         return memberRepository.existByRefreshToken(refreshToken);
     }
-
 
     public void validateMemberByRefreshToken(String refreshTokenCode) {
         Long memberId = Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshTokenCode));
@@ -88,7 +83,6 @@ public class MemberService {
     public List<Member> findAllDailyAlarmEnabled() {
         return memberRepository.findAllDailyAlarmEnabled();
     }
-
 
     @Transactional
     public void updateProfile(Long memberId, MemberProfileRequest request) {
@@ -129,15 +123,15 @@ public class MemberService {
         member.activeTermsStatus(isTermsEnable);
     }
 
-    @Transactional(readOnly = true)
-    public Member findAlarmStatus(Long memberId) {
-        return memberRepository.findAlarmStatus(memberId)
-                .orElseThrow(() -> new TodoaryException(USERS_DELETED_USER));
-    }
-
     @Transactional
     public void removeMember(Long memberId) {
         memberRepository.updateStatus(memberId);
     }
 
+    @Transactional
+    public void changeProfileImg(Long memberId, String newProfileImgUrl) {
+        Member member = findById(memberId);
+
+        member.changeProfileImg(newProfileImgUrl);
+    }
 }
