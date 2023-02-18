@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class Member extends BaseTimeEntity{
     private String password;
 
     @Column(name = "profile_img_url")
-    private String profileImgUrl;
+    private String profileImgUrl = "https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg";
 
     private String introduce;
 
@@ -50,7 +52,7 @@ public class Member extends BaseTimeEntity{
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Diary> diary = new ArrayList<>();
+    private List<Diary> diaries = new ArrayList<>();
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RemindAlarm remindAlarm;
@@ -64,7 +66,6 @@ public class Member extends BaseTimeEntity{
     private Boolean dailyAlarmEnable = true;
 
     private Integer status = 1;
-
 
     /*---Constructor---*/
 
@@ -97,11 +98,15 @@ public class Member extends BaseTimeEntity{
     }
 
     public void addDiary(Diary diary) {
-        this.diary.add(diary);
+        this.diaries.add(diary);
     }
 
     public void changeRemindAlarm(RemindAlarm remindAlarm) {
         this.remindAlarm = remindAlarm;
+    }
+
+    public void changeProfileImg(String newProfileImgUrl) {
+        this.profileImgUrl = newProfileImgUrl;
     }
 
     public void addCategory(Category category) {
