@@ -1,5 +1,6 @@
 package com.todoary.ms.src.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
@@ -24,13 +25,15 @@ public class TodoRequest {
     private String title;
 
     @JsonProperty("isAlarmEnabled")
-    private boolean isAlarmEnabled;
+    private Boolean isAlarmEnabled = false;
 
     @NotNull(message="EMPTY_TODO_DATE")
     @DateTimeFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate targetDate;
 
     @DateTimeFormat(pattern="HH:mm")
+    @JsonFormat(pattern = "HH:mm", timezone = "Asia/Seoul")
     private LocalTime targetTime;
 
     @NotNull(message="USERS_CATEGORY_NOT_EXISTS")
@@ -38,8 +41,8 @@ public class TodoRequest {
 
     public Todo toEntity(Member member, Category category) {
         return Todo.builder()
-                .title(getTitle())
-                .isAlarmEnabled(isAlarmEnabled())
+                .title(title)
+                .isAlarmEnabled(isAlarmEnabled)
                 .category(category)
                 .member(member)
                 .targetDate(targetDate)

@@ -3,6 +3,7 @@ package com.todoary.ms.src.web.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.todoary.ms.src.web.dto.PageResponse;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -34,4 +35,13 @@ class TestUtils {
         BaseResponse<List<T>> response = objectMapper.readValue(json, javaType);
         return response.getResult();
     }
+
+    static <T> PageResponse<T> getPageResponse(MvcResult result, Class<T> type, ObjectMapper objectMapper) throws JsonProcessingException, UnsupportedEncodingException {
+        JavaType pageType = objectMapper.getTypeFactory().constructParametricType(PageResponse.class, type);
+        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(BaseResponse.class, pageType);
+        String json = result.getResponse().getContentAsString();
+        BaseResponse<PageResponse<T>> response = objectMapper.readValue(json, javaType);
+        return response.getResult();
+    }
+
 }

@@ -7,10 +7,12 @@ import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
 import com.todoary.ms.src.service.JpaCategoryService;
+import com.todoary.ms.src.web.dto.PageResponse;
 import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +49,7 @@ public class JpaTodoService {
         todo.update(
                 request.getTitle(),
                 category,
-                request.isAlarmEnabled(),
+                request.getIsAlarmEnabled(),
                 request.getTargetDate(),
                 request.getTargetTime()
         );
@@ -99,6 +101,16 @@ public class JpaTodoService {
         Category category = findCategoryByIdAndMember(categoryId, member);
         return todoRepository.findByCategoryAndSatisfy(category, todoByCategoryCondition.getPredicate())
                 .stream().map(TodoResponse::from).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<TodoResponse> findTodoPageByCategory(Pageable pageable, Long memberId, Long categoryId) {
+        Member member = findMemberById(memberId);
+        Category category = findCategoryByIdAndMember(categoryId, member);
+        return PageResponse.of(
+                todoRepository
+                        .findSliceByCategoryAndSatisfy(pageable, category, todoByCategoryCondition.getPredicate())
+                        .map(TodoResponse::from));
     }
 
     @Transactional(readOnly = true)

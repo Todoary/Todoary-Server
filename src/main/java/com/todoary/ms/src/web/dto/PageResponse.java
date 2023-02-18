@@ -1,24 +1,22 @@
 package com.todoary.ms.src.web.dto;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
+import lombok.*;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class PageResponse<T> {
-    private List<T> content;
-    private PageInfo pageable;
+    private List<T> contents;
+    private PageInfo pageInfo;
 
-    public PageResponse(List<T> content, PageInfo pageable) {
-        this.content = content;
-        this.pageable = pageable;
+    private PageResponse(List<T> contents, PageInfo pageInfo) {
+        this.contents = contents;
+        this.pageInfo = pageInfo;
     }
 
-    public static <T> PageResponse<T> of(Page<T> pagedResult) {
+    public static <T> PageResponse<T> of(Slice<T> pagedResult) {
         return new PageResponse<>(
                 pagedResult.getContent(),
                 PageInfo.builder()
@@ -30,11 +28,12 @@ public class PageResponse<T> {
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @AllArgsConstructor
-    @Builder
+    @AllArgsConstructor @Builder
+    @Getter
+    @ToString
     public static class PageInfo {
         private int pageNumber; // 현재 페이지 번호 (0번부터 시작)
-        private boolean empty = false; // 빈 값인지
-        private boolean last = false; // 마지막 페이지인지
+        private boolean empty; // 빈 값인지
+        private boolean last; // 마지막 페이지인지
     }
 }

@@ -1,24 +1,17 @@
 package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.auth.model.PrincipalDetails;
-import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.service.JpaAuthService;
 import com.todoary.ms.src.service.MemberService;
-import com.todoary.ms.src.user.dto.PatchPasswordReq;
 import com.todoary.ms.src.web.dto.*;
-import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-
-import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithRequest;
 
 
 @Slf4j
@@ -103,7 +96,7 @@ public class JpaAuthController {
      * @return 결과 메세지
      */
     @PostMapping("/signup")
-    public BaseResponse<String> joinNormalMember(@RequestBody MemberJoinRequest memberJoinRequest) {
+    public BaseResponse<BaseResponseStatus> joinNormalMember(@RequestBody MemberJoinRequest memberJoinRequest) {
         String encodedPassword = memberService.encodePassword(memberJoinRequest.getPassword());
         MemberJoinParam memberJoinParam = new MemberJoinParam(
                 memberJoinRequest.getName(),
@@ -111,7 +104,7 @@ public class JpaAuthController {
                 memberJoinRequest.getEmail(),
                 encodedPassword,
                 "ROLE_USER",
-                memberJoinRequest.isTermsEnable()
+                memberJoinRequest.getIsTermsEnable()
         );
         memberService.join(memberJoinParam);
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);

@@ -8,13 +8,16 @@ import com.todoary.ms.src.repository.CategoryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
 import com.todoary.ms.src.service.todo.JpaTodoService;
+import com.todoary.ms.src.web.dto.PageResponse;
+import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import com.todoary.ms.src.web.dto.TodoRequest;
 import com.todoary.ms.src.web.dto.TodoResponse;
-import com.todoary.ms.src.web.dto.TodoAlarmRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -265,12 +268,12 @@ class JpaTodoServiceTest {
                 LocalTime.of(9, 45),
                 // 시간 없는 건 가장 나중으로 정렬된다
                 null,
-                LocalTime.of(22,15)};
+                LocalTime.of(22, 15)};
         List<Long> todoIds = IntStream.range(0, 5)
                 .mapToObj(i -> todoService.saveTodo(member.getId(), TodoRequest.builder()
                         .targetDate(dates[i])
                         .targetTime(times[i])
-                                .categoryId(category.getId())
+                        .categoryId(category.getId())
                         .build()))
                 .collect(Collectors.toList());
         // when
@@ -279,6 +282,43 @@ class JpaTodoServiceTest {
         assertThat(todos)
                 .extracting(TodoResponse::getTodoId)
                 .containsExactly(todoIds.get(2), todoIds.get(1), todoIds.get(3), todoIds.get(0), todoIds.get(4));
+    }
+
+    @Test
+    void 카테고리별_투두_조회시_페이징_적용() {
+        // given
+        Member member = createMember();
+        Category category = createCategoryWithTitle(member, "category");
+        LocalDate now = LocalDate.now();
+        // 5개 생성
+        List<Long> todoIds = IntStream.range(0, 5)
+                .mapToObj(i -> todoService.saveTodo(member.getId(), TodoRequest.builder()
+                        .targetDate(now)
+                        .targetTime(LocalTime.of(14, 10))
+                        .categoryId(category.getId())
+                        .build()))
+                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(0, 2);
+        // when
+        // 첫번째 페이지
+        PageResponse<TodoResponse> firstPage = todoService.findTodoPageByCategory(pageable, member.getId(), category.getId());
+        PageResponse<TodoResponse> secondPage = todoService.findTodoPageByCategory(pageable.next(), member.getId(), category.getId());
+        PageResponse<TodoResponse> lastPage = todoService.findTodoPageByCategory(pageable.next().next(), member.getId(), category.getId());
+        PageResponse<TodoResponse> emptyPage = todoService.findTodoPageByCategory(pageable.next().next().next(), member.getId(), category.getId());
+        List<PageResponse<TodoResponse>> pages = List.of(firstPage, secondPage, lastPage, emptyPage);
+        // then
+        List<Integer> numsOfElements = List.of(2, 2, 1, 0);
+        List<Boolean> empty = List.of(false, false, false, true);
+        List<Boolean> last = List.of(false, false, true, true);
+
+        assertThat(pages).map(page -> page.getContents().size()).containsExactlyElementsOf(numsOfElements);
+        assertThat(pages).map(page -> page.getPageInfo().isEmpty()).containsExactlyElementsOf(empty);
+        assertThat(pages).map(page -> page.getPageInfo().isLast()).containsExactlyElementsOf(last);
+        // 날짜와 시간이 같은 투두를 생성했으므로 생성 순서대로 정렬되어 조회됨
+        assertThat(pages)
+                .flatMap(page -> page.getContents().stream()
+                        .map(TodoResponse::getTodoId).collect(Collectors.toList()))
+                .containsExactlyElementsOf(todoIds);
     }
 
     @Test
