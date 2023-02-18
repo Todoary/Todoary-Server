@@ -122,4 +122,25 @@ class JpaMemberControllerTest {
         MemberProfileImgUrlResponse response = getResponseObject(result, MemberProfileImgUrlResponse.class);
         assertThat(response.getProfileImgUrl()).isEqualTo("mockingImgUrl");
     }
+
+    @Test
+    @WithTodoaryMockUser
+    public void 로그아웃_테스트() throws Exception {
+        //given
+
+        //when
+        MvcResult result = mockMvc.perform(
+                        post("/jpa/member/signout"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        //then
+        assertThat(getResponseObject(result)).isEqualTo(BaseResponseStatus.SUCCESS);
+    }
+
+    String createTestImage(String fileName, String contentType, String directory) throws IOException {
+        File testImage = File.createTempFile(fileName, "." + contentType, new File(directory));
+        testImage.deleteOnExit();
+        return testImage.getPath();
+    }
 }

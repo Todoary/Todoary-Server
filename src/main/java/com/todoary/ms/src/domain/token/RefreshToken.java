@@ -38,10 +38,6 @@ public class RefreshToken extends BaseTimeEntity {
     }
 
     /*---Method---*/
-    public void removeAssociations() {
-        this.member.removeRefreshToken();
-    }
-
     public Boolean belongs(Member member) {
         if (this.member == member) {
             return true;

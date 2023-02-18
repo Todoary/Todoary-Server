@@ -134,4 +134,17 @@ public class MemberService {
 
         member.changeProfileImg(newProfileImgUrl);
     }
+
+    @Transactional
+    public void removeTokens(Long memberId) {
+        Member member = findById(memberId);
+
+        member.removeRefreshToken();
+        member.removeFcmToken();
+    }
+
+    public String getProfileImgUrlById(Long memberId) {
+        return findById(memberId)
+                .getProfileImgUrl();
+    }
 }
