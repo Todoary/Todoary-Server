@@ -38,7 +38,4 @@ public class FcmToken extends BaseTimeEntity {
     }
 
     /*---Method---*/
-    public void removeAssociations() {
-        this.member.removeFcmToken();
-    }
 }

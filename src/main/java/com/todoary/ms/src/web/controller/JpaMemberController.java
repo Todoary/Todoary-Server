@@ -2,6 +2,7 @@ package com.todoary.ms.src.web.controller;
 
 
 import com.todoary.ms.src.config.auth.LoginMember;
+import com.todoary.ms.src.constant.MemberConstants;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.s3.AwsS3Service;
 import com.todoary.ms.src.s3.dto.PostProfileImgRes;
@@ -30,8 +31,6 @@ public class JpaMemberController {
     private final MemberService memberService;
     private final AwsS3Service awsS3Service;
 
-    private final String MEMBER_DEFAULT_PROFILE_IMG_URL = "https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg";
-
     // 2.1 닉네임 및 한줄소개 변경 api
     @PatchMapping("/profile")
     public BaseResponse<BaseResponseStatus> patchProfile(
@@ -47,17 +46,15 @@ public class JpaMemberController {
     @PatchMapping("/profile-img")
     public BaseResponse<MemberProfileImgUrlResponse> uploadProfileImg(
             @LoginMember Long memberId,
-            @RequestPart("profile-img") MultipartFile multipartFile) {
-        String memberProfileImgUrl = memberService.findById(memberId)
-                .getProfileImgUrl();
-        System.out.println("default : "+memberProfileImgUrl);
+            @RequestPart("profile-img") MultipartFile multipartFile
+    ) {
+        String memberProfileImgUrl = memberService.getProfileImgUrlById(memberId);
 
-        if (!memberProfileImgUrl.equals(MEMBER_DEFAULT_PROFILE_IMG_URL)) {
+        if (!memberProfileImgUrl.equals(MemberConstants.MEMBER_DEFAULT_PROFILE_IMG_URL)) {
             awsS3Service.fileDelete(memberProfileImgUrl.substring(54));
         }
 
         String newProfileImgUrl = awsS3Service.upload(multipartFile, memberId);
-        System.out.println("new : "+newProfileImgUrl);
         memberService.changeProfileImg(memberId, newProfileImgUrl);
         return new BaseResponse<>(new MemberProfileImgUrlResponse(memberId, newProfileImgUrl));
     }
@@ -82,6 +79,11 @@ public class JpaMemberController {
     }
 
     // 2.6 로그아웃 api
+    @PostMapping("/signout")
+    public BaseResponse<BaseResponseStatus> logout(@LoginMember Long memberId) {
+        memberService.removeTokens(memberId);
+        return BaseResponse.from(SUCCESS);
+    }
 
     // 2.7.1 Todoary 알림 활성화 api
     @PatchMapping("/alarm/todo")
