@@ -18,21 +18,7 @@ public class DiaryRepositoryTest {
     @Autowired
     DiaryRepository diaryRepository;
 
-    /**
-    @Test
-    void Diary_저장_조회() {
-        // given
-        Member member = createMember();
-        String expectedTitle = "title1";
-        String expectedContent="content1";
-        LocalDate createdDate=diaryRepository.save(new Diary(expectedTitle,expectedContent,member)).getCreatedDate();
-        // when
-        Diary diary = diaryRepository.findByDate(createdDate).get();
-        // then
-        assertThat(diary.getTitle()).isEqualTo(expectedTitle);
-        assertThat(diary.getContent()).isEqualTo(expectedContent);
-    }
-    */
+
 
    
     Member createMember() {
