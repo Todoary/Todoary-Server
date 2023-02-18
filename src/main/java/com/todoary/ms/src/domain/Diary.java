@@ -39,6 +39,8 @@ public class Diary extends BaseTimeEntity{
         setMember(member);
     }
 
+
+
     /*---Setter---*/
     private void setMember(Member member) {
         if (this.member != null) {
@@ -49,10 +51,13 @@ public class Diary extends BaseTimeEntity{
     }
 
     /*---Method---*/
-    public void update(String title, String content, LocalDate createdDate) {
+    public void update(String title, String content) {
         this.title = title;
         this.content = content;
-        this.createdDate = createdDate;
+    }
+
+    public void updateDate(LocalDate createdDate) {
+        this.createdDate=createdDate;
     }
 
     public void removeAssociations() {

@@ -1,4 +1,4 @@
-package com.todoary.ms.src.service;
+package com.todoary.ms.src.service.diary;
 
 
 import com.todoary.ms.src.domain.Diary;
@@ -7,7 +7,9 @@ import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.DiaryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.DiaryRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.todoary.ms.src.web.dto.DiaryResponse;
+import com.todoary.ms.src.web.dto.StickerResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +18,10 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.util.BaseResponseStatus.USERS_DIARY_NOT_EXISTS;
+import static com.todoary.ms.util.BaseResponseStatus.USERS_EMPTY_USER_ID;
 
+@RequiredArgsConstructor
 @Service
 public class JpaDiaryService
 {
@@ -26,24 +30,18 @@ public class JpaDiaryService
     private final DiaryRepository diaryRepository;
     private final MemberRepository memberRepository;
 
+    private final StickerStartingTodayCondition stickerByDairyCondition;
 
-    @Autowired
-    public JpaDiaryService(DiaryRepository diaryRepository, MemberRepository memberRepository) {
-        this.diaryRepository = diaryRepository;
-        this.memberRepository = memberRepository;
-    }
+
 
     @Transactional
-    public Long createOrModify(Long memberId, LocalDate createdDate, DiaryRequest request) {
+    public void createOrModify(Long memberId, DiaryRequest request, LocalDate createdDate) {
         Member member = findMemberById(memberId);
-        Diary target = findDiaryByDate(createdDate, member);
-        String nextTitle = request.getTitle();
-        String nextContent = request.getContent();
-        if (target.getCreatedDate().equals(createdDate)) {
-            target.update(nextTitle,nextContent, createdDate);
-            return memberId;
-        }
-        return diaryRepository.save(request.toEntity(member)).getId();
+        Diary diary = findDiaryByDate(createdDate, member);
+        diary.update(
+                request.getTitle(),
+                request.getContent()
+        );
     }
 
     @Transactional
@@ -55,13 +53,16 @@ public class JpaDiaryService
     }
 
     @Transactional(readOnly = true)
-    public Diary findDiary(LocalDate createdDate, Long memberId) {
+    public DiaryResponse findDiary(LocalDate createdDate, Long memberId) {
         Member member = findMemberById(memberId);
         Diary diary = diaryRepository.findByDate(createdDate)
                 .orElseThrow(() -> new TodoaryException(USERS_DIARY_NOT_EXISTS));
         if (!diary.has(member))
             throw new TodoaryException(USERS_DIARY_NOT_EXISTS);
-        return diary;
+        return (DiaryResponse) member.getDiary()
+                .stream().map(d -> new DiaryResponse(
+                d.getId(), d.getTitle(), d.getContent(), d.getCreatedDate())
+        );
     }
 
 
@@ -92,4 +93,13 @@ public class JpaDiaryService
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new TodoaryException(USERS_EMPTY_USER_ID));
     }
+
+    @Transactional(readOnly = true)
+    public List<StickerResponse> findStickersByDiary(Long memberId, LocalDate createdDate) {
+        Member member = findMemberById(memberId);
+        Diary diary = findDiaryByDate(createdDate, member);
+        return diaryRepository.findStickersByDiary(diary, stickerByDairyCondition.getPredicate())
+                .stream().map(StickerResponse::from).collect(Collectors.toList());
+    }
+
 }

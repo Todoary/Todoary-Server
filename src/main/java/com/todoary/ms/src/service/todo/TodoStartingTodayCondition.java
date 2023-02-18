@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 import static com.todoary.ms.src.domain.QTodo.todo;
 
+
 @Component
 public class TodoStartingTodayCondition implements TodoByCategoryCondition {
     @Override

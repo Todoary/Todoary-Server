@@ -50,7 +50,7 @@ public class Member extends BaseTimeEntity{
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Diary> diaries = new ArrayList<>();
+    private List<Diary> diary = new ArrayList<>();
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RemindAlarm remindAlarm;
@@ -97,7 +97,7 @@ public class Member extends BaseTimeEntity{
     }
 
     public void addDiary(Diary diary) {
-        this.diaries.add(diary);
+        this.diary.add(diary);
     }
 
     public void changeRemindAlarm(RemindAlarm remindAlarm) {
@@ -142,7 +142,7 @@ public class Member extends BaseTimeEntity{
     }
 
     public void removeDiary(Diary diary) {
-        this.diaries.remove(diary);
+        this.diary.remove(diary);
     }
     /*---Method---*/
     public boolean hasCategoryNamed(String title) {

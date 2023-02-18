@@ -1,13 +1,10 @@
 package com.todoary.ms.src.web.dto;
 
 
-
 import com.todoary.ms.src.domain.Diary;
 import com.todoary.ms.src.domain.Member;
-import io.swagger.annotations.Info;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
-
 
 import static com.todoary.ms.util.ColumnLengthInfo.DIARY_TITLE_MAX_LENGTH;
 
@@ -32,4 +29,6 @@ public class DiaryRequest {
     public Diary toEntity(Member member) {
         return new Diary(title, content,member);
     }
+
+
 }

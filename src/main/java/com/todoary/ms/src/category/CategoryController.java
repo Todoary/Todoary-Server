@@ -51,6 +51,8 @@ public class CategoryController {
         }
     }
 
+
+
     /**
      * 4.2 카테고리 수정 api
      * [PATCH] /category/:categoryId
