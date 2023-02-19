@@ -7,6 +7,7 @@ import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,9 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${profile-image.default-url}")
+    private String defaultProfileImageUrl;
+
     @Transactional
     public Long join(MemberJoinParam memberJoinParam) {
         Member newMember = Member.builder()
@@ -33,6 +37,7 @@ public class MemberService {
                 .role(memberJoinParam.getRole())
                 .providerAccount(new ProviderAccount(Provider.NONE, "none"))
                 .isTermsEnable(memberJoinParam.isTermsEnable())
+                .profileImgUrl(defaultProfileImageUrl)
                 .build();
         init(newMember);
         return memberRepository.save(newMember);
@@ -99,9 +104,9 @@ public class MemberService {
     }
 
     @Transactional
-    public Member findProfileById(Long memberId) {
-        return memberRepository.findProfileById(memberId)
-                .orElseThrow(() -> new TodoaryException(USERS_DELETED_USER));
+    public MemberResponse findProfileById(Long memberId) {
+        return MemberResponse.from(memberRepository.findProfileById(memberId)
+                .orElseThrow(() -> new TodoaryException(USERS_DELETED_USER)));
     }
 
     @Transactional

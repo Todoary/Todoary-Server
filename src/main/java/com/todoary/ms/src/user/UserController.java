@@ -109,7 +109,7 @@ public class UserController {
                 return new BaseResponse<>("삭제에 성공하였습니다.");
 
             filekey = userProvider.retrieveById(user_id).getProfile_img_url().substring(54);
-            result = awsS3Service.fileDelete(filekey);
+            awsS3Service.fileDelete(filekey);
             userService.modifyProfileImgToDefault(user_id);
             return new BaseResponse<>("삭제에 성공하였습니다.");
         } catch (BaseException e) {
