@@ -47,7 +47,7 @@ public class JpaTestController {
         CategoryRequest request = new CategoryRequest(generateNumeralOrLetters(CATEGORY_TITLE_MAX_LENGTH), new Random().nextInt(10) + 1);
         CategorySaveResponse response = categoryController.createCategory(testMember.memberId, request).getResult();
         testMember.categoryId = response.getCategoryId();
-        testMember.category = request;
+        testMember.category = categoryController.retrieveCategory(testMember.memberId).getResult();
     }
 
     private void saveRandomTodo(TestMemberDto testMember) {
@@ -97,7 +97,7 @@ public class JpaTestController {
         private Long categoryId;
         private Long todoId;
         private MemberJoinRequest member;
-        private CategoryRequest category;
+        private CategoryResponse[] category;
         private TodoRequest todo;
 
         public TestMemberDto(Long memberId, MemberJoinRequest member, SigninResponse token) {

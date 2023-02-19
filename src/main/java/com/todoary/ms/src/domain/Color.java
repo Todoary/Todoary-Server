@@ -12,4 +12,8 @@ import javax.persistence.Embeddable;
 public class Color {
     @Column(name = "color", nullable = false)
     private Integer code = 1;
+
+    public static Color from(int code) {
+        return new Color(code);
+    }
 }
