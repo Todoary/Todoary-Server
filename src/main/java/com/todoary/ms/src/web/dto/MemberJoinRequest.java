@@ -12,5 +12,6 @@ public class MemberJoinRequest {
     private String nickname;
     private String email;
     private String password;
-    private Boolean isTermsEnable;
+    @Builder.Default
+    private Boolean isTermsEnable = true;
 }

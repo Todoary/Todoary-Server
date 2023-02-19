@@ -1,7 +1,6 @@
 package com.todoary.ms.src.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Todo;
@@ -24,7 +23,7 @@ public class TodoRequest {
     @Length(max = TODO_TITLE_MAX_LENGTH, message="TODO_TITLE_TOO_LONG")
     private String title;
 
-    @JsonProperty("isAlarmEnabled")
+    @Builder.Default
     private Boolean isAlarmEnabled = false;
 
     @NotNull(message="EMPTY_TODO_DATE")
