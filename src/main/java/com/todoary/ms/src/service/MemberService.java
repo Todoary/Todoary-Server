@@ -34,7 +34,12 @@ public class MemberService {
                 .providerAccount(new ProviderAccount(Provider.NONE, "none"))
                 .isTermsEnable(memberJoinParam.isTermsEnable())
                 .build();
+        init(newMember);
         return memberRepository.save(newMember);
+    }
+
+    private void init(Member newMember) {
+        Category.createInitialCategoryOf(newMember);
     }
 
     public Member findById(Long memberId) {

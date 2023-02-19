@@ -3,12 +3,9 @@ package com.todoary.ms.src.web.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.todo.JpaTodoService;
-import com.todoary.ms.src.web.dto.TodoSaveResponse;
 import com.todoary.ms.src.web.controller.JpaTodoController.MarkTodoRequest;
 import com.todoary.ms.src.web.controller.JpaTodoController.PinTodoRequest;
-import com.todoary.ms.src.web.dto.TodoAlarmRequest;
-import com.todoary.ms.src.web.dto.TodoRequest;
-import com.todoary.ms.src.web.dto.TodoResponse;
+import com.todoary.ms.src.web.dto.*;
 import com.todoary.ms.util.BaseResponseStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +13,9 @@ import org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfig
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,8 +26,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 import static com.todoary.ms.src.web.controller.JpaTodoControllerTest.REQUEST_URL.*;
-import static com.todoary.ms.src.web.controller.TestUtils.getResponseObject;
-import static com.todoary.ms.src.web.controller.TestUtils.getResponseObjectList;
+import static com.todoary.ms.src.web.controller.TestUtils.*;
 import static com.todoary.ms.util.BaseResponseStatus.*;
 import static com.todoary.ms.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
 import static com.todoary.ms.util.ColumnLengthInfo.getGraphemeLength;
@@ -311,6 +310,53 @@ class JpaTodoControllerTest {
 
     @Test
     @WithTodoaryMockUser
+    void 투두_카테고리별_조회시_페이징_적용O() throws Exception {
+        // given
+        Long categoryId = 5L;
+        List<TodoResponse> todos = List.of(
+                TodoResponse.builder().categoryId(categoryId).build(),
+                TodoResponse.builder().categoryId(categoryId).build()
+        );
+        int page = 1;
+        int size = 2;
+        PageResponse<TodoResponse> expected = PageResponse.of(new SliceImpl<>(todos, PageRequest.of(page, size), true));
+        given(todoService.findTodoPageByCategory(any(), any(), eq(categoryId))).willReturn(expected);
+        // when
+        MvcResult result = mvc.perform(get(RETRIEVE_CATEGORY_PAGE, categoryId)
+                                               .param("page", String.valueOf(page))
+                                               .param("size", String.valueOf(size)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        PageResponse<TodoResponse> response = getPageResponse(result, TodoResponse.class, objectMapper);
+        // then
+        assertThat(response.getContents()).containsExactlyInAnyOrderElementsOf(todos);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 투두_카테고리별_페이징으로_조회시_파라미터없으면_기본값() throws Exception {
+        // given
+        Long categoryId = 5L;
+        List<TodoResponse> todos = List.of(
+                TodoResponse.builder().categoryId(categoryId).build(),
+                TodoResponse.builder().categoryId(categoryId).build()
+        );
+        Pageable defaultPageable = PageRequest.of(0, 20);
+        PageResponse<TodoResponse> expected = PageResponse.of(new SliceImpl<>(todos, defaultPageable, true));
+        given(todoService.findTodoPageByCategory(any(), any(), eq(categoryId))).willReturn(expected);
+        // when
+        MvcResult result = mvc.perform(get(RETRIEVE_CATEGORY_PAGE, categoryId))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        PageResponse<TodoResponse> response = getPageResponse(result, TodoResponse.class, objectMapper);
+        // then
+        assertThat(response.getContents()).containsExactlyInAnyOrderElementsOf(todos);
+    }
+
+    @Test
+    @WithTodoaryMockUser
     void 투두_체크박스_체크O() throws Exception {
         // given
         MarkTodoRequest request = MarkTodoRequest.builder()
@@ -571,11 +617,12 @@ class JpaTodoControllerTest {
     }
 
     static class REQUEST_URL {
-        private static final String BASE = "/v2/todo";
+        private static final String BASE = "/jpa/todo";
         public static final String SAVE = BASE;
         public static final String MODIFY = BASE + "/{todoId}";
         public static final String RETRIEVE_DATE = BASE + "/date/{date}";
         public static final String RETRIEVE_CATEGORY = BASE + "/category/{categoryId}";
+        public static final String RETRIEVE_CATEGORY_PAGE = BASE + "/category/{categoryId}/page";
         public static final String DELETE = BASE + "/{todoId}";
         public static final String MARK = BASE + "/check";
         public static final String PIN = BASE + "/pin";

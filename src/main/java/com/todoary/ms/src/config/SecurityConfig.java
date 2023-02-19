@@ -76,6 +76,8 @@ public class SecurityConfig {
                 // h2 console
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/favicon.ico").permitAll()
+                // for test
+                .antMatchers("/jpa/test").permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()

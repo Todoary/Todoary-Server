@@ -1,13 +1,20 @@
 package com.todoary.ms.src.config;
 
+import com.fasterxml.classmate.TypeResolver;
 import com.todoary.ms.src.config.auth.LoginMember;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.AlternateTypeRules;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.AuthorizationScope;
@@ -28,6 +35,12 @@ public class SwaggerConfig {
 
     @Value("${swagger.host}")
     private String hostUrl;
+    private final TypeResolver typeResolver;
+
+    @Autowired
+    public SwaggerConfig(TypeResolver typeResolver) {
+        this.typeResolver = typeResolver;
+    }
 
     private ApiInfo swaggerInfo() {
         return new ApiInfoBuilder().title("Todoary API")
@@ -45,6 +58,8 @@ public class SwaggerConfig {
                 .apiInfo(swaggerInfo())
                 .securityContexts(List.of(securityContext()))
                 .securitySchemes(List.of(apiKey()))
+                .alternateTypeRules(
+                        AlternateTypeRules.newRule(typeResolver.resolve(Pageable.class), typeResolver.resolve(PageDto.class)))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.todoary.ms.src"))
                 .paths(PathSelectors.any())
@@ -81,5 +96,15 @@ public class SwaggerConfig {
         Set<String> produces = new HashSet<>();
         produces.add("application/json;charset=UTF-8");
         return produces;
+    }
+
+    @Getter
+    @ApiModel
+    private static class PageDto {
+        @ApiModelProperty(value = "페이지 번호(0..N)", example = "0")
+        private int page;
+        @ApiModelProperty(value = "페이지 크기", example = "20")
+        private int size;
+
     }
 }

@@ -18,7 +18,7 @@ import static com.todoary.ms.util.BaseResponseStatus.SUCCESS;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v2/category")
+@RequestMapping("/jpa/category")
 public class JpaCategoryController {
 
     private final JpaCategoryService categoryService;

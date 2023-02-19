@@ -35,6 +35,7 @@ class CategoryRepositoryTest {
         // then
         assertThat(found.getTitle()).isEqualTo(title);
         assertThat(found.getColor()).isEqualTo(color);
+        assertThat(member.getCategories()).hasSize(1);
     }
 
     @Test
