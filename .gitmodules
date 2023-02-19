@@ -1,3 +1,4 @@
 [submodule "config"]
 	path = config
 	url = https://github.com/Todoary/Server-Config.git
+	branch = master
