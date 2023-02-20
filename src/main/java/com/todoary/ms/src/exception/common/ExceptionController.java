@@ -1,5 +1,6 @@
 package com.todoary.ms.src.exception.common;
 
+import com.amazonaws.AmazonServiceException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
@@ -63,6 +64,12 @@ public class ExceptionController {
         }
         return ResponseEntity.ok()
                 .body(BaseResponse.from(ILLEGAL_ARGUMENT));
+    }
+
+    @ExceptionHandler(AmazonServiceException.class)
+    private ResponseEntity<BaseResponse<BaseResponseStatus>> handleS3Request(AmazonServiceException exception) {
+        return ResponseEntity.ok()
+                .body(BaseResponse.from(AWS_ACCESS_DENIED));
     }
 
     @ExceptionHandler({Exception.class})

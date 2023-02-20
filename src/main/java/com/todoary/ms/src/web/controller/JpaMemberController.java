@@ -2,22 +2,19 @@ package com.todoary.ms.src.web.controller;
 
 
 import com.todoary.ms.src.config.auth.LoginMember;
-import com.todoary.ms.src.constant.MemberConstants;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.s3.AwsS3Service;
-import com.todoary.ms.src.s3.dto.PostProfileImgRes;
 import com.todoary.ms.src.service.MemberService;
-import com.todoary.ms.src.web.dto.*;
-import com.todoary.ms.util.BaseException;
+import com.todoary.ms.src.web.dto.MemberProfileImgUrlResponse;
+import com.todoary.ms.src.web.dto.MemberProfileRequest;
+import com.todoary.ms.src.web.dto.MemberResponse;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
-import com.todoary.ms.util.ErrorLogWriter;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -49,11 +46,7 @@ public class JpaMemberController {
             @RequestPart("profile-img") MultipartFile multipartFile
     ) {
         String memberProfileImgUrl = memberService.getProfileImgUrlById(memberId);
-
-        if (!memberProfileImgUrl.equals(MemberConstants.MEMBER_DEFAULT_PROFILE_IMG_URL)) {
-            awsS3Service.fileDelete(memberProfileImgUrl.substring(54));
-        }
-
+        awsS3Service.fileDelete(memberProfileImgUrl);
         String newProfileImgUrl = awsS3Service.upload(multipartFile, memberId);
         memberService.changeProfileImg(memberId, newProfileImgUrl);
         return new BaseResponse<>(new MemberProfileImgUrlResponse(memberId, newProfileImgUrl));
@@ -67,7 +60,7 @@ public class JpaMemberController {
 
     // 2.4 프로필 조회 api
     @GetMapping("")
-    public BaseResponse<Member> retrieveMember(@LoginMember Long memberId) {
+    public BaseResponse<MemberResponse> retrieveMember(@LoginMember Long memberId) {
         return new BaseResponse<>(memberService.findProfileById(memberId));
     }
 
