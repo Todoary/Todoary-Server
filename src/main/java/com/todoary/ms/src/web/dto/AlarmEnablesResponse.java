@@ -1,4 +1,4 @@
-package com.todoary.ms.src.web.controller;
+package com.todoary.ms.src.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
