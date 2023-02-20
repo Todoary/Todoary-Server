@@ -1,14 +1,11 @@
 package com.todoary.ms.src.s3;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.todoary.ms.src.exception.common.TodoaryException;
-import com.todoary.ms.util.BaseException;
-import com.todoary.ms.util.BaseResponseStatus;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,23 +13,32 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
-import static com.todoary.ms.util.BaseResponseStatus.AWS_ACCESS_DENIED;
+import static com.todoary.ms.util.BaseResponseStatus.AWS_FILE_CONVERT_FAIL;
 import static com.todoary.ms.util.BaseResponseStatus.AWS_FILE_NOT_FOUND;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class AwsS3Service {
     private final AmazonS3Client amazonS3Client;
 
-    private final String MEMBER_PROFILE_IMG_FILE_PATH_FORMAT = "todoary/users/info/%d/profile-img";
-
+    @Value("${profile-image.default-url}")
+    private String defaultImageUrl;
+    @Value("${profile-image.path}")
+    private String MEMBER_PROFILE_IMG_FILE_PATH_FORMAT;
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
+    private final Pattern fileNamePattern;
+
+    @Autowired
+    public AwsS3Service(AmazonS3Client amazonS3Client,
+                        @Value("${profile-image.filename-pattern}") String fileNamePattern) {
+        this.amazonS3Client = amazonS3Client;
+        this.fileNamePattern = Pattern.compile(fileNamePattern);
+    }
 
     public String upload(MultipartFile multipartFile, Long memberId) {
         File uploadFile = convert(multipartFile);
@@ -54,22 +60,26 @@ public class AwsS3Service {
     }
 
     // delete file
-    public int fileDelete(String fileName) {
-        log.info("file name : "+ fileName);
-
-        try {
-            boolean isFileExists = amazonS3Client.doesObjectExist(bucket, fileName);
-            if (isFileExists == false) {
-                throw new TodoaryException(AWS_FILE_NOT_FOUND);
-            }
-
-            log.info((fileName).replace(File.separatorChar, '/'));
-            amazonS3Client.deleteObject(this.bucket, fileName);
-
-            return 1;
-        } catch (AmazonServiceException exception) {
-            throw new TodoaryException(AWS_ACCESS_DENIED);
+    public boolean fileDelete(String fileUrl) {
+        if (fileUrl == null || fileUrl.equals(defaultImageUrl)) {
+            return false;
         }
+        String fileName = getFileName(fileUrl);
+        if (!amazonS3Client.doesObjectExist(bucket, fileName)) {
+            throw new TodoaryException(AWS_FILE_NOT_FOUND);
+        }
+        log.info((fileName).replace(File.separatorChar, '/'));
+        amazonS3Client.deleteObject(this.bucket, fileName);
+        return true;
+    }
+
+    public String getFileName(String fileUrl) {
+        Matcher matcher = fileNamePattern.matcher(fileUrl);
+        if (!matcher.matches()) {
+            throw new TodoaryException(AWS_FILE_NOT_FOUND);
+        }
+        log.info("fileName: {}", matcher.group(2));
+        return matcher.group(2);
     }
 
     // 로컬에 저장된 이미지 지우기

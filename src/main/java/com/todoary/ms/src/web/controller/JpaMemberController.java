@@ -2,22 +2,17 @@ package com.todoary.ms.src.web.controller;
 
 
 import com.todoary.ms.src.config.auth.LoginMember;
-import com.todoary.ms.src.constant.MemberConstants;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.s3.AwsS3Service;
-import com.todoary.ms.src.s3.dto.PostProfileImgRes;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.*;
-import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
-import com.todoary.ms.util.ErrorLogWriter;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -49,17 +44,14 @@ public class JpaMemberController {
             @RequestPart("profile-img") MultipartFile multipartFile
     ) {
         String memberProfileImgUrl = memberService.getProfileImgUrlById(memberId);
-
-        if (!memberProfileImgUrl.equals(MemberConstants.MEMBER_DEFAULT_PROFILE_IMG_URL)) {
-            awsS3Service.fileDelete(memberProfileImgUrl.substring(54));
-        }
-
+        awsS3Service.fileDelete(memberProfileImgUrl);
         String newProfileImgUrl = awsS3Service.upload(multipartFile, memberId);
         memberService.changeProfileImg(memberId, newProfileImgUrl);
         return new BaseResponse<>(new MemberProfileImgUrlResponse(memberId, newProfileImgUrl));
     }
 
     // 2.3 프로필 사진 삭제 api
+
     /**
      * API 2.3은 멤버 회원 탈퇴 시에 AWS S3에 저장된 프로필 사진을 삭제하기 위함.
      * 따라서 별도의 API 대신 memberService에 로직 추가하는 것으로 대체.
@@ -67,13 +59,16 @@ public class JpaMemberController {
 
     // 2.4 프로필 조회 api
     @GetMapping("")
-    public BaseResponse<Member> retrieveMember(@LoginMember Long memberId) {
-        return new BaseResponse<>(memberService.findProfileById(memberId));
+    public BaseResponse<MemberResponse> retrieveMemberProfile(
+            @LoginMember Long memberId) {
+        return new BaseResponse<>(memberService.findMemberProfile(memberId));
     }
 
     // 2.5 유저 삭제 api
     @PatchMapping("/status")
-    public BaseResponse<BaseResponseStatus> patchMemberStatus(@LoginMember Long memberId) {
+    public BaseResponse<BaseResponseStatus> patchMemberStatus(
+            @LoginMember Long memberId
+    ) {
         memberService.removeMember(memberId);
         return BaseResponse.from(SUCCESS);
     }
@@ -94,7 +89,6 @@ public class JpaMemberController {
         memberService.activeTodoAlarm(memberId, request.getToDoAlarmEnable());
         return BaseResponse.from(SUCCESS);
     }
-
 
     // 2.7.2 하루기록 알림 활성화 api
     @PatchMapping("/alarm/diary")

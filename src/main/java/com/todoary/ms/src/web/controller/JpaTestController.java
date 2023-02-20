@@ -2,6 +2,15 @@ package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.web.dto.*;
+import com.todoary.ms.src.web.dto.category.CategoryRequest;
+import com.todoary.ms.src.web.dto.category.CategoryResponse;
+import com.todoary.ms.src.web.dto.category.CategorySaveResponse;
+import com.todoary.ms.src.web.dto.diary.DiaryRequest;
+import com.todoary.ms.src.web.dto.diary.DiaryResponse;
+import com.todoary.ms.src.web.dto.diary.StickerRequest;
+import com.todoary.ms.src.web.dto.diary.StickersRequest;
+import com.todoary.ms.src.web.dto.todo.TodoRequest;
+import com.todoary.ms.src.web.dto.todo.TodoSaveResponse;
 import com.todoary.ms.util.BaseResponse;
 import lombok.*;
 import org.springframework.context.annotation.Profile;
@@ -11,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Random;
 
 import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
@@ -27,11 +37,15 @@ public class JpaTestController {
     private final JpaCategoryController categoryController;
     private final JwtTokenProvider jwtTokenProvider;
 
+    private final JpaDiaryController diaryController;
+
     @GetMapping("")
     public BaseResponse<TestMemberDto> joinTestMember() {
         TestMemberDto testMember = saveRandomMember();
         saveRandomCategory(testMember);
         saveRandomTodo(testMember);
+        saveRandomDiary(testMember);
+        saveRandomSticker(testMember);
         return new BaseResponse<>(testMember);
     }
 
@@ -63,6 +77,36 @@ public class JpaTestController {
         testMember.todo = request;
     }
 
+    private void saveRandomDiary(TestMemberDto testMember) {
+        DiaryRequest request = DiaryRequest.builder()
+                .content("기본 일기 내용")
+                .title("기본 일기 제목")
+                .build();
+        LocalDate now = LocalDate.now();
+        diaryController.createDiary(testMember.memberId, request, now);
+        testMember.diary = diaryController.retrieveDiary(testMember.getMemberId(), now).getResult();
+    }
+
+    private void saveRandomSticker(TestMemberDto testMember) {
+        StickerRequest stickerRequest = StickerRequest.builder()
+                .stickerId(1)
+                .locationX(10.5)
+                .locationY(12.5)
+                .width(13.5)
+                .height(19.3)
+                .rotation(20.5)
+                .flipped(false)
+                .build();
+        List<StickerRequest> created = List.of(stickerRequest, stickerRequest);
+        List<Long> createdStickers =
+                diaryController.updateStickersInDiaryOnDate(
+                        testMember.memberId, testMember.diary.getCreatedDate(),
+                        new StickersRequest(created, null, null)
+                ).getResult();
+        testMember.stickerIds = createdStickers;
+        testMember.stickers = created;
+    }
+
     private MemberJoinRequest generateMemberRequest() {
         int maxNicknameLength = 10;
         String nickname = generateNumeralOrLetters(maxNicknameLength);
@@ -81,7 +125,7 @@ public class JpaTestController {
         int leftLimit = 48; // numeral '0'
         int rightLimit = 122; // letter 'z'
         Random random = new Random();
-        return  random.ints(leftLimit, rightLimit + 1)
+        return random.ints(leftLimit, rightLimit + 1)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97)) // 아스키코드 숫자 알파벳 중간에 섞여있는 문자들 제거
                 .limit(length)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
@@ -92,6 +136,9 @@ public class JpaTestController {
     @Getter
     @ToString
     private static class TestMemberDto {
+        public DiaryResponse diary;
+        public List<Long> stickerIds;
+        public List<StickerRequest> stickers;
         private SigninResponse token;
         private Long memberId;
         private Long categoryId;

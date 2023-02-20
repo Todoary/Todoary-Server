@@ -2,7 +2,7 @@ package com.todoary.ms.src.todo;
 
 import com.todoary.ms.src.todo.dto.*;
 import com.todoary.ms.src.user.UserProvider;
-import com.todoary.ms.src.web.dto.TodoSaveResponse;
+import com.todoary.ms.src.web.dto.todo.TodoSaveResponse;
 import com.todoary.ms.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

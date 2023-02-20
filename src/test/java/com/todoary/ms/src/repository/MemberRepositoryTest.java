@@ -5,17 +5,17 @@ import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
 @SpringBootTest
@@ -25,6 +25,9 @@ class MemberRepositoryTest {
 
     @Autowired
     EntityManager em;
+
+    @Value("${profile-image.default-url}")
+    private String defaultProfileImageUrl;
 
     @Test
     public void 멤버를_이메일과_provider로_검색_유저_존재O() throws Exception {

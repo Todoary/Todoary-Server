@@ -1,10 +1,10 @@
 package com.todoary.ms.src.web.controller;
 
-import com.todoary.ms.src.web.dto.CategorySaveResponse;
+import com.todoary.ms.src.web.dto.category.CategorySaveResponse;
 import com.todoary.ms.src.config.auth.LoginMember;
 import com.todoary.ms.src.service.JpaCategoryService;
-import com.todoary.ms.src.web.dto.CategoryRequest;
-import com.todoary.ms.src.web.dto.CategoryResponse;
+import com.todoary.ms.src.web.dto.category.CategoryRequest;
+import com.todoary.ms.src.web.dto.category.CategoryResponse;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;

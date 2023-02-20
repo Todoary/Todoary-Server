@@ -1,11 +1,11 @@
 package com.todoary.ms.src.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.todoary.ms.src.web.dto.CategorySaveResponse;
+import com.todoary.ms.src.web.dto.category.CategorySaveResponse;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.JpaCategoryService;
-import com.todoary.ms.src.web.dto.CategoryRequest;
-import com.todoary.ms.src.web.dto.CategoryResponse;
+import com.todoary.ms.src.web.dto.category.CategoryRequest;
+import com.todoary.ms.src.web.dto.category.CategoryResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration;

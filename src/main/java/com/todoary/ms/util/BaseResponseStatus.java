@@ -2,8 +2,7 @@ package com.todoary.ms.util;
 
 import lombok.Getter;
 
-import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
-import static com.todoary.ms.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
+import static com.todoary.ms.util.ColumnLengthInfo.*;
 
 /**
  * 에러 코드 관리
@@ -68,8 +67,13 @@ public enum BaseResponseStatus {
     POST_USERS_EXISTS_EMAIL(false, 2017, "중복된 이메일입니다."),
 
     // diary 도메인 에러
-    USERS_DIARY_NOT_EXISTS(false, 2402, "해당하는 유저와 일치하는 일기가 없습니다."),
 
+    USERS_DIARY_NOT_EXISTS(false, 2402, "해당하는 유저와 일치하는 일기가 없습니다."),
+    DIARY_TITLE_TOO_LONG(false, 2403, "일기 제목이 제한길이 이상입니다. ("+DIARY_TITLE_MAX_LENGTH+" 글자까지 가능)"),
+    EMPTY_DIARY_DATE(false, 2404, "일기 날짜를 입력해주세요."),
+    EMPTY_STICKER_TYPE(false, 2405, "스티커 타입(스티커 종류 번호)을 입력해주세요."),
+    EMPTY_STICKER_ID(false, 2406, "스티커 아이디(스티커 고유 번호)를 입력해주세요."),
+    INVALID_STICKER_ID(false, 2406, "스티커 아이디(스티커 고유 번호)를 확인해주세요."),
     POST_USERS_EXISTS_NICKNAME(false, 2032, "중복된 닉네임입니다."),
     /**
      * 3000 : Response 오류

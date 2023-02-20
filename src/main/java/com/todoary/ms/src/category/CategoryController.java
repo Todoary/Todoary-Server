@@ -2,7 +2,7 @@ package com.todoary.ms.src.category;
 
 import com.todoary.ms.src.category.dto.GetCategoryRes;
 import com.todoary.ms.src.category.dto.PostCategoryReq;
-import com.todoary.ms.src.web.dto.CategorySaveResponse;
+import com.todoary.ms.src.web.dto.category.CategorySaveResponse;
 import com.todoary.ms.util.BaseException;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;

@@ -8,8 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +28,7 @@ public class Member extends BaseTimeEntity{
     private String password;
 
     @Column(name = "profile_img_url")
-    private String profileImgUrl = "https://todoarybucket.s3.ap-northeast-2.amazonaws.com/todoary/users/admin/default_profile_img.jpg";
+    private String profileImgUrl;
 
     private String introduce;
 
@@ -46,13 +44,13 @@ public class Member extends BaseTimeEntity{
     private FcmToken fcmToken;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Todo> todos = new ArrayList<>();
+    private final List<Todo> todos = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Category> categories = new ArrayList<>();
+    private final List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Diary> diaries = new ArrayList<>();
+    private final List<Diary> diaries = new ArrayList<>();
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RemindAlarm remindAlarm;
@@ -70,7 +68,7 @@ public class Member extends BaseTimeEntity{
     /*---Constructor---*/
 
     @Builder
-    public Member(String name, String nickname, String email, String password, String role, ProviderAccount providerAccount, Boolean isTermsEnable) {
+    public Member(String name, String nickname, String email, String password, String role, ProviderAccount providerAccount, Boolean isTermsEnable, String profileImgUrl) {
         this.name = name;
         this.nickname = nickname;
         this.email = email;
@@ -78,6 +76,7 @@ public class Member extends BaseTimeEntity{
         this.role = role;
         this.providerAccount = providerAccount;
         this.isTermsEnable = isTermsEnable;
+        this.profileImgUrl = profileImgUrl;
     }
 
     /*---Setter---*/
@@ -145,6 +144,9 @@ public class Member extends BaseTimeEntity{
         this.isTermsEnable  = isTermsEnable;
     }
 
+    public void removeDiary(Diary diary) {
+        this.diaries.remove(diary);
+    }
     /*---Method---*/
     public boolean hasCategoryNamed(String title) {
         return getCategories().stream()
