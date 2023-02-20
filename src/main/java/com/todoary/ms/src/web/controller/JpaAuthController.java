@@ -1,15 +1,7 @@
 package com.todoary.ms.src.web.controller;
 
-import com.todoary.ms.src.auth.AppleUtil;
-import com.todoary.ms.src.auth.dto.GetAppleUserRes;
-import com.todoary.ms.src.auth.dto.PostSignupOauth2Req;
-import com.todoary.ms.src.auth.model.PrincipalDetails;
-<<<<<<< HEAD
-import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
-=======
->>>>>>> Develop
+
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.service.AppleAuthService;
@@ -21,17 +13,8 @@ import com.todoary.ms.util.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-<<<<<<< HEAD
-import javax.servlet.http.HttpServletRequest;
-
 import static com.todoary.ms.src.domain.Provider.*;
-import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithRequest;
-
-=======
->>>>>>> Develop
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,12 +49,6 @@ public class JpaAuthController {
     public BaseResponse<AutoSigninResponse> autoLogin(@RequestBody AutoSigninRequest autoSigninRequest) {
         Long memberId = authService.authenticate(autoSigninRequest.getEmail(), autoSigninRequest.getPassword());
         return new BaseResponse<>(new AutoSigninResponse(authService.issueAccessToken(memberId).getCode(), authService.issueRefreshToken(memberId).getCode()));
-    }
-
-    public Long getMemberIdFromAuthentication(Authentication authentication) {
-        return ((PrincipalDetails) authentication.getPrincipal())
-                .getMember()
-                .getId();
     }
 
     /**
