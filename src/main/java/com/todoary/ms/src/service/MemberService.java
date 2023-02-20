@@ -35,9 +35,11 @@ public class MemberService {
                 .providerAccount(new ProviderAccount(Provider.NONE, "none"))
                 .isTermsEnable(memberJoinParam.isTermsEnable())
                 .build();
+        init(newMember);
         return memberRepository.save(newMember);
     }
 
+<<<<<<< HEAD
     @Transactional
     public Long joinOauthMember(OauthMemberJoinParam oauthMemberJoinParam) {
         Member newMember = Member.builder()
@@ -50,6 +52,10 @@ public class MemberService {
                 .isTermsEnable(oauthMemberJoinParam.isTermsEnable())
                 .build();
         return memberRepository.save(newMember);
+=======
+    private void init(Member newMember) {
+        Category.createInitialCategoryOf(newMember);
+>>>>>>> Develop
     }
 
     public Member findById(Long memberId) {

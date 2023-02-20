@@ -9,13 +9,17 @@ import com.todoary.ms.src.service.todo.TodoStartingTodayCondition;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -166,6 +170,75 @@ class TodoRepositoryTest {
         assertThat(todos)
                 .map(Todo::getTargetDate)
                 .allMatch(date -> date.isAfter(now) || date.isEqual(now));
+    }
+
+    @Test
+    void 카테고리로_투두_조회_페이징_알맞은_범위() {
+        // given
+        Member member = createMember();
+        Category category = createCategoryWithTitle(member, "category");
+        String title = "todo";
+        LocalDate now = LocalDate.now();
+        LocalTime targetTime = LocalTime.of(22, 17);
+        IntStream.range(-2, 3) // -2 <= < 3
+                .mapToObj(day -> Todo.builder()
+                        .title(title)
+                        .category(category)
+                        .member(member)
+                        .targetDate(now.plusDays(day))
+                        .targetTime(targetTime)
+                        .isAlarmEnabled(true)
+                        .build())
+                .forEach(todo -> todoRepository.save(todo));
+        Predicate condition = new TodoStartingTodayCondition().getPredicate();
+        int pageIndex = 0; // zero based page index
+        int pageSize = 2;
+        PageRequest firstPage = PageRequest.of(pageIndex, pageSize);
+        PageRequest secondPage = PageRequest.of(pageIndex + 1, pageSize);
+        // when
+        Slice<Todo> todos = todoRepository.findSliceByCategoryAndSatisfy(firstPage, category, condition);
+        Slice<Todo> rests = todoRepository.findSliceByCategoryAndSatisfy(secondPage, category, condition);
+        // then
+        int todoStartingToday = 3; // 2일전, 1일전, 오늘, 내일, 모레이므로 3개만 오늘부터 시작하는 투두
+        int totalPages = (int) Math.ceil((double) todoStartingToday / pageSize);
+        // 첫번째 페이지
+        assertThat(todos.isFirst()).isTrue();
+        assertThat(todos).hasSize(pageSize);
+        assertThat(todos.getNumberOfElements()).isEqualTo(pageSize);
+        assertThat(todos)
+                .map(Todo::getTargetDate)
+                .allMatch(date -> date.isAfter(now) || date.isEqual(now));
+        // 2번째 페이지
+        assertThat(rests.isLast()).isTrue();
+        assertThat(rests).hasSize(todoStartingToday - pageSize); // 다음 페이지므로 첫번째 조회된 것 제외
+        assertThat(rests.getNumberOfElements()).isEqualTo(todoStartingToday - pageSize);
+        // 1번재 2번째 모두 오늘 날짜거나 이후인지 확인
+        assertThat(Stream.of(todos.getContent(), rests.getContent()).flatMap(Collection::stream))
+                .map(Todo::getTargetDate)
+                .allMatch(date -> date.isAfter(now) || date.isEqual(now));
+        // 정렬 순 맞는 지 확인
+        Stream.of(todos.getContent(), rests.getContent()).flatMap(Collection::stream)
+                .reduce((before, after) -> {
+                    assertThat(after.getTargetDate()).isAfterOrEqualTo(before.getTargetDate());
+                    if (after.getTargetDate().isEqual(before.getTargetDate())) {
+                        assertThat(after.getTargetTime()).isAfterOrEqualTo(before.getTargetTime());
+                    }
+                    return after;
+                });
+    }
+
+    @Test
+    void 카테고리로_조회_시_없는_페이지_요청() {
+        // given
+        Member member = createMember();
+        Category category = createCategoryWithTitle(member, "category");
+        Predicate condition = new TodoStartingTodayCondition().getPredicate();
+        // when
+        Slice<Todo> todos = todoRepository.findSliceByCategoryAndSatisfy(PageRequest.of(0, 5), category, condition);
+        // then
+        assertThat(todos).hasSize(0);
+        assertThat(todos.isEmpty()).isTrue();
+        assertThat(todos.isLast()).isTrue();
     }
 
     @Test

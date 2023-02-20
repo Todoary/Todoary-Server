@@ -2,13 +2,11 @@ package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.config.auth.LoginMember;
 import com.todoary.ms.src.service.todo.JpaTodoService;
-import com.todoary.ms.src.web.dto.TodoSaveResponse;
-import com.todoary.ms.src.web.dto.TodoAlarmRequest;
-import com.todoary.ms.src.web.dto.TodoRequest;
-import com.todoary.ms.src.web.dto.TodoResponse;
+import com.todoary.ms.src.web.dto.*;
 import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.*;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +20,7 @@ import static com.todoary.ms.util.BaseResponseStatus.SUCCESS;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v2/todo")
+@RequestMapping("/jpa/todo")
 public class JpaTodoController {
     private final JpaTodoService todoService;
 
@@ -117,6 +115,19 @@ public class JpaTodoController {
     ) {
         todoService.updateTodoAlarm(memberId, todoId, request);
         return BaseResponse.from(SUCCESS);
+    }
+
+    // 3.10 페이징 적용하여 카테고리별 투두 조회
+    // * 오늘 날짜 이전은 포함하지 않는다
+    // ?page=0&size=5
+    // 만약 파라미터가 넘어오지 않으면 기본값으로 세팅됨(Page request [number: 0, size 20, sort: UNSORTED])
+    @GetMapping("/category/{categoryId}/page")
+    public BaseResponse<PageResponse<TodoResponse>> retrieveTodoPageByCategoryStartingToday(
+            @LoginMember Long memberId,
+            @PathVariable("categoryId") Long categoryId,
+            Pageable pageable
+    ) {
+        return new BaseResponse<>(todoService.findTodoPageByCategory(pageable, memberId, categoryId));
     }
 
     @ToString

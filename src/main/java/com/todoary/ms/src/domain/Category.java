@@ -3,13 +3,18 @@ package com.todoary.ms.src.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.todoary.ms.src.domain.Category.InitialCategoryValue.initialColor;
+import static com.todoary.ms.src.domain.Category.InitialCategoryValue.initialTitle;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 @Entity
 public class Category extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +38,14 @@ public class Category extends BaseTimeEntity {
     public Category(String title, Color color, Member member) {
         this.title = title;
         this.color = color;
-        setMember(member);
+        if (member != null) {
+            setMember(member);
+        }
+    }
+
+    // 멤버 새로 생성될때마다 기본으로 갖고 있어야 하는 초기 카테고리
+    public static Category createInitialCategoryOf(Member newMember) {
+        return new Category(initialTitle, initialColor, newMember);
     }
 
     /*---Setter---*/
@@ -69,6 +81,11 @@ public class Category extends BaseTimeEntity {
 
     public boolean has(Member member) {
         return this.member == member;
+    }
+
+    public static class InitialCategoryValue {
+        public static final String initialTitle = "일상☘️";
+        public static final Color initialColor = Color.from(1);
     }
 
 }

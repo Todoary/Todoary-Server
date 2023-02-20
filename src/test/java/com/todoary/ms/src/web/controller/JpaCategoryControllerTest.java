@@ -184,7 +184,7 @@ class JpaCategoryControllerTest {
     }
 
     private static class REQUEST_URL {
-        public static String BASE = "/v2/category";
+        public static String BASE = "/jpa/category";
         public static String SAVE = BASE;
         public static String UPDATE = BASE + "/{categoryId}";
         public static String RETRIEVE = BASE;
