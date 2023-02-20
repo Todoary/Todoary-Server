@@ -4,12 +4,14 @@ package com.todoary.ms.src.service.diary;
 import com.todoary.ms.src.domain.Diary;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Sticker;
+import com.todoary.ms.src.event.DiaryCreatedEvent;
 import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.DiaryRepository;
 import com.todoary.ms.src.repository.StickerRepository;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.diary.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class JpaDiaryService {
     private final DiaryRepository diaryRepository;
     private final StickerRepository stickerRepository;
     private final MemberService memberService;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public void saveDiaryOrUpdate(Long memberId, DiaryRequest request, LocalDate createdDate) {
@@ -37,8 +40,14 @@ public class JpaDiaryService {
         findDiaryByDateIfExists(createdDate, member)
                 .ifPresentOrElse(
                         diary -> diary.update(request.getTitle(), request.getContent()),
-                        () -> diaryRepository.save(Diary.of(member, request.getTitle(), request.getContent(), createdDate))
+                        () -> saveDiary(Diary.of(member, request.getTitle(), request.getContent(), createdDate))
                 );
+    }
+
+    private void saveDiary(Diary diary) {
+        diaryRepository.save(diary);
+        // 일기 생성 시 remind alarm 테이블 업데이트해야하므로 이벤트발생
+        publisher.publishEvent(new DiaryCreatedEvent(diary.getMember().getId(), diary.getCreatedDate()));
     }
 
     @Transactional
