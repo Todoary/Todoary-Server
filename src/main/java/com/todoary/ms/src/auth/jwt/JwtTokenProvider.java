@@ -3,7 +3,6 @@ package com.todoary.ms.src.auth.jwt;
 import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.web.dto.ClientSecretHeaderParam;
 import com.todoary.ms.src.web.dto.ClientSecretPayloadParam;
-import com.todoary.ms.util.BaseException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -11,10 +10,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
-import org.joda.time.LocalDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -25,7 +21,6 @@ import java.util.Map;
 
 import static com.todoary.ms.util.BaseResponseStatus.EXPIRED_JWT;
 import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
-import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithMessage;
 
 @Component
 @Getter

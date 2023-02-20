@@ -8,6 +8,7 @@ public class ColumnLengthInfo {
     public static final int CATEGORY_TITLE_MAX_LENGTH = 5;
     public static final int DIARY_TITLE_MAX_LENGTH = 20;
     public static final int TODO_TITLE_MAX_LENGTH = 20;
+    public static final int MEMBER_NICKNAME_MAX_LENGTH = 10;
 
     private ColumnLengthInfo() {
     }

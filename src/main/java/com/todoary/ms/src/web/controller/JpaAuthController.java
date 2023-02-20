@@ -1,7 +1,6 @@
 package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.domain.ProviderAccount;
-
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.service.AppleAuthService;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
-import static com.todoary.ms.src.domain.Provider.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -100,7 +98,7 @@ public class JpaAuthController {
                 "ROLE_USER",
                 memberJoinRequest.getIsTermsEnable()
         );
-        memberService.join(memberJoinParam);
+        memberService.joinGeneralMember(memberJoinParam);
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
@@ -142,12 +140,11 @@ public class JpaAuthController {
         String appleRefreshToken = tokenResponse.getAsString("refresh_token");
 
         // member existence check by providerId
-        ProviderAccount providerAccount = new ProviderAccount(APPLE, providerId);
+        ProviderAccount providerAccount = ProviderAccount.appleFrom(providerId);
         boolean memberExists = memberService.existsByProviderAccount(providerAccount);
 
         // issue tokens
-        Long memberId = null;
-
+        Long memberId;
         if (memberExists) {
             memberId = memberService.findByProviderEmail(
                     appleSigninRequest.getEmail(),
@@ -158,6 +155,7 @@ public class JpaAuthController {
                     appleSigninRequest.getName(),
                     appleSigninRequest.getEmail(),
                     providerAccount,
+                    "ROLE_USER",
                     appleSigninRequest.isTermsEnable()
             ));
         }

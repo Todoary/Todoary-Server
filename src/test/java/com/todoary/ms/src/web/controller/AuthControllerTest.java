@@ -1,54 +1,39 @@
 package com.todoary.ms.src.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.todoary.ms.src.auth.AuthService;
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.exception.common.TodoaryException;
-import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.service.AppleAuthService;
 import com.todoary.ms.src.service.JpaAuthService;
 import com.todoary.ms.src.service.MemberService;
-import com.todoary.ms.src.service.RefreshTokenService;
 import com.todoary.ms.src.web.dto.AppleSigninRequest;
 import com.todoary.ms.src.web.dto.AppleSigninResponse;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
 import net.minidev.json.JSONObject;
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.todoary.ms.src.web.controller.TestUtils.*;
 import static com.todoary.ms.util.BaseResponseStatus.POST_USERS_EXISTS_EMAIL;
-import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
 @SpringBootTest
@@ -284,7 +269,7 @@ class AuthControllerTest {
 
     Member createMember() {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
-        return memberService.findById(memberService.join(memberJoinParam));
+        return memberService.findById(memberService.joinGeneralMember(memberJoinParam));
     }
 
     MemberJoinParam createMemberJoinParam() {
