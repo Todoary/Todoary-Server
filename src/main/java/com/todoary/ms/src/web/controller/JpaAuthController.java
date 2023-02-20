@@ -1,9 +1,15 @@
 package com.todoary.ms.src.web.controller;
 
+import com.todoary.ms.src.auth.AppleUtil;
+import com.todoary.ms.src.auth.dto.GetAppleUserRes;
+import com.todoary.ms.src.auth.dto.PostSignupOauth2Req;
 import com.todoary.ms.src.auth.model.PrincipalDetails;
 import com.todoary.ms.src.domain.Member;
+import com.todoary.ms.src.domain.Provider;
+import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
+import com.todoary.ms.src.service.AppleAuthService;
 import com.todoary.ms.src.service.JpaAuthService;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.user.dto.PatchPasswordReq;
@@ -13,11 +19,13 @@ import com.todoary.ms.util.BaseResponse;
 import com.todoary.ms.util.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.todoary.ms.src.domain.Provider.*;
 import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithRequest;
 
 
@@ -28,6 +36,7 @@ import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithRequest;
 public class JpaAuthController {
     private final JpaAuthService authService;
     private final MemberService memberService;
+    private final AppleAuthService appleAuthService;
 
     /**
      * 1.1 일반 로그인 api
@@ -38,9 +47,7 @@ public class JpaAuthController {
      */
     @PostMapping("/signin")
     public BaseResponse<SigninResponse> login(@RequestBody SigninRequest signinRequest) {
-        Authentication authentication = authService.authenticate(signinRequest.getEmail(), signinRequest.getPassword());
-
-        Long memberId = getMemberIdFromAuthentication(authentication);
+        Long memberId = authService.authenticate(signinRequest.getEmail(), signinRequest.getPassword());
         return new BaseResponse<>(new SigninResponse(authService.issueAccessToken(memberId).getCode(), ""));
     }
 
@@ -53,10 +60,7 @@ public class JpaAuthController {
      */
     @PostMapping("/signin/auto")
     public BaseResponse<AutoSigninResponse> autoLogin(@RequestBody AutoSigninRequest autoSigninRequest) {
-
-        Authentication authentication = authService.authenticate(autoSigninRequest.getEmail(), autoSigninRequest.getPassword());
-
-        Long memberId = getMemberIdFromAuthentication(authentication);
+        Long memberId = authService.authenticate(autoSigninRequest.getEmail(), autoSigninRequest.getPassword());
         return new BaseResponse<>(new AutoSigninResponse(authService.issueAccessToken(memberId).getCode(), authService.issueRefreshToken(memberId).getCode()));
     }
 
@@ -65,6 +69,7 @@ public class JpaAuthController {
                 .getMember()
                 .getId();
     }
+
     /**
      * 1.3 토큰 재발급 api
      * [GET] /auth/jwt
@@ -94,6 +99,7 @@ public class JpaAuthController {
     public void validateRefreshToken(String refreshTokenCode) {
         authService.validateRefreshToken(refreshTokenCode);
     }
+
     /**
      * 1.6 일반 회원가입 api
      * [POST] /auth/signup
@@ -142,5 +148,47 @@ public class JpaAuthController {
     public BaseResponse<BaseResponseStatus> patchUserPassword(@RequestBody MemberPasswordChangeRequest memberPasswordChangeRequest) {
         memberService.changePassword(memberPasswordChangeRequest.getEmail(), memberPasswordChangeRequest.getNewPassword());
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
+    @PostMapping("/apple/signin")
+    public BaseResponse<AppleSigninResponse> apple(@RequestBody AppleSigninRequest appleSigninRequest) {
+        // validate code
+        JSONObject tokenResponse = appleAuthService.getTokenResponseByCode(appleSigninRequest.getCode());
+
+        // validate idToken
+        String idToken = tokenResponse.getAsString("id_token");
+        String providerId = appleAuthService.getProviderIdFrom(idToken);
+        String appleRefreshToken = tokenResponse.getAsString("refresh_token");
+
+        // member existence check by providerId
+        ProviderAccount providerAccount = new ProviderAccount(APPLE, providerId);
+        boolean memberExists = memberService.existsByProviderAccount(providerAccount);
+
+        // issue tokens
+        Long memberId = null;
+
+        if (memberExists) {
+            memberId = memberService.findByProviderEmail(
+                    appleSigninRequest.getEmail(),
+                    providerAccount.getProvider().toString()
+            ).getId();
+        } else {
+            memberId = memberService.joinOauthMember(new OauthMemberJoinParam(
+                    appleSigninRequest.getName(),
+                    appleSigninRequest.getEmail(),
+                    providerAccount,
+                    appleSigninRequest.isTermsEnable()
+            ));
+        }
+
+        return new BaseResponse<>(new AppleSigninResponse(
+                !memberExists,
+                appleSigninRequest.getName(),
+                appleSigninRequest.getEmail(),
+                providerAccount,
+                authService.issueAccessToken(memberId).getCode(),
+                authService.issueRefreshToken(memberId).getCode(),
+                appleRefreshToken
+        ));
     }
 }

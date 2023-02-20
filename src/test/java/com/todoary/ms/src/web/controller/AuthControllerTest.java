@@ -1,23 +1,51 @@
 package com.todoary.ms.src.web.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.todoary.ms.src.auth.AuthService;
 import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.domain.Member;
+import com.todoary.ms.src.domain.Provider;
+import com.todoary.ms.src.domain.ProviderAccount;
+import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
+import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.repository.MemberRepository;
+import com.todoary.ms.src.service.AppleAuthService;
+import com.todoary.ms.src.service.JpaAuthService;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.service.RefreshTokenService;
+import com.todoary.ms.src.web.dto.AppleSigninRequest;
+import com.todoary.ms.src.web.dto.AppleSigninResponse;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
+import net.minidev.json.JSONObject;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.todoary.ms.src.web.controller.TestUtils.*;
+import static com.todoary.ms.util.BaseResponseStatus.POST_USERS_EXISTS_EMAIL;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -29,24 +57,21 @@ class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
+    @MockBean
     private MemberService memberService;
 
-    @Autowired
-    private RefreshTokenService refreshTokenService;
+    @MockBean
+    private AppleAuthService appleAuthService;
 
+    @MockBean
+    private JpaAuthService authService;
 
     @Test
     public void refreshToken_재발급_테스트() throws Exception {
-        Member member = createMember();
+        when(authService.issueAccessToken(anyString())).thenReturn(new AccessToken("accessToken"));
+        when(authService.issueRefreshToken(anyString())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
 
-        String refreshTokenCode = jwtTokenProvider.createRefreshToken(member.getId());
-        refreshTokenService.save(new RefreshToken(member, refreshTokenCode));
-
-        String requestBody = "{\"refreshToken\" : \""+refreshTokenCode+"\"}";
+        String requestBody = "{\"refreshToken\" : \"formalRefreshToken\"}";
         mockMvc.perform(
                         post("/auth/jpa/jwt")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -78,7 +103,9 @@ class AuthControllerTest {
 
     @Test
     public void 일반로그인_테스트() throws Exception {
-        일반회원가입_테스트();
+        when(authService.authenticate(any(), any())).thenReturn(1L);
+        when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
+        when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), ""));
         String loginRequestBody =
                 "{" +
                 "\"email\" : \"emailA\"," +
@@ -98,7 +125,9 @@ class AuthControllerTest {
 
     @Test
     public void 자동로그인_테스트() throws Exception {
-        일반회원가입_테스트();
+        when(authService.authenticate(any(), any())).thenReturn(1L);
+        when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
+        when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
         String autoLoginRequestBody =
                 "{" +
                         "\"email\" : \"emailA\"," +
@@ -118,7 +147,7 @@ class AuthControllerTest {
 
     @Test
     public void 이메일_중복체크_테스트_존재O() throws Exception {
-        일반회원가입_테스트();
+        doThrow(new TodoaryException(POST_USERS_EXISTS_EMAIL)).when(memberService).checkEmailDuplication(any());
 
         mockMvc.perform(
                         get("/auth/jpa/email/duplication")
@@ -130,8 +159,6 @@ class AuthControllerTest {
 
     @Test
     public void 이메일_중복체크_테스트_존재X() throws Exception {
-        일반회원가입_테스트();
-
         mockMvc.perform(
                         get("/auth/jpa/email/duplication")
                                 .queryParam("email", "newEmail"))
@@ -142,8 +169,6 @@ class AuthControllerTest {
     
     @Test
     public void 비밀번호_변경_테스트() throws Exception {
-        일반회원가입_테스트();
-
         String email = "emailA";
         String newPassword = "passwordB";
 
@@ -161,24 +186,100 @@ class AuthControllerTest {
     }
 
     @Test
-    public void 비밀변경_후에_로그인_테스트() throws Exception {
-        비밀번호_변경_테스트();
+    public void 애플_회원가입_테스트() throws Exception {
+        //given
+        AppleSigninRequest appleSigninRequest = new AppleSigninRequest(
+                "code",
+                "idToken",
+                "name",
+                "email",
+                true
+        );
 
-        String loginRequestBody =
-                "{" +
-                        "\"email\" : \"emailA\"," +
-                        "\"password\" : \"passwordB\"" +
-                        "}";
+        AppleSigninResponse expected = new AppleSigninResponse(
+                true,
+                "name",
+                "email",
+                new ProviderAccount(Provider.APPLE, "providerId"),
+                "accessToken",
+                "refreshToken",
+                "appleRefreshToken"
+        );
 
+        Map<String, String> tokenResponse = new HashMap<>();
+        tokenResponse.put("id_token", "idToken");
+        tokenResponse.put("refresh_token", "appleRefreshToken");
+
+        when(memberService.existsByProviderAccount(any())).thenReturn(false);
+        when(memberService.findByProviderEmail(any(), any())).thenReturn(createMemberWithId(1L));
+        when(memberService.joinOauthMember(any())).thenReturn(1L);
+        when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
+        when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
+        when(appleAuthService.getTokenResponseByCode(anyString())).thenReturn(new JSONObject(tokenResponse));
+        when(appleAuthService.getProviderIdFrom(anyString())).thenReturn("providerId");
+
+
+        //when
         mockMvc.perform(
-                        post("/auth/jpa/signin")
+                        post("/auth/jpa/apple/signin")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(loginRequestBody))
+                                .content(new ObjectMapper().writeValueAsString(appleSigninRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("1000"))
-                .andExpect(jsonPath("$.result.accessToken").exists())
-                .andExpect(jsonPath("$.result.refreshToken").value(""))
-                .andDo(print());
+                .andExpect(jsonPath("$.result.isNewUser").value(true));
+    }
+
+    @Test
+    public void 애플_로그인_테스트() throws Exception {
+        //given
+        AppleSigninRequest appleSigninRequest = new AppleSigninRequest(
+                "code",
+                "idToken",
+                "name",
+                "email",
+                true
+        );
+
+        AppleSigninResponse expected = new AppleSigninResponse(
+                false,
+                "name",
+                "email",
+                new ProviderAccount(Provider.APPLE, "providerId"),
+                "accessToken",
+                "refreshToken",
+                "appleRefreshToken"
+        );
+
+        Map<String, String> tokenResponse = new HashMap<>();
+        tokenResponse.put("id_token", "idToken");
+        tokenResponse.put("refresh_token", "appleRefreshToken");
+
+        when(memberService.existsByProviderAccount(any())).thenReturn(true);
+        when(memberService.findByProviderEmail(any(), any())).thenReturn(createMemberWithId(1L));
+        when(memberService.joinOauthMember(any())).thenReturn(1L);
+        when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
+        when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
+        when(appleAuthService.getTokenResponseByCode(anyString())).thenReturn(new JSONObject(tokenResponse));
+        when(appleAuthService.getProviderIdFrom(anyString())).thenReturn("providerId");
+
+
+        //when
+        mockMvc.perform(
+                        post("/auth/jpa/apple/signin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(appleSigninRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("1000"))
+                .andExpect(jsonPath("$.result.isNewUser").value(false));
+    }
+
+    public Member createMemberWithId(Long id) throws NoSuchFieldException, IllegalAccessException {
+        Member member = Member.builder().build();
+        Field idField = member.getClass().getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(member, id);
+
+        return member;
     }
 
     Member createMember() {
