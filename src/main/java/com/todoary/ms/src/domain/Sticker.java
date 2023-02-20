@@ -1,6 +1,7 @@
 package com.todoary.ms.src.domain;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,17 +24,33 @@ public class Sticker extends BaseTimeEntity {
     @Embedded
     private StickerType type;
 
-    private Double locationX;
+    @Embedded
+    private StickerShape shape;
 
-    private Double locationY;
+    /*---Constructor---*/
+    @Builder
+    public Sticker(Diary diary, StickerType type, StickerShape shape) {
+        mapDiary(diary);
+        this.type = type;
+        this.shape = shape;
+    }
 
-    private Double width;
+    /*---Setter---*/
 
-    private Double height;
+    private void mapDiary(Diary diary) {
+        if (this.diary != null) {
+            this.diary.getStickers().remove(this);
+        }
+        this.diary = diary;
+        diary.getStickers().add(this);
+    }
 
-    private Double rotation;
+    public void update(StickerType type, StickerShape shape) {
+        this.type = type;
+        this.shape = shape;
+    }
 
-    @Column(nullable = false)
-    private Boolean flipped = false;
-
+    public void removeAssociation() {
+        this.diary.removeSticker(this);
+    }
 }

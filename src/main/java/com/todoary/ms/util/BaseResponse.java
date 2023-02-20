@@ -42,5 +42,11 @@ public class BaseResponse<T> {
                 status.isSuccess(), status.getMessage(), status.getCode(), status
         );
     }
+
+    public static BaseResponse<String> from(BaseResponseStatus status, String fieldName) {
+        return new BaseResponse<>(
+                status.isSuccess(), status.getMessage(), status.getCode(), fieldName
+        );
+    }
 }
 

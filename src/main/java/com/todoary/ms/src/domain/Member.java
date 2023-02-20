@@ -44,13 +44,13 @@ public class Member extends BaseTimeEntity{
     private FcmToken fcmToken;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Todo> todos = new ArrayList<>();
+    private final List<Todo> todos = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Category> categories = new ArrayList<>();
+    private final List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Diary> diaries = new ArrayList<>();
+    private final List<Diary> diaries = new ArrayList<>();
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RemindAlarm remindAlarm;
@@ -144,6 +144,9 @@ public class Member extends BaseTimeEntity{
         this.isTermsEnable  = isTermsEnable;
     }
 
+    public void removeDiary(Diary diary) {
+        this.diaries.remove(diary);
+    }
     /*---Method---*/
     public boolean hasCategoryNamed(String title) {
         return getCategories().stream()
