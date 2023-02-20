@@ -5,37 +5,32 @@ import com.todoary.ms.src.domain.Color;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.exception.common.TodoaryException;
 import com.todoary.ms.src.repository.CategoryRepository;
-import com.todoary.ms.src.repository.MemberRepository;
-import com.todoary.ms.src.web.dto.CategoryResponse;
-import com.todoary.ms.src.web.dto.CategoryRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.todoary.ms.src.web.dto.category.CategoryRequest;
+import com.todoary.ms.src.web.dto.category.CategoryResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.util.BaseResponseStatus.DUPLICATE_CATEGORY;
+import static com.todoary.ms.util.BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS;
 
+@RequiredArgsConstructor
 @Service
 public class JpaCategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final MemberRepository memberRepository;
-
-    @Autowired
-    public JpaCategoryService(CategoryRepository categoryRepository, MemberRepository memberRepository) {
-        this.categoryRepository = categoryRepository;
-        this.memberRepository = memberRepository;
-    }
+    private final MemberService memberService;
 
     @Transactional
     public Long saveCategory(Long memberId, CategoryRequest request) {
-        Member member = findMemberById(memberId);
+        Member member = memberService.findById(memberId);
         validateMembersCategoryTitle(member, request.getTitle());
         return categoryRepository.save(request.toEntity(member)).getId();
     }
 
     @Transactional
     public void updateCategory(Long memberId, Long categoryId, CategoryRequest request) {
-        Member member = findMemberById(memberId);
+        Member member = memberService.findById(memberId);
         Category target = findCategoryByIdAndMember(categoryId, member);
         Color nextColor = new Color(request.getColor());
         String nextTitle = request.getTitle();
@@ -54,7 +49,7 @@ public class JpaCategoryService {
 
     @Transactional
     public void deleteCategory(Long memberId, Long categoryId) {
-        Member member = findMemberById(memberId);
+        Member member = memberService.findById(memberId);
         Category category = findCategoryByIdAndMember(categoryId, member);
         category.removeAssociations();
         categoryRepository.delete(category);
@@ -62,7 +57,7 @@ public class JpaCategoryService {
 
     @Transactional(readOnly = true)
     public CategoryResponse[] findCategories(Long memberId) {
-        Member member = findMemberById(memberId);
+        Member member = memberService.findById(memberId);
         return member.getCategories()
                 .stream().map(c -> new CategoryResponse(
                         c.getId(), c.getTitle(), c.getColor().getCode())
@@ -76,11 +71,6 @@ public class JpaCategoryService {
         if (!category.has(member))
             throw new TodoaryException(USERS_CATEGORY_NOT_EXISTS);
         return category;
-    }
-
-    private Member findMemberById(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new TodoaryException(USERS_EMPTY_USER_ID));
     }
 
 }

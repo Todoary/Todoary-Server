@@ -10,6 +10,9 @@ import javax.persistence.Embeddable;
 @EqualsAndHashCode
 @Embeddable
 public class StickerType {
-    @Column(nullable = false)
-    private Integer type = 1;
+    @Column(name = "sticker_type", nullable = false)
+    private Integer code = 1;
+    public static StickerType from(int code){
+        return new StickerType(code);
+    }
 }

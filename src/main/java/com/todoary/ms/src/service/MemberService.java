@@ -104,9 +104,8 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse findProfileById(Long memberId) {
-        return MemberResponse.from(memberRepository.findProfileById(memberId)
-                .orElseThrow(() -> new TodoaryException(USERS_DELETED_USER)));
+    public MemberResponse findMemberProfile(Long memberId) {
+        return MemberResponse.from(findById(memberId));
     }
 
     @Transactional

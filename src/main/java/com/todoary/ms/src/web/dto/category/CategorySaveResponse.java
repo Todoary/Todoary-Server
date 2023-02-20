@@ -1,4 +1,4 @@
-package com.todoary.ms.src.web.dto;
+package com.todoary.ms.src.web.dto.category;
 
 import lombok.*;
 

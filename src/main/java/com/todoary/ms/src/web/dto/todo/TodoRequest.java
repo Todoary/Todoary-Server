@@ -1,4 +1,4 @@
-package com.todoary.ms.src.web.dto;
+package com.todoary.ms.src.web.dto.todo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.todoary.ms.src.domain.Category;

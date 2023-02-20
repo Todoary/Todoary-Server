@@ -74,6 +74,7 @@ public class Todo extends BaseTimeEntity {
         updateAlarm(isAlarmEnabled, targetDate, targetTime);
     }
 
+
     public void updateAlarm(boolean isAlarmEnabled, LocalDate targetDate, LocalTime targetTime) {
         this.isAlarmEnabled = isAlarmEnabled;
         this.targetDate = targetDate;
