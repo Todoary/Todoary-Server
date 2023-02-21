@@ -3,7 +3,7 @@ package com.todoary.ms.src.service.todo;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Todo;
-import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.TodoRepository;
 import com.todoary.ms.src.service.JpaCategoryService;
@@ -21,8 +21,8 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.todoary.ms.util.BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS;
-import static com.todoary.ms.util.BaseResponseStatus.USERS_EMPTY_USER_ID;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_EMPTY_USER_ID;
 
 @RequiredArgsConstructor
 @Service

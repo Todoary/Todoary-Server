@@ -1,13 +1,13 @@
 package com.todoary.ms.src.config;
 
-import com.todoary.ms.src.auth.AuthService;
-import com.todoary.ms.src.auth.PrincipalOAuth2UserService;
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.auth.jwt.config.CustomAccessDeniedHandler;
-import com.todoary.ms.src.auth.jwt.config.CustomAuthenticationEntryPoint;
-import com.todoary.ms.src.auth.jwt.config.OAuth2SuccessHandler;
-import com.todoary.ms.src.auth.jwt.filter.JwtAuthorizationFilter;
-import com.todoary.ms.src.user.UserProvider;
+import com.todoary.ms.src.legacy.auth.AuthService;
+import com.todoary.ms.src.common.auth.PrincipalOAuth2UserService;
+import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
+import com.todoary.ms.src.common.auth.jwt.config.CustomAccessDeniedHandler;
+import com.todoary.ms.src.common.auth.jwt.config.CustomAuthenticationEntryPoint;
+import com.todoary.ms.src.common.auth.jwt.config.OAuth2SuccessHandler;
+import com.todoary.ms.src.common.auth.jwt.filter.JwtAuthorizationFilter;
+import com.todoary.ms.src.legacy.user.UserProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

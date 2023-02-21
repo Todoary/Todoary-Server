@@ -1,6 +1,6 @@
 package com.todoary.ms.src.config;
 
-import com.todoary.ms.src.config.auth.LoginMemberArgumentResolver;
+import com.todoary.ms.src.common.auth.annotation.LoginMemberArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;

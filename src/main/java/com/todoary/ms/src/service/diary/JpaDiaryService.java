@@ -4,8 +4,8 @@ package com.todoary.ms.src.service.diary;
 import com.todoary.ms.src.domain.Diary;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Sticker;
-import com.todoary.ms.src.event.DiaryCreatedEvent;
-import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.common.event.DiaryCreatedEvent;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.repository.DiaryRepository;
 import com.todoary.ms.src.repository.StickerRepository;
 import com.todoary.ms.src.service.MemberService;
@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.todoary.ms.src.web.dto.diary.StickersRequest.*;
-import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 
 @RequiredArgsConstructor
 @Service

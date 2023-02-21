@@ -1,9 +1,9 @@
 package com.todoary.ms.src.service;
 
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
+import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.domain.*;
 import com.todoary.ms.src.domain.token.RefreshToken;
-import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Random;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
-import static com.todoary.ms.util.ColumnLengthInfo.MEMBER_NICKNAME_MAX_LENGTH;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
+import static com.todoary.ms.src.common.util.ColumnLengthInfo.MEMBER_NICKNAME_MAX_LENGTH;
 
 @Service
 @RequiredArgsConstructor

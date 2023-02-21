@@ -3,7 +3,7 @@ package com.todoary.ms.src.s3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +17,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.todoary.ms.util.BaseResponseStatus.AWS_FILE_CONVERT_FAIL;
-import static com.todoary.ms.util.BaseResponseStatus.AWS_FILE_NOT_FOUND;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.AWS_FILE_CONVERT_FAIL;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.AWS_FILE_NOT_FOUND;
 
 @Slf4j
 @Service

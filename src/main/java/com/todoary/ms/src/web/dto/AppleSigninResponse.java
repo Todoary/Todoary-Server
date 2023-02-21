@@ -1,11 +1,9 @@
 package com.todoary.ms.src.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.todoary.ms.src.auth.model.Token;
 import com.todoary.ms.src.domain.ProviderAccount;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor

@@ -2,9 +2,8 @@ package com.todoary.ms.src.alarm;
 
 import com.todoary.ms.src.alarm.dto.PostAlarmReq;
 import com.todoary.ms.src.alarm.model.Alarm;
-import com.todoary.ms.util.ErrorLogWriter;
+import com.todoary.ms.src.common.util.ErrorLogWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;

@@ -2,7 +2,7 @@ package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.repository.CategoryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.category.CategoryResponse;
@@ -17,7 +17,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
-import static com.todoary.ms.util.BaseResponseStatus.DUPLICATE_CATEGORY;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.DUPLICATE_CATEGORY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;

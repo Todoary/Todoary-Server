@@ -19,9 +19,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.stream.IntStream;
 
 import static com.todoary.ms.src.web.controller.TestUtils.getResponseObject;
-import static com.todoary.ms.util.BaseResponseStatus.*;
-import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
-import static com.todoary.ms.util.ColumnLengthInfo.getGraphemeLength;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
+import static com.todoary.ms.src.common.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
+import static com.todoary.ms.src.common.util.ColumnLengthInfo.getGraphemeLength;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;

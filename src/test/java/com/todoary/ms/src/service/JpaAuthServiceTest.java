@@ -1,6 +1,6 @@
 package com.todoary.ms.src.service;
 
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
+import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;

@@ -4,7 +4,7 @@ package com.todoary.ms.src.web.dto.diary;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
-import static com.todoary.ms.util.ColumnLengthInfo.DIARY_TITLE_MAX_LENGTH;
+import static com.todoary.ms.src.common.util.ColumnLengthInfo.DIARY_TITLE_MAX_LENGTH;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
