@@ -40,11 +40,16 @@ public class JpaAuthService {
         return memberId == Long.parseLong(jwtTokenProvider.getUserIdFromAccessToken(accessTokenCode));
     }
 
-    public RefreshToken saveRefreshToken(Member member) {
-        RefreshToken refreshToken = new RefreshToken(member, jwtTokenProvider.createRefreshToken(member.getId()));
-
-        refreshTokenService.save(refreshToken);
-        return refreshToken;
+    @Transactional
+    public RefreshToken createRefreshToken(Member member) {
+        String code = jwtTokenProvider.createRefreshToken(member.getId());
+        if (member.hasRefreshToken()) {
+            return member.updateRefreshToken(code);
+        } else {
+            RefreshToken refreshToken = new RefreshToken(member, code);
+            refreshTokenService.save(refreshToken);
+            return refreshToken;
+        }
     }
 
     public Long authenticate(String email, String password) {
@@ -76,7 +81,7 @@ public class JpaAuthService {
 
     public RefreshToken issueRefreshToken(Long memberId) {
         Member findMember = memberService.findById(memberId);
-        RefreshToken refreshToken = saveRefreshToken(findMember);
+        RefreshToken refreshToken = createRefreshToken(findMember);
 
         return refreshToken;
     }

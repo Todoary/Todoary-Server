@@ -44,18 +44,18 @@ public class Member extends BaseTimeEntity{
     private FcmToken fcmToken;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<Todo> todos = new ArrayList<>();
+    private List<Todo> todos = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<Category> categories = new ArrayList<>();
+    private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private final List<Diary> diaries = new ArrayList<>();
+    private List<Diary> diaries = new ArrayList<>();
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RemindAlarm remindAlarm;
 
-    private Boolean isTermsEnable;
+    private Boolean isTermsEnable = true;
 
     private Boolean toDoAlarmEnable = true;
 
@@ -168,5 +168,22 @@ public class Member extends BaseTimeEntity{
     public void update(String nickname, String introduce) {
         this.nickname = nickname;
         this.introduce = introduce;
+    }
+
+    public boolean isDeleted() {
+        return status == 0;
+    }
+
+    public void deactivate() {
+        this.status = 0;
+    }
+
+    public boolean hasRefreshToken() {
+        return this.refreshToken != null;
+    }
+
+    public RefreshToken updateRefreshToken(String code) {
+        this.refreshToken.changeCode(code);
+        return this.refreshToken;
     }
 }

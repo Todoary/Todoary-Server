@@ -37,7 +37,7 @@ public class UserService {
             throw new BaseException(POST_USERS_EXISTS_EMAIL);
         }
         if (userProvider.checkNickname(user.getNickname()) == 1) {
-            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+            throw new BaseException(MEMBERS_DUPLICATE_NICKNAME);
         }
         try {
             return this.userDao.insertUser(user, isTermsEnable);
@@ -113,7 +113,7 @@ public class UserService {
 
     public PatchUserRes modifyProfile(Long user_id, PatchUserReq patchUserReq) throws BaseException {
         if (userProvider.checkOtherUserNickname(user_id,patchUserReq.getNickname()) == 1)
-            throw new BaseException(POST_USERS_EXISTS_NICKNAME);
+            throw new BaseException(MEMBERS_DUPLICATE_NICKNAME);
         try {
             return userDao.updateProfile(user_id, patchUserReq);
         } catch (Exception e) {

@@ -74,7 +74,7 @@ public enum BaseResponseStatus {
     EMPTY_STICKER_TYPE(false, 2405, "스티커 타입(스티커 종류 번호)을 입력해주세요."),
     EMPTY_STICKER_ID(false, 2406, "스티커 아이디(스티커 고유 번호)를 입력해주세요."),
     INVALID_STICKER_ID(false, 2406, "스티커 아이디(스티커 고유 번호)를 확인해주세요."),
-    POST_USERS_EXISTS_NICKNAME(false, 2032, "중복된 닉네임입니다."),
+    MEMBERS_DUPLICATE_NICKNAME(false, 2032, "중복된 닉네임입니다."),
     /**
      * 3000 : Response 오류
      */

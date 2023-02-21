@@ -14,24 +14,18 @@ import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_REFRES
 @Service
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
-    private final MemberService memberService;
 
     @Transactional(readOnly = true)
     public Boolean existsByCode(String code) {
         return refreshTokenRepository.existsByCode(code);
     }
 
+    @Transactional
     public Long save(RefreshToken refreshToken) {
-        if (memberService.existsByRefreshToken(refreshToken)) {
-            updateCode(refreshToken);
-        }
         return refreshTokenRepository.save(refreshToken);
     }
 
-    private void updateCode(RefreshToken refreshToken) {
-        memberService.findById(refreshToken.getMember().getId());
-    }
-
+    @Transactional(readOnly = true)
     public RefreshToken findByMemberId(Long memberId) {
         return refreshTokenRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new TodoaryException(USERS_REFRESH_TOKEN_NOT_EXISTS));

@@ -52,7 +52,7 @@ public class Todo extends BaseTimeEntity {
             this.member.getTodos().remove(this);
         }
         this.member = member;
-        member.getTodos().add(this);
+        member.addTodo(this);
     }
 
     private void setCategory(Category category) {
@@ -60,7 +60,7 @@ public class Todo extends BaseTimeEntity {
             this.category.getTodos().remove(this);
         }
         this.category = category;
-        category.getTodos().add(this);
+        category.addTodo(this);
     }
 
     public void removeAssociations() {

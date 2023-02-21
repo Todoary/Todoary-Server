@@ -1,11 +1,17 @@
 package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.domain.*;
-import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.common.exception.TodoaryException;
+import com.todoary.ms.src.domain.Category;
+import com.todoary.ms.src.domain.Member;
+import com.todoary.ms.src.domain.Provider;
+import com.todoary.ms.src.domain.ProviderAccount;
+import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.repository.MemberRepository;
-import com.todoary.ms.src.web.dto.*;
+import com.todoary.ms.src.web.dto.MemberJoinParam;
+import com.todoary.ms.src.web.dto.MemberProfileRequest;
+import com.todoary.ms.src.web.dto.MemberResponse;
+import com.todoary.ms.src.web.dto.OauthMemberJoinParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
@@ -66,15 +73,30 @@ public class MemberService {
         Category.createInitialCategoryOf(newMember);
     }
 
+    @Transactional(readOnly = true)
     public Member findById(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new TodoaryException(USERS_DELETED_USER));
+        return checkMemberValid(memberRepository.findById(memberId));
     }
 
+    private Member checkMemberValid(Optional<Member> memberOrNull) {
+        Member member = memberOrNull
+                .orElseThrow(() -> new TodoaryException(EMPTY_USER));
+        return checkMemberDeleted(member);
+    }
+
+    private Member checkMemberDeleted(Member member) {
+        if (member.isDeleted()) {
+            throw new TodoaryException(USERS_DELETED_USER);
+        }
+        return member;
+    }
+
+    @Transactional(readOnly = true)
     public Boolean existsByRefreshToken(RefreshToken refreshToken) {
         return memberRepository.existByRefreshToken(refreshToken);
     }
 
+    @Transactional(readOnly = true)
     public void validateMemberByRefreshToken(String refreshTokenCode) {
         Long memberId = Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshTokenCode));
         Member findMember = findById(memberId);
@@ -88,27 +110,30 @@ public class MemberService {
         return passwordEncoder.encode(password);
     }
 
+    @Transactional(readOnly = true)
     public Member findByEmail(String email) {
-        return memberRepository.findByEmail(email).orElseThrow(
-                () -> new TodoaryException(USERS_EMPTY_USER_EMAIL));
+        return checkMemberValid(memberRepository.findByEmail(email));
     }
 
+    @Transactional(readOnly = true)
     public Member findByProviderEmail(String email, String providerName) {
-        return memberRepository.findByProviderEmail(email, providerName).orElseThrow(
-                () -> new TodoaryException(USERS_EMPTY_USER_EMAIL));
+        return checkMemberValid(memberRepository.findByProviderEmail(email, providerName));
     }
 
+    @Transactional(readOnly = true)
     public void checkEmailDuplication(String email) {
         if (memberRepository.isProviderEmailUsed(Provider.NONE, email)) {
             throw new TodoaryException(POST_USERS_EXISTS_EMAIL);
         }
     }
 
+    @Transactional
     public void changePassword(String email, String newPassword) {
         Member member = findByEmail(email);
         member.changePassword(encodePassword(newPassword));
     }
 
+    @Transactional(readOnly = true)
     public List<Member> findAllDailyAlarmEnabled() {
         return memberRepository.findAllDailyAlarmEnabled();
     }
@@ -116,13 +141,22 @@ public class MemberService {
     @Transactional
     public void updateProfile(Long memberId, MemberProfileRequest request) {
         Member member = findById(memberId);
+        if (!member.getNickname().equals(request.getNickname())) {
+            checkNicknameNotUsed(request.getNickname());
+        }
         member.update(
                 request.getNickname(),
                 request.getIntroduce()
         );
     }
 
-    @Transactional
+    private void checkNicknameNotUsed(String nickname) {
+        if (memberRepository.isNicknameUsed(nickname)) {
+            throw new TodoaryException(MEMBERS_DUPLICATE_NICKNAME);
+        }
+    }
+
+    @Transactional(readOnly = true)
     public MemberResponse findMemberProfile(Long memberId) {
         return MemberResponse.from(findById(memberId));
     }
@@ -153,7 +187,8 @@ public class MemberService {
 
     @Transactional
     public void removeMember(Long memberId) {
-        memberRepository.updateStatus(memberId);
+        Member member = findById(memberId);
+        member.deactivate();
     }
 
     @Transactional
@@ -171,11 +206,13 @@ public class MemberService {
         member.removeFcmToken();
     }
 
+    @Transactional(readOnly = true)
     public String getProfileImgUrlById(Long memberId) {
         return findById(memberId)
                 .getProfileImgUrl();
     }
 
+    @Transactional(readOnly = true)
     public boolean existsByProviderAccount(ProviderAccount providerAccount) {
         return memberRepository.isActiveByProviderAccount(providerAccount);
     }
