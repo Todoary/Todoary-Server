@@ -37,7 +37,7 @@ class MemberServiceTest {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
 
         //when
-        Long joinMemberId = memberService.join(memberJoinParam);
+        Long joinMemberId = memberService.joinGeneralMember(memberJoinParam);
 
         //then
         assertThat(memberService.findById(joinMemberId).getName()).isEqualTo(memberJoinParam.getName());
@@ -48,7 +48,7 @@ class MemberServiceTest {
         // given
         MemberJoinParam memberJoinParam = createMemberJoinParam();
         // when
-        Long joinMemberId = memberService.join(memberJoinParam);
+        Long joinMemberId = memberService.joinGeneralMember(memberJoinParam);
         // then
         List<Category> categories = memberService.findById(joinMemberId).getCategories();
         assertThat(categories).hasSize(1);
@@ -62,7 +62,7 @@ class MemberServiceTest {
         // given
         MemberJoinParam memberJoinParam = createMemberJoinParam();
         // when
-        Long joinMemberId = memberService.join(memberJoinParam);
+        Long joinMemberId = memberService.joinGeneralMember(memberJoinParam);
         String profileImgUrl = memberService.findById(joinMemberId).getProfileImgUrl();
         // then
         assertThat(profileImgUrl).isEqualTo(defaultProfileImageUrl);

@@ -1,7 +1,8 @@
 package com.todoary.ms.src.auth.jwt;
 
 import com.todoary.ms.src.exception.common.TodoaryException;
-import com.todoary.ms.util.BaseException;
+import com.todoary.ms.src.web.dto.ClientSecretHeaderParam;
+import com.todoary.ms.src.web.dto.ClientSecretPayloadParam;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -9,18 +10,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.todoary.ms.util.BaseResponseStatus.EXPIRED_JWT;
 import static com.todoary.ms.util.BaseResponseStatus.INVALID_JWT;
-import static com.todoary.ms.util.ErrorLogWriter.writeExceptionWithMessage;
 
 @Component
 @Getter
@@ -113,5 +113,22 @@ public class JwtTokenProvider {
         } catch (Exception exception) {
             throw new TodoaryException(INVALID_JWT);
         }
+    }
+
+    // for validate Apple authenticationCode
+    public String createAppleClientSecret(ClientSecretHeaderParam clientSecretHeaderParam, ClientSecretPayloadParam clientSecretPayloadParam) {
+        Map<String, Object> jwtHeader = new HashMap<>();
+        jwtHeader.put("kid", clientSecretHeaderParam.getKeyId());
+        jwtHeader.put("alg", clientSecretHeaderParam.getSignature());
+
+        return Jwts.builder()
+                .setHeaderParams(jwtHeader)
+                .setIssuer(clientSecretPayloadParam.getIssuer())
+                .setIssuedAt(new Date(System.currentTimeMillis())) // 발행 시간 - UNIX 시간
+                .setExpiration(clientSecretPayloadParam.getExpiration()) // 만료 시간
+                .setAudience(clientSecretPayloadParam.getAudience())
+                .setSubject(clientSecretPayloadParam.getSubject())
+                .signWith(clientSecretPayloadParam.getPrivateKey(), SignatureAlgorithm.forName(clientSecretHeaderParam.getSignature()))
+                .compact();
     }
 }

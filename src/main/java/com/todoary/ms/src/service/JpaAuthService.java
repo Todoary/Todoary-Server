@@ -47,11 +47,14 @@ public class JpaAuthService {
         return refreshToken;
     }
 
-    public Authentication authenticate(String email, String password) {
+    public Long authenticate(String email, String password) {
         try {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
-            return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            return ((PrincipalDetails) authentication.getPrincipal())
+                    .getMember()
+                    .getId();
         } catch (BadCredentialsException badCredentialsException) {
             // credential, 비밀번호가 일치하지 않을 때 예외 발생
             throw new TodoaryException(USERS_DISACCORD_PASSWORD);

@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Random;
 
 import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.util.ColumnLengthInfo.MEMBER_NICKNAME_MAX_LENGTH;
 
 @Service
 @RequiredArgsConstructor
@@ -28,15 +30,32 @@ public class MemberService {
     private String defaultProfileImageUrl;
 
     @Transactional
-    public Long join(MemberJoinParam memberJoinParam) {
+    public Long joinGeneralMember(MemberJoinParam generalMemberJoinParam) {
+        return join(generalMemberJoinParam, ProviderAccount.none());
+    }
+
+    @Transactional
+    public Long joinOauthMember(OauthMemberJoinParam oauthMemberJoinParam) {
+        MemberJoinParam joinParam = MemberJoinParam.builder()
+                .name(oauthMemberJoinParam.getName())
+                .email(oauthMemberJoinParam.getEmail())
+                .role(oauthMemberJoinParam.getRole())
+                .isTermsEnable(oauthMemberJoinParam.isTermsEnable())
+                .nickname(generateRandomNickname())
+                .password(passwordEncoder.encode(oauthMemberJoinParam.getEmail()))
+                .build();
+        return join(joinParam, oauthMemberJoinParam.getProviderAccount());
+    }
+
+    private Long join(MemberJoinParam memberJoinParam, ProviderAccount provider) {
         Member newMember = Member.builder()
                 .name(memberJoinParam.getName())
                 .nickname(memberJoinParam.getNickname())
                 .email(memberJoinParam.getEmail())
                 .password(memberJoinParam.getPassword())
                 .role(memberJoinParam.getRole())
-                .providerAccount(new ProviderAccount(Provider.NONE, "none"))
                 .isTermsEnable(memberJoinParam.isTermsEnable())
+                .providerAccount(provider)
                 .profileImgUrl(defaultProfileImageUrl)
                 .build();
         init(newMember);
@@ -109,25 +128,25 @@ public class MemberService {
     }
 
     @Transactional
-    public void activeTodoAlarm(Long memberId,boolean toDoAlarmEnable) {
+    public void activeTodoAlarm(Long memberId, boolean toDoAlarmEnable) {
         Member member = findById(memberId);
         member.activeTodoAlarm(toDoAlarmEnable);
     }
 
     @Transactional
-    public void activeDailyAlarm(Long memberId,boolean dailyAlarmEnable) {
+    public void activeDailyAlarm(Long memberId, boolean dailyAlarmEnable) {
         Member member = findById(memberId);
         member.activeDailyAlarm(dailyAlarmEnable);
     }
 
     @Transactional
-    public void activeRemindAlarm(Long memberId,boolean remindAlarmEnable) {
+    public void activeRemindAlarm(Long memberId, boolean remindAlarmEnable) {
         Member member = findById(memberId);
         member.activeRemindAlarm(remindAlarmEnable);
     }
 
     @Transactional
-    public void activeTermsStatus(Long memberId,boolean isTermsEnable) {
+    public void activeTermsStatus(Long memberId, boolean isTermsEnable) {
         Member member = findById(memberId);
         member.activeTermsStatus(isTermsEnable);
     }
@@ -155,5 +174,23 @@ public class MemberService {
     public String getProfileImgUrlById(Long memberId) {
         return findById(memberId)
                 .getProfileImgUrl();
+    }
+
+    public boolean existsByProviderAccount(ProviderAccount providerAccount) {
+        return memberRepository.isActiveByProviderAccount(providerAccount);
+    }
+
+    private String generateRandomNickname() {
+        // 아스키 코드 48 ~ 122까지 랜덤 문자
+        // 예: qOji6mPStx
+        int leftLimit = 48; // numeral '0'
+        int rightLimit = 122; // letter 'z'
+        Random random = new Random();
+        String nickname = random.ints(leftLimit, rightLimit + 1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97)) // 아스키코드 숫자 알파벳 중간에 섞여있는 문자들 제거
+                .limit(MEMBER_NICKNAME_MAX_LENGTH)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+        return nickname;
     }
 }

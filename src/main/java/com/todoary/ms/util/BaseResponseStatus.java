@@ -25,6 +25,7 @@ public enum BaseResponseStatus {
     INVALID_AUTH(false, 2005, "유효하지 않은 회원 정보입니다."),
     DIFFERENT_REFRESH_TOKEN(false, 2006, "유저 정보와 일치하지 않는 refresh token입니다."),
     APPLE_Client_SECRET_ERROR(false, 2007, "클라이언트 시크릿 생성에 실패하였습니다."),
+    APPLE_AUTHENTICATION_CODE_VALIDATION_FAILURE(false, 20071, "APPLE 인증 코드 검증에 실패했습니다."),
     INVALID_APPLE_AUTH(false, 2008, "유효하지 않은 토큰 입니다."),
     PARSE_USER_ERROR(false, 2009, "애플 유저 조회에 실패하였습니다."),
 

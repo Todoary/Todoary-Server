@@ -110,7 +110,7 @@ class JpaAuthServiceTest {
 
     Member createMember() {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
-        return memberService.findById(memberService.join(memberJoinParam));
+        return memberService.findById(memberService.joinGeneralMember(memberJoinParam));
     }
 
     Member createMemberHasRefreshToken() {
