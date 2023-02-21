@@ -88,15 +88,8 @@ public class JpaTestController {
     }
 
     private void saveRandomSticker(TestMemberDto testMember) {
-        StickerRequest stickerRequest = StickerRequest.builder()
-                .stickerId(1)
-                .locationX(10.5)
-                .locationY(12.5)
-                .width(13.5)
-                .height(19.3)
-                .rotation(20.5)
-                .flipped(false)
-                .build();
+        StickerRequest stickerRequest = new StickerRequest(
+                1, 10.5, 12.5, 13.5, 19.3, 20.5, false);
         List<StickerRequest> created = List.of(stickerRequest, stickerRequest);
         List<Long> createdStickers =
                 diaryController.updateStickersInDiaryOnDate(

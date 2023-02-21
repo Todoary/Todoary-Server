@@ -9,7 +9,7 @@ import lombok.*;
 import javax.validation.constraints.NotNull;
 
 @Getter
-@AllArgsConstructor @Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 public class StickerRequest {
@@ -26,14 +26,7 @@ public class StickerRequest {
         return Sticker.builder()
                 .diary(diary)
                 .type(StickerType.from(stickerId))
-                .shape(StickerShape.builder()
-                               .locationX(locationX)
-                               .locationY(locationY)
-                               .width(width)
-                               .height(height)
-                               .rotation(rotation)
-                               .flipped(flipped)
-                               .build())
+                .shape(StickerShape.from(this))
                 .build();
     }
 }

@@ -6,7 +6,6 @@ import com.todoary.ms.src.legacy.user.dto.PatchUserReq;
 import com.todoary.ms.src.legacy.user.dto.PatchUserRes;
 import com.todoary.ms.src.legacy.user.model.User;
 import com.todoary.ms.src.s3.dto.PostProfileImgRes;
-import com.todoary.ms.src.user.dto.*;
 import com.todoary.ms.src.legacy.BaseException;
 import com.todoary.ms.src.common.response.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;

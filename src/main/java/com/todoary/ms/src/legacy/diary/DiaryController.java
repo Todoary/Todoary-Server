@@ -1,7 +1,6 @@
 package com.todoary.ms.src.legacy.diary;
 
 
-import com.todoary.ms.src.diary.dto.*;
 import com.todoary.ms.src.legacy.diary.dto.GetDiaryByDateRes;
 import com.todoary.ms.src.legacy.diary.dto.GetStickerRes;
 import com.todoary.ms.src.legacy.diary.dto.PostDiaryReq;

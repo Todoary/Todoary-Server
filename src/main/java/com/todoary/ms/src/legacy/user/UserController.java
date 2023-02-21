@@ -5,7 +5,6 @@ import com.todoary.ms.src.legacy.user.dto.*;
 import com.todoary.ms.src.legacy.user.model.User;
 import com.todoary.ms.src.s3.AwsS3Service;
 import com.todoary.ms.src.s3.dto.PostProfileImgRes;
-import com.todoary.ms.src.user.dto.*;
 import com.todoary.ms.src.legacy.BaseException;
 import com.todoary.ms.src.common.response.BaseResponse;
 import com.todoary.ms.src.common.response.BaseResponseStatus;

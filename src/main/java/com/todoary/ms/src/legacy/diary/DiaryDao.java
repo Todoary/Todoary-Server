@@ -1,7 +1,6 @@
 package com.todoary.ms.src.legacy.diary;
 
 
-import com.todoary.ms.src.diary.dto.*;
 import com.todoary.ms.src.legacy.diary.dto.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,12 +55,12 @@ public class DiaryDao {
                 " FROM diary WHERE id = ?";
         Long selectDiaryByDateParam = diaryId;
         return this.jdbcTemplate.queryForObject(selectDiaryByDateQuery,
-                (rs, rowNum) -> new GetDiaryByDateRes(
-                        rs.getLong("id"),
-                        rs.getString("title"),
-                        rs.getString("content"),
-                        rs.getString("created_date")
-                ), selectDiaryByDateParam);
+                                                (rs, rowNum) -> new GetDiaryByDateRes(
+                                                        rs.getLong("id"),
+                                                        rs.getString("title"),
+                                                        rs.getString("content"),
+                                                        rs.getString("created_date")
+                                                ), selectDiaryByDateParam);
     }
 
     public List<Integer> selectIsDiaryInMonth(Long userId, String yearAndMonth) {
@@ -70,15 +69,15 @@ public class DiaryDao {
                 "GROUP by day ORDER BY day";
         Object[] selectIsDiaryInMonthParams = new Object[]{userId, yearAndMonth};
         return this.jdbcTemplate.query(selectIsDiaryInMonthQuery,
-                (rs, rowNum) -> (rs.getInt("day")), selectIsDiaryInMonthParams);
+                                       (rs, rowNum) -> (rs.getInt("day")), selectIsDiaryInMonthParams);
     }
 
     public Long selectDiaryIdByDate(Long userId, String createdDate) {
         String selectDiaryIdByDateQuery = "SELECT id FROM diary WHERE user_id = ? and created_date=?";
         Object[] selectDiaryIdByDateParams = new Object[]{userId, createdDate};
         return this.jdbcTemplate.queryForObject(selectDiaryIdByDateQuery,
-                long.class,
-                selectDiaryIdByDateParams);
+                                                long.class,
+                                                selectDiaryIdByDateParams);
     }
 
     /**
@@ -96,7 +95,7 @@ public class DiaryDao {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement pstmt = con.prepareStatement(insertStickerQuery,
-                        new String[]{"id"});
+                                                               new String[]{"id"});
                 pstmt.setLong(1, diaryId);
                 pstmt.setLong(2, createdSticker.getStickerId());
                 pstmt.setDouble(3, createdSticker.getLocationX());
@@ -154,18 +153,18 @@ public class DiaryDao {
                 "WHERE diary_id = ? ";
         Object[] selectStickerListByDateParam = new Object[]{diaryId};
         return this.jdbcTemplate.query(selectStickerByDateQuery,
-                (rs, rowNum) -> new GetStickerRes(
-                        rs.getLong("id"),
-                        rs.getLong("diaryId"),
-                        rs.getLong("stickerId"),
-                        rs.getDouble("locationX"),
-                        rs.getDouble("locationY"),
-                        rs.getDouble("width"),
-                        rs.getDouble("height"),
-                        rs.getDouble("rotation"),
-                        rs.getBoolean("flipped"),
-                        rs.getString("created_date")
-                ), selectStickerListByDateParam);
+                                       (rs, rowNum) -> new GetStickerRes(
+                                               rs.getLong("id"),
+                                               rs.getLong("diaryId"),
+                                               rs.getLong("stickerId"),
+                                               rs.getDouble("locationX"),
+                                               rs.getDouble("locationY"),
+                                               rs.getDouble("width"),
+                                               rs.getDouble("height"),
+                                               rs.getDouble("rotation"),
+                                               rs.getBoolean("flipped"),
+                                               rs.getString("created_date")
+                                       ), selectStickerListByDateParam);
     }
 
 

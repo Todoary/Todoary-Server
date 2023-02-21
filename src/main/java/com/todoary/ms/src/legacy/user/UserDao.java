@@ -4,7 +4,6 @@ import com.todoary.ms.src.legacy.user.dto.GetAlarmEnabledRes;
 import com.todoary.ms.src.legacy.user.dto.PatchUserReq;
 import com.todoary.ms.src.legacy.user.dto.PatchUserRes;
 import com.todoary.ms.src.legacy.user.model.User;
-import com.todoary.ms.src.user.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

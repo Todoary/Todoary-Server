@@ -1,5 +1,7 @@
 package com.todoary.ms.src.domain;
 
+import com.todoary.ms.src.web.dto.diary.StickerRequest;
+import com.todoary.ms.src.web.dto.diary.StickersRequest.StickerUpdateRequest;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -36,4 +38,26 @@ public class StickerShape {
     @Column(name = "flipped")
     @Builder.Default
     private Boolean flipped = false;
+
+    public static StickerShape from(StickerRequest request) {
+        return StickerShape.builder()
+                .locationX(request.getLocationX())
+                .locationY(request.getLocationY())
+                .width(request.getWidth())
+                .height(request.getHeight())
+                .rotation(request.getRotation())
+                .flipped(request.getFlipped())
+                .build();
+    }
+
+    public static StickerShape from(StickerUpdateRequest request) {
+        return StickerShape.builder()
+                .locationX(request.getLocationX())
+                .locationY(request.getLocationY())
+                .width(request.getWidth())
+                .height(request.getHeight())
+                .rotation(request.getRotation())
+                .flipped(request.getFlipped())
+                .build();
+    }
 }
