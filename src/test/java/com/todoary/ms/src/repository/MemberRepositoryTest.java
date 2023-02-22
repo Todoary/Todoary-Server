@@ -1,7 +1,6 @@
 package com.todoary.ms.src.repository;
 
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import static com.todoary.ms.src.domain.ProviderAccount.googleFrom;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
@@ -43,7 +43,7 @@ class MemberRepositoryTest {
         memberRepository.save(member);
 
         //when
-        Boolean result = memberRepository.isProviderEmailUsed(Provider.GOOGLE, "member@member");
+        Boolean result = memberRepository.isProviderAccountAndEmailUsed(providerAccount, "member@member");
 
         //then
         assertThat(result).isTrue();
@@ -63,7 +63,7 @@ class MemberRepositoryTest {
         memberRepository.save(member);
 
         //when
-        Boolean result = memberRepository.isProviderEmailUsed(Provider.GOOGLE, "member2@member");
+        Boolean result = memberRepository.isProviderAccountAndEmailUsed(providerAccount, "member2@member");
 
         //then
         assertThat(result).isFalse();
@@ -116,7 +116,7 @@ class MemberRepositoryTest {
     public void 구글로_가입된_멤버를_providerId로_검색_유저_존재X() throws Exception {
         //given
         ProviderAccount providerAccount = createProviderAccount();
-        ProviderAccount providerAccountNonExists = new ProviderAccount(Provider.GOOGLE, "google2");
+        ProviderAccount providerAccountNonExists = googleFrom("google2");
 
         Member member = createMember(providerAccount);
         em.persist(member);
@@ -193,7 +193,7 @@ class MemberRepositoryTest {
     }
 
     ProviderAccount createProviderAccount() {
-        ProviderAccount providerAccount = new ProviderAccount(Provider.GOOGLE,"google1");
+        ProviderAccount providerAccount = googleFrom("google1");
         return providerAccount;
     }
 }

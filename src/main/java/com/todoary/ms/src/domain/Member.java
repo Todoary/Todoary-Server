@@ -2,18 +2,19 @@ package com.todoary.ms.src.domain;
 
 import com.todoary.ms.src.domain.token.FcmToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor @Builder
+@EqualsAndHashCode(of = {"email", "providerAccount"}, callSuper = false)
 @Entity
-public class Member extends BaseTimeEntity{
+public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -23,6 +24,7 @@ public class Member extends BaseTimeEntity{
 
     private String nickname;
 
+    @NotNull
     private String email;
 
     private String password;
@@ -32,10 +34,13 @@ public class Member extends BaseTimeEntity{
 
     private String introduce;
 
-    private String role;
+    @Builder.Default
+    private String role = "USER_ROLE";
 
     @Embedded
-    private ProviderAccount providerAccount;
+    @NotNull
+    @Builder.Default
+    private ProviderAccount providerAccount = ProviderAccount.none();
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RefreshToken refreshToken;
@@ -44,40 +49,36 @@ public class Member extends BaseTimeEntity{
     private FcmToken fcmToken;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Todo> todos = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Diary> diaries = new ArrayList<>();
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private RemindAlarm remindAlarm;
 
+    @Builder.Default
     private Boolean isTermsEnable = true;
 
+    @Builder.Default
     private Boolean toDoAlarmEnable = true;
 
+    @Builder.Default
     private Boolean remindAlarmEnable = true;
 
+    @Builder.Default
     private Boolean dailyAlarmEnable = true;
 
+    @Builder.Default
     private Integer status = 1;
 
     /*---Constructor---*/
-
-    @Builder
-    public Member(String name, String nickname, String email, String password, String role, ProviderAccount providerAccount, Boolean isTermsEnable, String profileImgUrl) {
-        this.name = name;
-        this.nickname = nickname;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.providerAccount = providerAccount;
-        this.isTermsEnable = isTermsEnable;
-        this.profileImgUrl = profileImgUrl;
-    }
 
     /*---Setter---*/
     public void setRefreshToken(RefreshToken refreshToken) {
@@ -128,25 +129,26 @@ public class Member extends BaseTimeEntity{
         this.categories.remove(category);
     }
 
-    public void activeTodoAlarm(boolean toDoAlarmEnable){
+    public void activeTodoAlarm(boolean toDoAlarmEnable) {
         this.toDoAlarmEnable = toDoAlarmEnable;
     }
 
-    public void activeDailyAlarm(boolean dailyAlarmEnable ){
-        this.dailyAlarmEnable  = dailyAlarmEnable;
+    public void activeDailyAlarm(boolean dailyAlarmEnable) {
+        this.dailyAlarmEnable = dailyAlarmEnable;
     }
 
-    public void activeRemindAlarm(boolean remindAlarmEnable ){
-        this.remindAlarmEnable  = remindAlarmEnable;
+    public void activeRemindAlarm(boolean remindAlarmEnable) {
+        this.remindAlarmEnable = remindAlarmEnable;
     }
 
-    public void activeTermsStatus(boolean isTermsEnable ){
-        this.isTermsEnable  = isTermsEnable;
+    public void activeTermsStatus(boolean isTermsEnable) {
+        this.isTermsEnable = isTermsEnable;
     }
 
     public void removeDiary(Diary diary) {
         this.diaries.remove(diary);
     }
+
     /*---Method---*/
     public boolean hasCategoryNamed(String title) {
         return getCategories().stream()
@@ -176,6 +178,8 @@ public class Member extends BaseTimeEntity{
 
     public void deactivate() {
         this.status = 0;
+        removeRefreshToken();
+        removeFcmToken();
     }
 
     public boolean hasRefreshToken() {

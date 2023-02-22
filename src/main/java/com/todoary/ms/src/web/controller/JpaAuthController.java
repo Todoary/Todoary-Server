@@ -111,7 +111,7 @@ public class JpaAuthController {
      */
     @GetMapping("/email/duplication")
     public BaseResponse<String> checkEmailDuplication(@RequestParam(required = true) String email) {
-        memberService.checkEmailDuplication(email);
+        memberService.checkEmailDuplicationOfGeneral(email);
 
         return new BaseResponse<>("가능한 이메일입니다.");
     }
@@ -146,9 +146,9 @@ public class JpaAuthController {
         // issue tokens
         Long memberId;
         if (memberExists) {
-            memberId = memberService.findByProviderEmail(
+            memberId = memberService.findByProvider(
                     appleSigninRequest.getEmail(),
-                    providerAccount.getProvider().toString()
+                    providerAccount
             ).getId();
         } else {
             memberId = memberService.joinOauthMember(new OauthMemberJoinParam(

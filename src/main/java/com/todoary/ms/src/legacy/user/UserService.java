@@ -34,7 +34,7 @@ public class UserService {
 
     public User createUser(User user, boolean isTermsEnable) throws BaseException {
         if (userProvider.checkEmail(user.getEmail(), user.getProvider()) == 1) {
-            throw new BaseException(POST_USERS_EXISTS_EMAIL);
+            throw new BaseException(MEMBERS_DUPLICATE_EMAIL);
         }
         if (userProvider.checkNickname(user.getNickname()) == 1) {
             throw new BaseException(MEMBERS_DUPLICATE_NICKNAME);

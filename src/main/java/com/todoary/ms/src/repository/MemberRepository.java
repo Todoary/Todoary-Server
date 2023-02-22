@@ -2,7 +2,6 @@ package com.todoary.ms.src.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +36,11 @@ public class MemberRepository {
         return Optional.ofNullable(em.find(Member.class, memberId));
     }
 
-    public Boolean isProviderEmailUsed(Provider provider, String email) {
+    public Boolean isProviderAccountAndEmailUsed(ProviderAccount providerAccount, String email) {
         Integer fetchOne = queryFactory
                 .selectOne()
                 .from(member)
-                .where(member.email.eq(email), member.providerAccount.provider.eq(provider))
+                .where(member.email.eq(email), member.providerAccount.eq(providerAccount))
                 .fetchFirst();
         return fetchOne != null;
     }
@@ -99,9 +98,9 @@ public class MemberRepository {
                 .getResultStream().findAny();
     }
 
-    public Optional<Member> findByProviderEmail(String email, String providerName) {
-        return em.createQuery("select m from Member m where m.providerAccount.provider = :provider and m.email = :email", Member.class)
-                .setParameter("provider", Provider.findByProviderName(providerName))
+    public Optional<Member> findByProvider(String email, ProviderAccount provider) {
+        return em.createQuery("select m from Member m where m.providerAccount = :provider and m.email = :email", Member.class)
+                .setParameter("provider", provider)
                 .setParameter("email", email)
                 .getResultStream().findAny();
     }

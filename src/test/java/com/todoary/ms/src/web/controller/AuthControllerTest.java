@@ -1,12 +1,11 @@
 package com.todoary.ms.src.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
-import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.service.AppleAuthService;
 import com.todoary.ms.src.service.JpaAuthService;
 import com.todoary.ms.src.service.MemberService;
@@ -28,7 +27,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.todoary.ms.src.common.response.BaseResponseStatus.POST_USERS_EXISTS_EMAIL;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.MEMBERS_DUPLICATE_EMAIL;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -132,7 +131,7 @@ class AuthControllerTest {
 
     @Test
     public void 이메일_중복체크_테스트_존재O() throws Exception {
-        doThrow(new TodoaryException(POST_USERS_EXISTS_EMAIL)).when(memberService).checkEmailDuplication(any());
+        doThrow(new TodoaryException(MEMBERS_DUPLICATE_EMAIL)).when(memberService).checkEmailDuplicationOfGeneral(any());
 
         mockMvc.perform(
                         get("/auth/jpa/email/duplication")
@@ -185,7 +184,7 @@ class AuthControllerTest {
                 true,
                 "name",
                 "email",
-                new ProviderAccount(Provider.APPLE, "providerId"),
+                ProviderAccount.appleFrom("providerId"),
                 "accessToken",
                 "refreshToken",
                 "appleRefreshToken"
@@ -196,7 +195,7 @@ class AuthControllerTest {
         tokenResponse.put("refresh_token", "appleRefreshToken");
 
         when(memberService.existsByProviderAccount(any())).thenReturn(false);
-        when(memberService.findByProviderEmail(any(), any())).thenReturn(createMemberWithId(1L));
+        when(memberService.findByProvider(any(), any())).thenReturn(createMemberWithId(1L));
         when(memberService.joinOauthMember(any())).thenReturn(1L);
         when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
         when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
@@ -229,7 +228,7 @@ class AuthControllerTest {
                 false,
                 "name",
                 "email",
-                new ProviderAccount(Provider.APPLE, "providerId"),
+                ProviderAccount.appleFrom("providerId"),
                 "accessToken",
                 "refreshToken",
                 "appleRefreshToken"
@@ -240,7 +239,7 @@ class AuthControllerTest {
         tokenResponse.put("refresh_token", "appleRefreshToken");
 
         when(memberService.existsByProviderAccount(any())).thenReturn(true);
-        when(memberService.findByProviderEmail(any(), any())).thenReturn(createMemberWithId(1L));
+        when(memberService.findByProvider(any(), any())).thenReturn(createMemberWithId(1L));
         when(memberService.joinOauthMember(any())).thenReturn(1L);
         when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
         when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));

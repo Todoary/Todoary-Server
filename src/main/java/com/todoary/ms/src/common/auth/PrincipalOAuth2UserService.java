@@ -1,9 +1,8 @@
 package com.todoary.ms.src.common.auth;
 
-import com.todoary.ms.src.legacy.auth.model.PrincipalDetails;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
+import com.todoary.ms.src.legacy.auth.model.PrincipalDetails;
 import com.todoary.ms.src.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,14 +34,15 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
         String provider = userRequest.getClientRegistration().getRegistrationId();
         String provider_id = (String) oAuth2User.getAttributes().get("sub");
 
-        Member member = memberService.findByProviderEmail(email, provider);
+        ProviderAccount providerAccount = ProviderAccount.from(provider, provider_id);
+        Member member = memberService.findByProvider(email, providerAccount);
 
         if (member == null) {
             System.out.println("구글 로그인 최초입니다. 회원가입을 진행합니다.");
             member = Member.builder()
                         .name(name)
                         .email(email)
-                        .providerAccount(new ProviderAccount(Provider.findByProviderName(provider), provider_id))
+                        .providerAccount(providerAccount)
                         .build();
 
             return new PrincipalDetails(member, oAuth2User.getAttributes(), true);

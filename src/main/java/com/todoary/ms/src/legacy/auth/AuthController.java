@@ -255,7 +255,7 @@ public class AuthController {
             if (userProvider.checkEmail(email) == 0) { // 새 user
                 return new BaseResponse<>("가능한 이메일입니다.");
             } else { // 이미 있는 유저
-                return new BaseResponse<>(BaseResponseStatus.POST_USERS_EXISTS_EMAIL);
+                return new BaseResponse<>(BaseResponseStatus.MEMBERS_DUPLICATE_EMAIL);
             }
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());

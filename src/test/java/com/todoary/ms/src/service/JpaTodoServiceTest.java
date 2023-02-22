@@ -349,7 +349,7 @@ class JpaTodoServiceTest {
     }
 
     Member createMember() {
-        Member member = Member.builder().build();
+        Member member = Member.builder().email("email").build();
         em.persist(member);
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
         return member;
