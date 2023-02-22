@@ -84,7 +84,7 @@ class CategoryRepositoryTest {
     }
 
     Member createMember() {
-        Member member = Member.builder().build();
+        Member member = Member.builder().email("email").build();
         em.persist(member);
         return member;
     }

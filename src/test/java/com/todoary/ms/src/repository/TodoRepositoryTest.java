@@ -278,6 +278,7 @@ class TodoRepositoryTest {
 
     Member createMember() {
         Member member = Member.builder()
+                .email("email")
                 .build();
         em.persist(member);
         return member;

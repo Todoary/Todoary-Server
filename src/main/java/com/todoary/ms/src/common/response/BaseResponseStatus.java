@@ -40,6 +40,8 @@ public enum BaseResponseStatus {
     ILLEGAL_DATETIME(false, 2014, "날짜나 시간 형식을 확인해주세요."),
 
     NULL_ARGUMENT(false, 2015, "입력값이 있어야 합니다."),
+    MEMBERS_DUPLICATE_NICKNAME(false, 2016, "중복된 닉네임입니다."),
+    MEMBERS_DUPLICATE_EMAIL(false, 2017, "중복된 이메일입니다."),
 
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
     USERS_REFRESH_TOKEN_NOT_EXISTS(false, 2113, "유저 정보와 일치하는 Refresh Token이 없습니다."),
@@ -63,9 +65,6 @@ public enum BaseResponseStatus {
     TODO_TITLE_TOO_LONG(false, 2303, "투두 제목이 제한길이 이상입니다. ("+TODO_TITLE_MAX_LENGTH+" 글자까지 가능)"),
     EMPTY_TODO_DATE(false, 2304, "투두 날짜를 입력해주세요."),
 
-    // [POST] /users
-    POST_USERS_EXISTS_EMAIL(false, 2017, "중복된 이메일입니다."),
-
     // diary 도메인 에러
 
     USERS_DIARY_NOT_EXISTS(false, 2402, "해당하는 유저와 일치하는 일기가 없습니다."),
@@ -74,7 +73,7 @@ public enum BaseResponseStatus {
     EMPTY_STICKER_TYPE(false, 2405, "스티커 타입(스티커 종류 번호)을 입력해주세요."),
     EMPTY_STICKER_ID(false, 2406, "스티커 아이디(스티커 고유 번호)를 입력해주세요."),
     INVALID_STICKER_ID(false, 2406, "스티커 아이디(스티커 고유 번호)를 확인해주세요."),
-    MEMBERS_DUPLICATE_NICKNAME(false, 2032, "중복된 닉네임입니다."),
+
     /**
      * 3000 : Response 오류
      */

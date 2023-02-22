@@ -143,7 +143,7 @@ class CategoryServiceTest {
     }
 
     Member createMember() {
-        Member member = Member.builder().build();
+        Member member = Member.builder().email("email").build();
         em.persist(member);
         when(memberRepository.findById(member.getId())).thenReturn(Optional.ofNullable(member));
         return member;

@@ -4,9 +4,7 @@ import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
-import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
 import com.todoary.ms.src.web.dto.MemberProfileRequest;
@@ -55,6 +53,8 @@ public class MemberService {
     }
 
     private Long join(MemberJoinParam memberJoinParam, ProviderAccount provider) {
+        checkNicknameNotUsed(memberJoinParam.getNickname());
+        checkEmailAndOAuthAccountNotUsed(memberJoinParam.getEmail(), provider);
         Member newMember = Member.builder()
                 .name(memberJoinParam.getName())
                 .nickname(memberJoinParam.getNickname())
@@ -92,11 +92,6 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean existsByRefreshToken(RefreshToken refreshToken) {
-        return memberRepository.existByRefreshToken(refreshToken);
-    }
-
-    @Transactional(readOnly = true)
     public void validateMemberByRefreshToken(String refreshTokenCode) {
         Long memberId = Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshTokenCode));
         Member findMember = findById(memberId);
@@ -111,25 +106,30 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public Member findByEmail(String email) {
-        return checkMemberValid(memberRepository.findByEmail(email));
+    public Member findByEmailOfGeneralMember(String email) {
+        return checkMemberValid(memberRepository.findByProvider(email, ProviderAccount.none()));
     }
 
     @Transactional(readOnly = true)
-    public Member findByProviderEmail(String email, String providerName) {
-        return checkMemberValid(memberRepository.findByProviderEmail(email, providerName));
+    public Member findByProvider(String email, ProviderAccount provider) {
+        return checkMemberValid(memberRepository.findByProvider(email, provider));
     }
 
-    @Transactional(readOnly = true)
-    public void checkEmailDuplication(String email) {
-        if (memberRepository.isProviderEmailUsed(Provider.NONE, email)) {
-            throw new TodoaryException(POST_USERS_EXISTS_EMAIL);
+    private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount provider) {
+        if (memberRepository.isProviderAccountAndEmailUsed(provider, email)) {
+            throw new TodoaryException(MEMBERS_DUPLICATE_EMAIL);
         }
+    }
+
+
+    @Transactional(readOnly = true)
+    public void checkEmailDuplicationOfGeneral(String email) {
+        checkEmailAndOAuthAccountNotUsed(email, ProviderAccount.none());
     }
 
     @Transactional
     public void changePassword(String email, String newPassword) {
-        Member member = findByEmail(email);
+        Member member = findByEmailOfGeneralMember(email);
         member.changePassword(encodePassword(newPassword));
     }
 
