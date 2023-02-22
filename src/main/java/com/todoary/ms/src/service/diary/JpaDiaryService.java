@@ -1,11 +1,9 @@
 package com.todoary.ms.src.service.diary;
 
 
-import com.todoary.ms.src.domain.Diary;
-import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Sticker;
-import com.todoary.ms.src.event.DiaryCreatedEvent;
-import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.common.event.DiaryCreatedEvent;
+import com.todoary.ms.src.common.exception.TodoaryException;
+import com.todoary.ms.src.domain.*;
 import com.todoary.ms.src.repository.DiaryRepository;
 import com.todoary.ms.src.repository.StickerRepository;
 import com.todoary.ms.src.service.MemberService;
@@ -22,8 +20,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.todoary.ms.src.web.dto.diary.StickersRequest.*;
-import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.INVALID_STICKER_ID;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_DIARY_NOT_EXISTS;
+import static com.todoary.ms.src.web.dto.diary.StickersRequest.StickerDeleteRequest;
+import static com.todoary.ms.src.web.dto.diary.StickersRequest.StickerUpdateRequest;
 
 @RequiredArgsConstructor
 @Service
@@ -129,7 +129,7 @@ public class JpaDiaryService {
         }
         requests.forEach(
                 req -> findSticker(req.getId())
-                        .update(req.newStickerType(), req.newShape())
+                        .update(StickerType.from(req.getStickerId()), StickerShape.from(req))
         );
     }
 

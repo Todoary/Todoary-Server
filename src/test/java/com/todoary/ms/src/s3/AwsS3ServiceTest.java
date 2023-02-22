@@ -1,6 +1,6 @@
 package com.todoary.ms.src.s3;
 
-import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.todoary.ms.util.BaseResponseStatus.AWS_FILE_NOT_FOUND;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.AWS_FILE_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

@@ -1,14 +1,14 @@
 package com.todoary.ms.src.web.controller;
 
-import com.todoary.ms.src.config.auth.LoginMember;
+import com.todoary.ms.src.common.auth.annotation.LoginMember;
 import com.todoary.ms.src.service.todo.JpaTodoService;
 import com.todoary.ms.src.web.dto.common.PageResponse;
 import com.todoary.ms.src.web.dto.todo.TodoAlarmRequest;
 import com.todoary.ms.src.web.dto.todo.TodoRequest;
 import com.todoary.ms.src.web.dto.todo.TodoResponse;
 import com.todoary.ms.src.web.dto.todo.TodoSaveResponse;
-import com.todoary.ms.util.BaseResponse;
-import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.src.common.response.BaseResponse;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import lombok.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
-import static com.todoary.ms.util.BaseResponseStatus.SUCCESS;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.SUCCESS;
 
 @RestController
 @RequiredArgsConstructor

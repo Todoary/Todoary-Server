@@ -1,6 +1,6 @@
 package com.todoary.ms.src.service;
 
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
+import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
 @SpringBootTest
@@ -54,23 +54,26 @@ class JpaAuthServiceTest {
      * saveRefreshToken()
      */
     @Test
-    void refreshToken이_존재하는_멤버에게_새로_저장할_경우() throws NoSuchFieldException {
+    void refreshToken이_존재하는_멤버에게_새로_저장할_경우() throws NoSuchFieldException, InterruptedException {
         // 멤버에게 새로운 refreshToken 저장
         Member member = createMemberHasRefreshToken();
-        RefreshToken originRefreshToken = member.getRefreshToken();
+        String beforeRefreshTokenCode = member.getRefreshToken().getCode();
 
         // 추가로 refreshToken 저장
-        authService.saveRefreshToken(member);
+        // sleep하지 않으면 시간 차이가 얼마 나지 않아 refresh token 값이 같음 (밀리 세컨드 단위는 없어진다)
+        Thread.sleep(1000);
+        RefreshToken found = authService.createRefreshToken(member);
         RefreshToken findRefreshToken = refreshTokenService.findByMemberId(member.getId());
 
-        assertThat(member.getRefreshToken()).isEqualTo(findRefreshToken);
+        assertThat(beforeRefreshTokenCode).isNotEqualTo(findRefreshToken.getCode());
+        assertThat(found.getCode()).isEqualTo(findRefreshToken.getCode());
     }
 
     @Test
     void refreshToken이_존재하지_않는_멤버에게_새로_저장할_경우() throws NoSuchFieldException {
         Member member = createMember();
 
-        authService.saveRefreshToken(member);
+        authService.createRefreshToken(member);
         RefreshToken findRefreshToken = refreshTokenService.findByMemberId(member.getId());
 
         assertThat(member.getRefreshToken()).isEqualTo(findRefreshToken);

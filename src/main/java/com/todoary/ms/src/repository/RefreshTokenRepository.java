@@ -1,17 +1,26 @@
 package com.todoary.ms.src.repository;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todoary.ms.src.domain.token.RefreshToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
+import static com.todoary.ms.src.domain.token.QRefreshToken.refreshToken;
+
 @Repository
 public class RefreshTokenRepository {
-    @PersistenceContext
-    private EntityManager em;
+    private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
+
+    @Autowired
+    public RefreshTokenRepository(EntityManager em) {
+        this.em = em;
+        this.queryFactory = new JPAQueryFactory(em);
+    }
 
     public Long save(RefreshToken refreshToken) {
         em.persist(refreshToken);
@@ -19,21 +28,17 @@ public class RefreshTokenRepository {
     }
 
     public Boolean existsByCode(String code) {
-        return em.createQuery("select r from RefreshToken r where r.code = :code", RefreshToken.class)
-                .setParameter("code", code)
-                .getResultList()
-                .size() == 1;
+        Integer fetchOne = queryFactory
+                .selectOne()
+                .from(refreshToken)
+                .where(refreshToken.code.eq(code))
+                .fetchFirst();
+        return fetchOne != null;
     }
 
     public Optional<RefreshToken> findByMemberId(Long memberId) {
-        List<RefreshToken> findRefreshTokens = em.createQuery("select r from RefreshToken r join r.member m where m.id = :memberId", RefreshToken.class)
+        return em.createQuery("select r from RefreshToken r join r.member m where m.id = :memberId", RefreshToken.class)
                 .setParameter("memberId", memberId)
-                .getResultList();
-
-        if (findRefreshTokens.size() == 1) {
-            return Optional.ofNullable(findRefreshTokens.get(0));
-        }
-
-        return Optional.empty();
+                .getResultStream().findAny();
     }
 }

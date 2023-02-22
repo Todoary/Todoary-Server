@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import static com.todoary.ms.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
+import static com.todoary.ms.src.common.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

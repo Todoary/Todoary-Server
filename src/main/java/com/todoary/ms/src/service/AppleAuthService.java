@@ -1,16 +1,12 @@
 package com.todoary.ms.src.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.web.dto.ClientSecretHeaderParam;
 import com.todoary.ms.src.web.dto.ClientSecretPayloadParam;
-import com.todoary.ms.util.BaseResponseStatus;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -29,15 +25,14 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
-import static com.todoary.ms.util.BaseResponseStatus.APPLE_AUTHENTICATION_CODE_VALIDATION_FAILURE;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.APPLE_AUTHENTICATION_CODE_VALIDATION_FAILURE;
 
 @Slf4j
 @RequiredArgsConstructor

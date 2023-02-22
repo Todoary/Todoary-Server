@@ -5,13 +5,12 @@ import com.todoary.ms.src.domain.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = {"member"})
 @Entity
 public class RefreshToken extends BaseTimeEntity {
     @Id

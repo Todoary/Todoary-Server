@@ -1,12 +1,11 @@
 package com.todoary.ms.src.alarm;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.todoary.ms.src.alarm.model.FcmMessage;
-import com.todoary.ms.src.exception.common.TodoaryException;
-import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.src.common.exception.TodoaryException;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;

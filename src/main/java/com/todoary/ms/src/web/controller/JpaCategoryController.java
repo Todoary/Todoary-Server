@@ -1,19 +1,19 @@
 package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.web.dto.category.CategorySaveResponse;
-import com.todoary.ms.src.config.auth.LoginMember;
+import com.todoary.ms.src.common.auth.annotation.LoginMember;
 import com.todoary.ms.src.service.JpaCategoryService;
 import com.todoary.ms.src.web.dto.category.CategoryRequest;
 import com.todoary.ms.src.web.dto.category.CategoryResponse;
-import com.todoary.ms.util.BaseResponse;
-import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.src.common.response.BaseResponse;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.todoary.ms.util.BaseResponseStatus.SUCCESS;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.SUCCESS;
 
 @Slf4j
 @RequiredArgsConstructor

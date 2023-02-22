@@ -4,7 +4,7 @@ import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.s3.AwsS3Service;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.MemberProfileImgUrlResponse;
-import com.todoary.ms.util.BaseResponseStatus;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

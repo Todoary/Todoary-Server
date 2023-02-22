@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 
-import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
+import static com.todoary.ms.src.common.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString

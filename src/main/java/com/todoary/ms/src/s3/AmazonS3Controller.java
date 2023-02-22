@@ -1,17 +1,9 @@
 package com.todoary.ms.src.s3;
 
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.s3.dto.PostProfileImgRes;
-import com.todoary.ms.src.user.UserProvider;
-import com.todoary.ms.src.user.UserService;
-import com.todoary.ms.util.BaseException;
-import com.todoary.ms.util.BaseResponse;
+import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
+import com.todoary.ms.src.legacy.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/s3")

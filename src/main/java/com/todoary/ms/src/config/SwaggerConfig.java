@@ -1,7 +1,7 @@
 package com.todoary.ms.src.config;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.todoary.ms.src.config.auth.LoginMember;
+import com.todoary.ms.src.common.auth.annotation.LoginMember;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

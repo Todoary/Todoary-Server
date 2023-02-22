@@ -1,24 +1,32 @@
 package com.todoary.ms.src.repository;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.RefreshToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.todoary.ms.src.domain.QMember.member;
+
 @Repository
 public class MemberRepository {
-    @PersistenceContext
-    private EntityManager em;
+    private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
+
+    @Autowired
+    public MemberRepository(EntityManager em) {
+        this.em = em;
+        this.queryFactory = new JPAQueryFactory(em);
+    }
 
     public Long save(Member member) {
         em.persist(member);
@@ -30,68 +38,32 @@ public class MemberRepository {
     }
 
     public Boolean isProviderEmailUsed(Provider provider, String email) {
-        try {
-            em.createQuery("select m from Member m where m.email = :email and m.providerAccount.provider = :provider", Member.class)
-                    .setParameter("email", email)
-                    .setParameter("provider", provider)
-                    .getSingleResult();
-
-            return true;
-        } catch (NoResultException exception) {
-            return false;
-        }
+        Integer fetchOne = queryFactory
+                .selectOne()
+                .from(member)
+                .where(member.email.eq(email), member.providerAccount.provider.eq(provider))
+                .fetchFirst();
+        return fetchOne != null;
     }
 
     public Boolean isNicknameUsed(String nickname) {
-        try {
-            em.createQuery("select m from Member m where m.nickname = :nickname", Member.class)
-                    .setParameter("nickname", nickname)
-                    .getSingleResult();
-
-            return true;
-        } catch (NoResultException exception) {
-            return false;
-        }
-    }
-
-    public Boolean isNicknameUsedByOthers(Long memberId ,String nickname) {
-        try {
-            em.createQuery("select m from Member m where m.nickname = :nickname and m.id <> :memberId", Member.class)
-                    .setParameter("nickname", nickname)
-                    .setParameter("memberId", memberId)
-                    .getSingleResult();
-            return true;
-        } catch (NoResultException exception) {
-            return false;
-        }
-    }
-
-    public Boolean isActiveById(Long memberId) {
-        try {
-            em.createQuery("select m from Member m where m.id = :memberId and m.status = 1", Member.class)
-                    .setParameter("memberId", memberId)
-                    .getSingleResult();
-
-            return true;
-        } catch (NoResultException exception) {
-            return false;
-        }
+        Integer fetchOne = queryFactory
+                .selectOne()
+                .from(member)
+                .where(member.nickname.eq(nickname))
+                .fetchFirst();
+        return fetchOne != null;
     }
 
     public Boolean isActiveByProviderAccount(ProviderAccount providerAccount) {
-        try {
-            em.createQuery("select m from Member m " +
-                            "where m.providerAccount.provider = :provider " +
-                            "and m.providerAccount.providerId = :providerId " +
-                            "and m.status = 1", Member.class)
-                    .setParameter("provider", providerAccount.getProvider())
-                    .setParameter("providerId", providerAccount.getProviderId())
-                    .getSingleResult();
-
-            return true;
-        } catch (NoResultException exception) {
-            return false;
-        }
+        Integer fetchOne = queryFactory
+                .selectOne()
+                .from(member)
+                .where(member.providerAccount.provider.eq(providerAccount.getProvider()))
+                .where(member.providerAccount.providerId.eq(providerAccount.getProviderId()))
+                .where(member.status.eq(1))
+                .fetchFirst();
+        return fetchOne != null;
     }
 
     public void deleteByStatus() {
@@ -104,76 +76,38 @@ public class MemberRepository {
                 , LocalTime.of(0, 0, 0));
 
         em.createQuery("delete from Member m " +
-                        "where m.status = 0 " +
-                        "and m.modifiedAt >= :startDateTime " +
-                        "and m.modifiedAt < :endDateTime")
+                               "where m.status = 0 " +
+                               "and m.modifiedAt >= :startDateTime " +
+                               "and m.modifiedAt < :endDateTime")
                 .setParameter("startDateTime", startDateTime)
                 .setParameter("endDateTime", endDateTime)
                 .executeUpdate();
     }
 
     public Boolean existByRefreshToken(RefreshToken refreshToken) {
-        try {
-            em.createQuery("select m from Member m join m.refreshToken r where r.code = :code", Member.class)
-                    .setParameter("code", refreshToken.getCode())
-                    .getSingleResult();
-
-            return true;
-        } catch (NoResultException e) {
-            return false;
-        }
+        Integer fetchOne = queryFactory
+                .selectOne()
+                .from(member)
+                .where(member.refreshToken.code.eq(refreshToken.getCode()))
+                .fetchFirst();
+        return fetchOne != null;
     }
 
     public Optional<Member> findByEmail(String email) {
-        try {
-            Member member = em.createQuery("select m from Member m where m.email = :email and m.status = 1", Member.class)
-                    .setParameter("email", email)
-                    .getSingleResult();
-
-            return Optional.ofNullable(member);
-        } catch (NoResultException e) {
-            return Optional.ofNullable(null);
-        }
+        return em.createQuery("select m from Member m where m.email = :email and m.status = 1", Member.class)
+                .setParameter("email", email)
+                .getResultStream().findAny();
     }
 
     public Optional<Member> findByProviderEmail(String email, String providerName) {
-        try {
-            Member member = em.createQuery("select m from Member m where m.providerAccount.provider = :provider and m.email = :email", Member.class)
-                    .setParameter("provider", Provider.findByProviderName(providerName))
-                    .setParameter("email", email)
-                    .getSingleResult();
-
-            return Optional.ofNullable(member);
-        } catch (NoResultException e) {
-            return Optional.ofNullable(null);
-        }
+        return em.createQuery("select m from Member m where m.providerAccount.provider = :provider and m.email = :email", Member.class)
+                .setParameter("provider", Provider.findByProviderName(providerName))
+                .setParameter("email", email)
+                .getResultStream().findAny();
     }
 
     public List<Member> findAllDailyAlarmEnabled() {
         return em.createQuery("select m from Member m where m.dailyAlarmEnable = true", Member.class)
                 .getResultList();
     }
-
-
-    public Optional<Member> findProfileById(Long memberId) {
-        try {
-            Member member = em.createQuery("select m.profileImgUrl, m.nickname, m.introduce, m.email from Member m ", Member.class)
-                    .getSingleResult();
-            return Optional.ofNullable(member);
-        } catch (NoResultException e) {
-            return Optional.ofNullable(null);
-        }
-    }
-
-    public Optional<Member> updateStatus(Long memberId) {
-        try {
-            Member member = em.createQuery("update Member m set m.status=0", Member.class)
-                    .getSingleResult();
-            return Optional.ofNullable(member);
-        } catch (NoResultException e) {
-            return Optional.ofNullable(null);
-        }
-    }
-
-
 }

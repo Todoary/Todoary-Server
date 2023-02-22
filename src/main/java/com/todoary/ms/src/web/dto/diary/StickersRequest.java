@@ -1,7 +1,5 @@
 package com.todoary.ms.src.web.dto.diary;
 
-import com.todoary.ms.src.domain.StickerShape;
-import com.todoary.ms.src.domain.StickerType;
 import lombok.*;
 
 import javax.validation.Valid;
@@ -36,21 +34,6 @@ public class StickersRequest {
         private Double height = 0.0;
         private Double rotation = 0.0;
         private Boolean flipped = false;
-
-        public StickerType newStickerType() {
-            return StickerType.from(stickerId);
-        }
-
-        public StickerShape newShape() {
-            return StickerShape.builder()
-                    .locationX(locationX)
-                    .locationY(locationY)
-                    .width(width)
-                    .height(height)
-                    .rotation(rotation)
-                    .flipped(flipped)
-                    .build();
-        }
     }
 
     @Getter

@@ -1,6 +1,6 @@
 package com.todoary.ms.src.web.controller;
 
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
+import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.web.dto.*;
 import com.todoary.ms.src.web.dto.category.CategoryRequest;
 import com.todoary.ms.src.web.dto.category.CategoryResponse;
@@ -11,7 +11,7 @@ import com.todoary.ms.src.web.dto.diary.StickerRequest;
 import com.todoary.ms.src.web.dto.diary.StickersRequest;
 import com.todoary.ms.src.web.dto.todo.TodoRequest;
 import com.todoary.ms.src.web.dto.todo.TodoSaveResponse;
-import com.todoary.ms.util.BaseResponse;
+import com.todoary.ms.src.common.response.BaseResponse;
 import lombok.*;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +23,8 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Random;
 
-import static com.todoary.ms.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
-import static com.todoary.ms.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
+import static com.todoary.ms.src.common.util.ColumnLengthInfo.CATEGORY_TITLE_MAX_LENGTH;
+import static com.todoary.ms.src.common.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
 
 @RequiredArgsConstructor
 @RestController
@@ -88,15 +88,8 @@ public class JpaTestController {
     }
 
     private void saveRandomSticker(TestMemberDto testMember) {
-        StickerRequest stickerRequest = StickerRequest.builder()
-                .stickerId(1)
-                .locationX(10.5)
-                .locationY(12.5)
-                .width(13.5)
-                .height(19.3)
-                .rotation(20.5)
-                .flipped(false)
-                .build();
+        StickerRequest stickerRequest = new StickerRequest(
+                1, 10.5, 12.5, 13.5, 19.3, 20.5, false);
         List<StickerRequest> created = List.of(stickerRequest, stickerRequest);
         List<Long> createdStickers =
                 diaryController.updateStickersInDiaryOnDate(

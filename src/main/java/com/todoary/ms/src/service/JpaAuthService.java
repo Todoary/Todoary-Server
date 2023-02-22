@@ -1,11 +1,11 @@
 package com.todoary.ms.src.service;
 
-import com.todoary.ms.src.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.auth.model.PrincipalDetails;
+import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
+import com.todoary.ms.src.legacy.auth.model.PrincipalDetails;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
-import com.todoary.ms.src.exception.common.TodoaryException;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.todoary.ms.util.BaseResponseStatus.*;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 
 @RequiredArgsConstructor
 @Transactional
@@ -40,11 +40,16 @@ public class JpaAuthService {
         return memberId == Long.parseLong(jwtTokenProvider.getUserIdFromAccessToken(accessTokenCode));
     }
 
-    public RefreshToken saveRefreshToken(Member member) {
-        RefreshToken refreshToken = new RefreshToken(member, jwtTokenProvider.createRefreshToken(member.getId()));
-
-        refreshTokenService.save(refreshToken);
-        return refreshToken;
+    @Transactional
+    public RefreshToken createRefreshToken(Member member) {
+        String code = jwtTokenProvider.createRefreshToken(member.getId());
+        if (member.hasRefreshToken()) {
+            return member.updateRefreshToken(code);
+        } else {
+            RefreshToken refreshToken = new RefreshToken(member, code);
+            refreshTokenService.save(refreshToken);
+            return refreshToken;
+        }
     }
 
     public Long authenticate(String email, String password) {
@@ -76,7 +81,7 @@ public class JpaAuthService {
 
     public RefreshToken issueRefreshToken(Long memberId) {
         Member findMember = memberService.findById(memberId);
-        RefreshToken refreshToken = saveRefreshToken(findMember);
+        RefreshToken refreshToken = createRefreshToken(findMember);
 
         return refreshToken;
     }
