@@ -54,16 +54,16 @@ class AwsS3ServiceTest {
     @Test
     void 없는_파일일때_파일_삭제X() {
         //given
-        // Matcher matcher = fileNamePattern.matcher(defaultProfileImageUrl);
-        // assertThat(matcher.matches()).isTrue();
-        //
-        // String fileUrlPrefix = matcher.group(1);
-        // String fileUrl = fileUrlPrefix + "12345";
-        // System.out.println("fileUrl = " + fileUrl);
-        // // when
-        // assertThatThrownBy(() -> awsS3Service.fileDelete(fileUrl))
-        //         .isInstanceOf(TodoaryException.class)
-        //         .matches(e -> ((TodoaryException) e).getStatus().equals(AWS_FILE_NOT_FOUND));
+        Matcher matcher = fileNamePattern.matcher(defaultProfileImageUrl);
+        assertThat(matcher.matches()).isTrue();
+
+        String fileUrlPrefix = matcher.group(1);
+        String fileUrl = fileUrlPrefix + "12345";
+        System.out.println("fileUrl = " + fileUrl);
+        // when
+        assertThatThrownBy(() -> awsS3Service.fileDelete(fileUrl))
+                .isInstanceOf(TodoaryException.class)
+                .matches(e -> ((TodoaryException) e).getStatus().equals(AWS_FILE_NOT_FOUND));
     }
 
     @Test
