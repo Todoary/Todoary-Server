@@ -129,8 +129,8 @@ public class JpaAuthController {
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
-    @PostMapping("/apple/signin")
-    public BaseResponse<AppleSigninResponse> apple(@RequestBody AppleSigninRequest appleSigninRequest) {
+    @PostMapping("/apple/token")
+    public BaseResponse<AppleSigninResponse> appleSignin(@RequestBody AppleSigninRequest appleSigninRequest) {
         // validate code
         JSONObject tokenResponse = appleAuthService.getTokenResponseByCode(appleSigninRequest.getCode());
 
