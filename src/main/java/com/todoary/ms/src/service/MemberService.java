@@ -4,6 +4,7 @@ import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
+import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
@@ -106,13 +107,13 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public Member findByEmailOfGeneralMember(String email) {
-        return checkMemberValid(memberRepository.findByProvider(email, ProviderAccount.none()));
+    public Member findGeneralMemberByEmail(String email) {
+        return checkMemberValid(memberRepository.findGeneralMemberByEmail(email));
     }
 
     @Transactional(readOnly = true)
-    public Member findByProvider(String email, ProviderAccount provider) {
-        return checkMemberValid(memberRepository.findByProvider(email, provider));
+    public Member findByProviderAccount(ProviderAccount providerAccount) {
+        return checkMemberValid(memberRepository.findByProviderAccount(providerAccount));
     }
 
     private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount provider) {
@@ -129,7 +130,7 @@ public class MemberService {
 
     @Transactional
     public void changePassword(String email, String newPassword) {
-        Member member = findByEmailOfGeneralMember(email);
+        Member member = findGeneralMemberByEmail(email);
         member.changePassword(encodePassword(newPassword));
     }
 

@@ -180,22 +180,12 @@ class AuthControllerTest {
                 true
         );
 
-        AppleSigninResponse expected = new AppleSigninResponse(
-                true,
-                "name",
-                "email",
-                ProviderAccount.appleFrom("providerId"),
-                "accessToken",
-                "refreshToken",
-                "appleRefreshToken"
-        );
-
         Map<String, String> tokenResponse = new HashMap<>();
         tokenResponse.put("id_token", "idToken");
         tokenResponse.put("refresh_token", "appleRefreshToken");
 
         when(memberService.existsByProviderAccount(any())).thenReturn(false);
-        when(memberService.findByProvider(any(), any())).thenReturn(createMemberWithId(1L));
+        when(memberService.findByProviderAccount(any())).thenReturn(createMemberWithId(1L));
         when(memberService.joinOauthMember(any())).thenReturn(1L);
         when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
         when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
@@ -205,10 +195,11 @@ class AuthControllerTest {
 
         //when
         mockMvc.perform(
-                        post("/auth/jpa/apple/signin")
+                        post("/auth/jpa/apple/token")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(appleSigninRequest)))
                 .andExpect(status().isOk())
+                .andDo(print())
                 .andExpect(jsonPath("$.code").value("1000"))
                 .andExpect(jsonPath("$.result.isNewUser").value(true));
     }
@@ -224,22 +215,12 @@ class AuthControllerTest {
                 true
         );
 
-        AppleSigninResponse expected = new AppleSigninResponse(
-                false,
-                "name",
-                "email",
-                ProviderAccount.appleFrom("providerId"),
-                "accessToken",
-                "refreshToken",
-                "appleRefreshToken"
-        );
-
         Map<String, String> tokenResponse = new HashMap<>();
         tokenResponse.put("id_token", "idToken");
         tokenResponse.put("refresh_token", "appleRefreshToken");
 
         when(memberService.existsByProviderAccount(any())).thenReturn(true);
-        when(memberService.findByProvider(any(), any())).thenReturn(createMemberWithId(1L));
+        when(memberService.findByProviderAccount(any())).thenReturn(createMemberWithId(1L));
         when(memberService.joinOauthMember(any())).thenReturn(1L);
         when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
         when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
@@ -249,14 +230,15 @@ class AuthControllerTest {
 
         //when
         mockMvc.perform(
-                        post("/auth/jpa/apple/signin")
+                        post("/auth/jpa/apple/token")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(appleSigninRequest)))
                 .andExpect(status().isOk())
+                .andDo(print())
                 .andExpect(jsonPath("$.code").value("1000"))
                 .andExpect(jsonPath("$.result.isNewUser").value(false));
     }
-
+    
     public Member createMemberWithId(Long id) throws NoSuchFieldException, IllegalAccessException {
         Member member = Member.builder().build();
         Field idField = member.getClass().getDeclaredField("id");

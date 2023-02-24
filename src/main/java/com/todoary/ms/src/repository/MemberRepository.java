@@ -2,6 +2,7 @@ package com.todoary.ms.src.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todoary.ms.src.domain.Member;
+import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,15 +99,30 @@ public class MemberRepository {
                 .getResultStream().findAny();
     }
 
-    public Optional<Member> findByProvider(String email, ProviderAccount provider) {
-        return em.createQuery("select m from Member m where m.providerAccount = :provider and m.email = :email", Member.class)
+    public Optional<Member> findByProviderEmail(String email, Provider provider) {
+        return em.createQuery("select m from Member m where m.providerAccount.provider = :provider and m.email = :email", Member.class)
                 .setParameter("provider", provider)
                 .setParameter("email", email)
                 .getResultStream().findAny();
     }
 
+    public Optional<Member> findByProviderAccount(ProviderAccount providerAccount) {
+        return em.createQuery("select m from Member m where m.providerAccount = :providerAccount", Member.class)
+                .setParameter("providerAccount", providerAccount)
+                .getResultStream()
+                .findAny();
+    }
+
     public List<Member> findAllDailyAlarmEnabled() {
         return em.createQuery("select m from Member m where m.dailyAlarmEnable = true", Member.class)
                 .getResultList();
+    }
+
+    public Optional<Member> findGeneralMemberByEmail(String email) {
+        return em.createQuery("select m from Member m where m.providerAccount = :providerAccount and m.email = :email")
+                .setParameter("providerAccount", ProviderAccount.none())
+                .setParameter("email", email)
+                .getResultStream()
+                .findAny();
     }
 }
