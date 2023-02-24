@@ -1,5 +1,6 @@
 package com.todoary.ms.src.web.controller;
 
+import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
+
+import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -99,7 +102,7 @@ public class JpaAuthController {
                 memberJoinRequest.getIsTermsEnable()
         );
         memberService.joinGeneralMember(memberJoinParam);
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return new BaseResponse<>(SUCCESS);
     }
 
     /**
@@ -126,7 +129,7 @@ public class JpaAuthController {
     @PatchMapping("/password")
     public BaseResponse<BaseResponseStatus> patchUserPassword(@RequestBody MemberPasswordChangeRequest memberPasswordChangeRequest) {
         memberService.changePassword(memberPasswordChangeRequest.getEmail(), memberPasswordChangeRequest.getNewPassword());
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+        return new BaseResponse<>(SUCCESS);
     }
 
     @PostMapping("/apple/token")
@@ -146,10 +149,7 @@ public class JpaAuthController {
         // issue tokens
         Long memberId;
         if (memberExists) {
-            memberId = memberService.findByProvider(
-                    appleSigninRequest.getEmail(),
-                    providerAccount
-            ).getId();
+            memberId = memberService.findByProviderAccount(providerAccount).getId();
         } else {
             memberId = memberService.joinOauthMember(new OauthMemberJoinParam(
                     appleSigninRequest.getName(),
@@ -169,5 +169,16 @@ public class JpaAuthController {
                 authService.issueRefreshToken(memberId).getCode(),
                 appleRefreshToken
         ));
+    }
+
+    @PostMapping("/revoke/apple")
+    public BaseResponse<BaseResponseStatus> appleRevoke(@RequestBody AppleRevokeRequest appleRevokeRequest) {
+        // revoke with Apple
+        JSONObject tokenResponse = appleAuthService.getTokenResponseByCode(appleRevokeRequest.getCode());
+        String appleRefreshToken = tokenResponse.getAsString("refresh_token");
+
+        appleAuthService.revoke(appleRefreshToken);
+
+        return new BaseResponse<>(SUCCESS);
     }
 }

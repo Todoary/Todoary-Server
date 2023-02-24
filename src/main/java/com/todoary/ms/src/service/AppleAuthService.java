@@ -5,6 +5,7 @@ import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.common.exception.TodoaryException;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.web.dto.ClientSecretHeaderParam;
 import com.todoary.ms.src.web.dto.ClientSecretPayloadParam;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,9 @@ public class AppleAuthService {
     @Value("${apple.token-url}")
     private String AUTH_TOKEN_URL;
 
+    @Value("${apple.revoke-url}")
+    private String AUTH_REVOKE_URL;
+
     @Value("${apple.website-url}")
     private String APPLE_WEBSITE_URL;
 
@@ -68,7 +72,7 @@ public class AppleAuthService {
         return getTokenResponse(getTokenRequest(authenticationCode));
     }
 
-    private String getClientSecret() {
+    public String getClientSecret() {
         ClientSecretHeaderParam clientSecretHeaderParam = new ClientSecretHeaderParam(
                 KEY_ID,
                 APPLE_CLIENT_SECRET_SIGNATURE
@@ -147,6 +151,38 @@ public class AppleAuthService {
             return objectMapper.readValue(getPayload.toJSONObject().toJSONString(), JSONObject.class);
         } catch (Exception exception) {
             throw new TodoaryException(INVALID_APPLE_AUTH);
+        }
+    }
+
+    public void revoke(String appleRefreshToken) {
+        getRevokeResponse(getRevokeRequest(appleRefreshToken));
+    }
+
+    private void getRevokeResponse(Map revokeRequest) {
+        doPostForRevoke(revokeRequest);
+    }
+
+    private Map getRevokeRequest(String appleRefreshToken) {
+        Map<String, String> revokeRequest = new HashMap<>();
+
+        revokeRequest.put("client_id", CLIENT_ID);
+        revokeRequest.put("client_secret", getClientSecret());
+        revokeRequest.put("token", appleRefreshToken);
+        revokeRequest.put("token_type_hint", "refresh_token");
+
+        return revokeRequest;
+    }
+
+    private void doPostForRevoke(Map revokeRequest) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity httpEntity = new HttpEntity(revokeRequest, httpHeaders);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Map> response = restTemplate.postForEntity(AUTH_REVOKE_URL, httpEntity, Map.class);
+
+        if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+            throw new TodoaryException(BaseResponseStatus.APPLE_REVOKE_FAILURE);
         }
     }
 }

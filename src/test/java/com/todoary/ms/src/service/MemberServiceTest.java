@@ -89,7 +89,7 @@ class MemberServiceTest {
         MemberJoinParam memberJoinParam = createMemberJoinParamOfEmail(email);
         memberService.joinGeneralMember(memberJoinParam);
         // when
-        Member member = memberService.findByEmailOfGeneralMember(email);
+        Member member = memberService.findGeneralMemberByEmail(email);
         // then
         assertThat(member.getEmail()).isEqualTo(email);
         assertThat(ProviderAccount.none()).isEqualTo(ProviderAccount.none());
