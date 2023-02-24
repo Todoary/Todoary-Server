@@ -99,7 +99,7 @@ public class MemberRepository {
                 .getResultStream().findAny();
     }
 
-    public Optional<Member> findByProviderEmail(String email, Provider provider) {
+    public Optional<Member> findByProviderEmail(Provider provider, String email) {
         return em.createQuery("select m from Member m where m.providerAccount.provider = :provider and m.email = :email", Member.class)
                 .setParameter("provider", provider)
                 .setParameter("email", email)

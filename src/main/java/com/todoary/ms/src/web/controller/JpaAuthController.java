@@ -1,5 +1,6 @@
 package com.todoary.ms.src.web.controller;
 
+import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.AccessToken;
@@ -173,11 +174,15 @@ public class JpaAuthController {
 
     @PostMapping("/revoke/apple")
     public BaseResponse<BaseResponseStatus> appleRevoke(@RequestBody AppleRevokeRequest appleRevokeRequest) {
-        // revoke with Apple
+        // revoke from Apple
         JSONObject tokenResponse = appleAuthService.getTokenResponseByCode(appleRevokeRequest.getCode());
         String appleRefreshToken = tokenResponse.getAsString("refresh_token");
 
         appleAuthService.revoke(appleRefreshToken);
+
+        // revoke from Todoary
+        Member member = memberService.findByProviderEmail(Provider.APPLE, appleRevokeRequest.getEmail());
+        memberService.removeMember(member);
 
         return new BaseResponse<>(SUCCESS);
     }

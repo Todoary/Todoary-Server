@@ -112,6 +112,11 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
+    public Member findByProviderEmail(Provider provider, String email) {
+        return checkMemberValid(memberRepository.findByProviderEmail(provider, email));
+    }
+
+    @Transactional(readOnly = true)
     public Member findByProviderAccount(ProviderAccount providerAccount) {
         return checkMemberValid(memberRepository.findByProviderAccount(providerAccount));
     }
@@ -189,6 +194,11 @@ public class MemberService {
     @Transactional
     public void removeMember(Long memberId) {
         Member member = findById(memberId);
+        removeMember(member);
+    }
+
+    @Transactional
+    public void removeMember(Member member) {
         member.deactivate();
     }
 
