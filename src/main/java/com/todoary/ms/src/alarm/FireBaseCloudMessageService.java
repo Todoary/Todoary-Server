@@ -6,23 +6,41 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.todoary.ms.src.alarm.model.FcmMessage;
 import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.common.response.BaseResponseStatus;
+import com.todoary.ms.src.domain.Todo;
+import com.todoary.ms.src.service.todo.JpaTodoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
+import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
+
 @Slf4j
-@Component
+@Transactional
+@Service
 @RequiredArgsConstructor
 public class FireBaseCloudMessageService {
+    @Value("${fcm.authorization.config}")
+    private String FCM_CONFIG_FILE_PATH;
 
-    private final String API_URL = "https://fcm.googleapis.com/v1/projects/todoary-1304d/messages:send";
+    @Value("${fcm.message-send-url}")
+    private String MESSAGE_SEND_URL;
+
+    @Value("${fcm.authorization.get-auth-url}")
+    private String FCM_GETTING_AUTHORIZATION_URL;
+
     private final ObjectMapper objectMapper;
+    private final JpaTodoService todoService;
 
     public void sendMessageTo(String fcm_token, String title, String body) { // targetToken : 에 해당하는 device로 보낼 것이다.
         try {
@@ -32,19 +50,17 @@ public class FireBaseCloudMessageService {
             RequestBody requestBody = RequestBody.create(message,
                     MediaType.get("application/json; charset=utf-8"));
             Request request = new Request.Builder()
-                    .url(API_URL)
+                    .url(MESSAGE_SEND_URL)
                     .post(requestBody)
                     .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) // Authorization 헤더에 access token 추가
                     .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
                     .build();
-
             Response response = client.newCall(request).execute();
 
             log.info(response.body().string());
-        } catch (IOException ioException) {
-            throw new TodoaryException(BaseResponseStatus.FCM_MESSAGE_PARSING_FAILURE);
+        } catch (IOException exception) {
+            throw new TodoaryException(FCM_MESSAGE_PARSING_FAILURE);
         }
-
     }
 
     private String makeMessage(String fcm_token, String title, String body) {
@@ -65,18 +81,40 @@ public class FireBaseCloudMessageService {
                             .build();
             return objectMapper.writeValueAsString(fcmMessage);
         } catch (JsonProcessingException e) {
-            throw new TodoaryException(BaseResponseStatus.FCM_MESSAGE_PARSING_FAILURE);
+            throw new TodoaryException(FCM_MESSAGE_PARSING_FAILURE);
         }
     }
 
-    private String getAccessToken() throws IOException {
-        String firebaseConfigPath = "firebase/firebase_service_key.json";
+    private String getAccessToken() {
+        try {
+            GoogleCredentials googleCredentials = GoogleCredentials // GoogleCredentials : Google API를 사용하기 위해 oauth2를 이용해 인증한 대상
+                    .fromStream(new ClassPathResource(FCM_CONFIG_FILE_PATH).getInputStream()) // firebase/firebase_service_key.json를 inputstream으로 가져옴
+                    .createScoped(List.of(FCM_GETTING_AUTHORIZATION_URL)); // 서버에서 필요로하는 권한 설정
 
-        GoogleCredentials googleCredentials = GoogleCredentials // GoogleCredentials : Google API를 사용하기 위해 oauth2를 이용해 인증한 대상
-                .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream()) // firebase/firebase_service_key.json를 inputstream으로 가져옴
-                .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform")); // 서버에서 필요로하는 권한 설정
+            googleCredentials.refreshIfExpired(); //설정이 적용된 객체로부터 access token 생성
+            return googleCredentials.getAccessToken().getTokenValue(); // access token 값을 가져옴 >> rest api를 통해 fcm에 push 요청을 할 때 header에 담아서 인증할 것임.
+        } catch (IOException exception) {
+            throw new TodoaryException(FCM_MESSAGE_PARSING_FAILURE);
+        }
+    }
 
-        googleCredentials.refreshIfExpired(); //설정이 적용된 객체로부터 access token 생성
-        return googleCredentials.getAccessToken().getTokenValue(); // access token 값을 가져옴 >> rest api를 통해 fcm에 push 요청을 할 때 header에 담아서 인증할 것임.
+    public void sendTodoAlarm(LocalDate targetDate, LocalTime targetTime) {
+        List<Todo> todos = todoService.findAllByDateTime(targetDate, targetTime);
+        for (Todo todo : todos) {
+            if (
+                    !todo.getMember().isDeleted() &&
+                            todo.getMember().getToDoAlarmEnable() &&
+                            todo.getIsAlarmEnabled()
+            ) {
+                String todoTitle = todo.getTitle();
+                String fcmToken = todo.getMember().getFcmToken().getCode();
+
+                sendMessageTo(
+                        fcmToken,
+                        "Todoary 알림",
+                        todoTitle
+                );
+            }
+        }
     }
 }

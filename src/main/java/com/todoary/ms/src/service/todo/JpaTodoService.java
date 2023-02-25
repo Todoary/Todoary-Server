@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -100,6 +101,14 @@ public class JpaTodoService {
         Category category = findCategoryByIdAndMember(categoryId, member);
         return todoRepository.findByCategoryAndSatisfy(category, todoByCategoryCondition.getPredicate())
                 .stream().map(TodoResponse::from).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<Todo> findAllByDateTime(LocalDate targetDate, LocalTime targetTime) {
+        List<Todo> todos = todoRepository.findAllByDate(targetDate);
+        return todos.stream()
+                .filter(todo -> todo.getTargetTime().equals(targetTime))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
