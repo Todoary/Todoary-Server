@@ -40,7 +40,7 @@ public class AlarmController {
         return ResponseEntity.ok().build();
     }
 
-    @Scheduled(cron = "0 0/1 * 1/1 * ?")
+    //@Scheduled(cron = "0 0/1 * 1/1 * ?")
     public void TodoaryAlarm() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String now = dateFormat.format(new Date());
@@ -58,7 +58,7 @@ public class AlarmController {
         }
     }
 
-    @Scheduled(cron = "0 0 0 1/1 * ?")
+    //@Scheduled(cron = "0 0 0 1/1 * ?")
     public void DailyAlarm(){
 
         List<Alarm> alarms_daily = alarmDao.selectByDateTime_daily();
@@ -71,7 +71,7 @@ public class AlarmController {
 
     }
 
-    @Scheduled(cron = "0 0 0 1/1 * ?")
+    //@Scheduled(cron = "0 0 0 1/1 * ?")
     public void RemindAlarm() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String target_date = dateFormat.format(new Date());
@@ -85,7 +85,7 @@ public class AlarmController {
         }
     }
 
-    @Scheduled(cron = "0 0 ${fcm.secret.time} ? * ${fcm.secret.day}")
+    //@Scheduled(cron = "0 0 ${fcm.secret.time} ? * ${fcm.secret.day}")
     public void AlarmRemove(){
         try {
             alarmDao.deleteByDateTime_todo();

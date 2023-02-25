@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -240,5 +241,9 @@ public class MemberService {
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
         return nickname;
+    }
+
+    public List<Member> findAllForRemindAlarm(LocalDate targetDate) {
+        return memberRepository.findAllForRemindAlarm(targetDate);
     }
 }

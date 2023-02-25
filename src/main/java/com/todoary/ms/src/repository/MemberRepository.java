@@ -125,4 +125,10 @@ public class MemberRepository {
                 .getResultStream()
                 .findAny();
     }
+
+    public List<Member> findAllForRemindAlarm(LocalDate targetDate) {
+        return em.createQuery("select m from Member m where m.remindAlarm.targetDate = :targetDate and m.remindAlarmEnable = true")
+                .setParameter("targetDate", targetDate)
+                .getResultList();
+    }
 }

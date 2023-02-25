@@ -6,6 +6,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.todoary.ms.src.alarm.model.FcmMessage;
 import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.common.response.BaseResponseStatus;
+import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Todo;
 import com.todoary.ms.src.service.todo.JpaTodoService;
 import lombok.RequiredArgsConstructor;
@@ -98,6 +99,16 @@ public class FireBaseCloudMessageService {
         }
     }
 
+    public void sendDailyAlarm(List<Member> dailyAlarmEnabledMembers) {
+        dailyAlarmEnabledMembers.stream()
+                .map(member -> member.getFcmToken().getCode())
+                .forEach(fcmToken -> sendMessageTo(
+                        fcmToken,
+                        "하루기록 알림",
+                        "하루기록을 작성해보세요.")
+                );
+    }
+
     public void sendTodoAlarm(LocalDate targetDate, LocalTime targetTime) {
         List<Todo> todos = todoService.findAllByDateTime(targetDate, targetTime);
         for (Todo todo : todos) {
@@ -116,5 +127,15 @@ public class FireBaseCloudMessageService {
                 );
             }
         }
+    }
+
+    public void sendRemindAlarm(List<Member> targetMembers) {
+        targetMembers.stream()
+                .map(member -> member.getFcmToken().getCode())
+                .forEach(fcmToken -> sendMessageTo(
+                        fcmToken,
+                        "리마인드 알림",
+                        "하루기록을 작성한 지 일주일이 경과했습니다.")
+                );
     }
 }
