@@ -87,6 +87,10 @@ public class Category extends BaseTimeEntity {
         this.todos.add(todo);
     }
 
+    public boolean hasTitle(String title) {
+        return this.title != null && this.title.equals(title);
+    }
+
     public static class InitialCategoryValue {
         public static final String initialTitle = "일상☘️";
         public static final Color initialColor = Color.from(1);

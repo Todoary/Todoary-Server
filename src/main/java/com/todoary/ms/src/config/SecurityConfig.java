@@ -78,6 +78,8 @@ public class SecurityConfig {
                 .antMatchers("/favicon.ico").permitAll()
                 // for test
                 .antMatchers("/jpa/test").permitAll()
+                // profile check
+                .antMatchers("/profile").permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()

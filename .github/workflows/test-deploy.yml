@@ -6,7 +6,7 @@ name: deploy
 on:
   # Triggers the workflow on push or pull request events but only for the "Develop" branch
   push:
-    branches: [ "Test"]
+    branches: [ "Test" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -17,7 +17,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.TOKEN }}
@@ -29,56 +29,54 @@ jobs:
           java-version: '11'
           distribution: 'temurin' # https://github.com/actions/setup-java
 
-      ## create application-secret.yml
-      - name: make application-secret.yml
-        #if: contains(github.ref, 'develop')
-        run: |
-          cd ./src/main/resources
-          touch ./application-secret.yml
-          echo "${{ secrets.TEST_SECRET_YML }}" > ./application-secret.yml
-        shell: bash
+      - name: Gradle Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean build -x test --info
         shell: bash
 
       - name: Test with Gradle
         run: ./gradlew test
 
-      - name: Deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.REMOTE_IP }}
-          username: ${{ secrets.REMOTE_SSH_ID }}
-          key: ${{ secrets.REMOTE_SSH_KEY }}
-          port: ${{ secrets.REMOTE_SSH_PORT }}
-          script: |
-            whoami
-            cd /home/ubuntu/Test-Todoary-Server
-             echo -e "\
-             +------------------------------------+
-             |              1. build              |
-             +------------------------------------+"
-            
-            echo ">>>>>> making secret yml..."
-            echo "${{ secrets.TEST_SECRET_YML }}" > ./src/main/resources/application-secret.yml
-           
-            echo ">>>>>> making auth key..."
-            echo "${{ secrets.AUTH_KEY }}" > ./src/main/resources/static/AuthKey_Q97Q56DJS6.p8
-            
-            echo -e "\
-             >>>>>> git pull... "
-            cd "/home/ubuntu/Test-Todoary-Server" || exit 1
-            git fetch --all || exit 1
-            git reset --hard origin/Test || exit 1
-            git pull origin Test || exit 1
-            git submodule update --init --recursive || exit 1
-            git submodule update --remote --merge || exit 1
+      - name: zip 파일 생성
+        run: |
+          mkdir -p before-deploy
+          cp service-scripts/*.sh before-deploy/
+          cp appspec.yml before-deploy/
+          cp $(ls -tr build/libs/*.jar | tail -n 1) before-deploy/
+          cd before-deploy && zip -r before-deploy *
+          cd ../ && mkdir -p deploy
+          mv before-deploy/before-deploy.zip deploy/todoary-service$GITHUB_SHA.zip
+        shell: bash
 
-            ./test-scripts/build.sh || exit 1
-            ./test-scripts/stop.sh || exit 1
-            ./test-scripts/start.sh || exit 1
+      - name: AWS 자격 증명
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: S3 로드
+        run: |
+          aws s3 cp \
+          --region ap-northeast-2 \
+          ./deploy/todoary-service$GITHUB_SHA.zip s3://todoary-service-s3/artifacts/todoary-service$GITHUB_SHA.zip
+
+      - name: CodeDeploy 배포
+        run: |
+          aws deploy create-deployment \
+          --application-name todoary-service \
+          --deployment-group-name todoary-service-group \
+          --s3-location bucket=todoary-service-s3,bundleType=zip,key=artifacts/todoary-service$GITHUB_SHA.zip

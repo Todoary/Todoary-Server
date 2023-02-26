@@ -14,7 +14,7 @@ plugins {
 }
 
 group = 'com.todoary'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1-SNAPSHOT'+new Date().format("yyyyMMddHHmmss")
 sourceCompatibility = '11'
 
 configurations {
@@ -81,6 +81,11 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// plain jar 생성하지 않음
+jar {
+    enabled = false
 }
 
 task copyMainResources {
