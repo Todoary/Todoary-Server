@@ -29,69 +29,54 @@ jobs:
           java-version: '11'
           distribution: 'temurin' # https://github.com/actions/setup-java
 
-      ## create application-secret.yml
-      - name: make application-secret.yml
-        #if: contains(github.ref, 'develop')
-        run: |
-          cd ./src/main/resources
-          touch ./application-secret.yml
-          echo "${{ secrets.RELEASE_YML }}" > ./application-secret.yml
-        shell: bash
-
-      - name: make application.yml for test
-        #if: contains(github.ref, 'develop')
-        run: |
-          mkdir -p ./src/test/resources
-          cd ./src/test/resources
-          touch ./application.yml
-          echo "${{ secrets.TEST_YML }}" > ./application.yml
-        shell: bash
+      - name: Gradle Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean build -x test --info
         shell: bash
 
       - name: Test with Gradle
         run: ./gradlew test
 
-      - name: Deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.REMOTE_IP }}
-          username: ${{ secrets.REMOTE_SSH_ID }}
-          key: ${{ secrets.REMOTE_SSH_KEY }}
-          port: ${{ secrets.REMOTE_SSH_PORT }}
-          script: |
-            whoami
-            cd /home/ubuntu/Release-Todoary-Server
-             echo -e "\
-             +------------------------------------+
-             |              1. build              |
-             +------------------------------------+"
-            
-            echo ">>>>>> making secret yml..."
-            echo "${{ secrets.RELEASE_YML }}" > ./src/main/resources/application-secret.yml
-            
-            echo ">>>>>> making test yml..."
-            mkdir -p ./src/test/resources
-            echo "${{ secrets.TEST_YML }}" > ./src/test/resources/application.yml
-            
-            echo ">>>>>> making auth key..."
-            echo "${{ secrets.AUTH_KEY }}" > ./src/main/resources/static/AuthKey_Q97Q56DJS6.p8
-            
-            echo -e "\
-             >>>>>> git pull... "
-            cd "/home/ubuntu/Release-Todoary-Server" || exit 1
-            git fetch --all || exit 1
-            git reset --hard origin/Release || exit 1
-            git pull origin Release || exit 1
-            git submodule update --init --recursive || exit 1
-            git submodule update --remote --merge || exit 1
+      - name: zip 파일 생성
+        run: |
+          mkdir -p before-deploy
+          cp service-scripts/*.sh before-deploy/
+          cp appspec.yml before-deploy/
+          cp $(ls -tr build/libs/*.jar | tail -n 1) before-deploy/
+          cd before-deploy && zip -r before-deploy *
+          cd ../ && mkdir -p deploy
+          mv before-deploy/before-deploy.zip deploy/todoary-service$GITHUB_SHA.zip
+        shell: bash
 
-            ./release-scripts/build.sh || exit 1
-            ./release-scripts/stop.sh || exit 1
-            ./release-scripts/start.sh || exit 1
+      - name: AWS 자격 증명
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: S3 로드
+        run: |
+          aws s3 cp \
+          --region ap-northeast-2 \
+          ./deploy/todoary-service$GITHUB_SHA.zip s3://todoary-service-s3/artifacts/todoary-service$GITHUB_SHA.zip
+
+      - name: CodeDeploy 배포
+        run: |
+          aws deploy create-deployment \
+          --application-name todoary-service \
+          --deployment-group-name todoary-service-group \
+          --s3-location bucket=todoary-service-s3,bundleType=zip,key=artifacts/todoary-service$GITHUB_SHA.zip
