@@ -30,7 +30,7 @@ class CategoryServiceTest {
     EntityManager em;
 
     @Autowired
-    JpaCategoryService categoryService;
+    CategoryService categoryService;
 
     @MockBean
     MemberRepository memberRepository;

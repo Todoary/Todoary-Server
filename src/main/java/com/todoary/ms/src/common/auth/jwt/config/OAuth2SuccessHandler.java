@@ -1,11 +1,11 @@
 package com.todoary.ms.src.common.auth.jwt.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.todoary.ms.src.legacy.auth.AuthService;
+import com.todoary.ms.src.legacy.auth.LegacyAuthService;
 import com.todoary.ms.src.legacy.auth.dto.GetOauth2SuccessRes;
 import com.todoary.ms.src.legacy.auth.dto.GetOauth2UserRes;
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.legacy.auth.model.PrincipalDetails;
+import com.todoary.ms.src.legacy.auth.model.LegacyPrincipalDetails;
 import com.todoary.ms.src.legacy.auth.dto.Token;
 import com.todoary.ms.src.common.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthService authService;
+    private final LegacyAuthService legacyAuthService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -32,7 +32,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         
-        PrincipalDetails oAuth2User = (PrincipalDetails) authentication.getPrincipal();
+        LegacyPrincipalDetails oAuth2User = (LegacyPrincipalDetails) authentication.getPrincipal();
 
         GetOauth2SuccessRes getOauth2SuccessRes;
         if (oAuth2User.isNewMember()) { // 새로 가입한 유저
@@ -42,7 +42,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         } else { // 기존 유저
             String accessToken = jwtTokenProvider.createAccessToken(oAuth2User.getMember().getId());
             String refreshToken = jwtTokenProvider.createRefreshToken(oAuth2User.getMember().getId());
-            authService.registerRefreshToken(oAuth2User.getMember().getId(), refreshToken);
+            legacyAuthService.registerRefreshToken(oAuth2User.getMember().getId(), refreshToken);
             Token token = new Token(accessToken, refreshToken);
             getOauth2SuccessRes = new GetOauth2SuccessRes(false, token);
         }

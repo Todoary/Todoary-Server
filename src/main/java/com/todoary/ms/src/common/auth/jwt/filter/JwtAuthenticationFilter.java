@@ -1,9 +1,9 @@
 package com.todoary.ms.src.common.auth.jwt.filter;
 
-import com.todoary.ms.src.legacy.auth.AuthService;
+import com.todoary.ms.src.legacy.auth.LegacyAuthService;
 import com.todoary.ms.src.legacy.auth.dto.PostSigninRes;
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.legacy.auth.model.PrincipalDetails;
+import com.todoary.ms.src.legacy.auth.model.LegacyPrincipalDetails;
 import com.todoary.ms.src.legacy.auth.dto.Token;
 import com.todoary.ms.src.legacy.user.model.User;
 import com.todoary.ms.src.common.response.BaseResponse;
@@ -25,12 +25,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final AuthService authService;
+    private final LegacyAuthService legacyAuthService;
 
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, AuthService authService) {
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, LegacyAuthService legacyAuthService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.authService = authService;
+        this.legacyAuthService = legacyAuthService;
     }
 
 
@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                         // 여기서 PrincipalDetailsService의 loadByUsername 실행됨
             authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             // ^ 갔다와서 실행됨
-            PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+            LegacyPrincipalDetails legacyPrincipalDetails = (LegacyPrincipalDetails) authentication.getPrincipal();
 
 
         } catch (IOException e) {
@@ -57,13 +57,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
+        LegacyPrincipalDetails legacyPrincipalDetails = (LegacyPrincipalDetails) authResult.getPrincipal();
 
-        Long userid = principalDetails.getMember().getId();
+        Long userid = legacyPrincipalDetails.getMember().getId();
         String accessToken = jwtTokenProvider.createAccessToken(userid);
         String refreshToken = jwtTokenProvider.createRefreshToken(userid);
 
-        authService.registerRefreshToken(userid, refreshToken);
+        legacyAuthService.registerRefreshToken(userid, refreshToken);
 
         Token token = new Token(accessToken, refreshToken);
         PostSigninRes postSigninRes = new PostSigninRes(token);

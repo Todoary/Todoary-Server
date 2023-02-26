@@ -2,10 +2,12 @@ package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.common.exception.TodoaryException;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
+import com.todoary.ms.src.legacy.BaseException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
 import com.todoary.ms.src.web.dto.MemberProfileRequest;
@@ -122,12 +124,11 @@ public class MemberService {
         return checkMemberValid(memberRepository.findByProviderAccount(providerAccount));
     }
 
-    private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount provider) {
-        if (memberRepository.isProviderAccountAndEmailUsed(provider, email)) {
+    private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount providerAccount) {
+        if (memberRepository.isProviderAccountAndEmailUsed(providerAccount, email)) {
             throw new TodoaryException(MEMBERS_DUPLICATE_EMAIL);
         }
     }
-
 
     @Transactional(readOnly = true)
     public void checkEmailDuplicationOfGeneral(String email) {
@@ -245,5 +246,15 @@ public class MemberService {
 
     public List<Member> findAllForRemindAlarm(LocalDate targetDate) {
         return memberRepository.findAllForRemindAlarm(targetDate);
+    }
+
+    public boolean existsByGeneralEmail(String email) {
+        return memberRepository.findGeneralMemberByEmail(email)
+                .isPresent();
+    }
+
+    public void modifyFcmToken(Long memberId, String fcmToken) {
+        Member member = findById(memberId);
+        member.updateFcmToken(fcmToken);
     }
 }

@@ -1,6 +1,6 @@
 package com.todoary.ms.src.common.auth;
 
-import com.todoary.ms.src.legacy.auth.model.PrincipalDetails;
+import com.todoary.ms.src.legacy.auth.model.LegacyPrincipalDetails;
 import com.todoary.ms.src.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +16,6 @@ public class PrincipalDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return new PrincipalDetails(memberService.findGeneralMemberByEmail(email));
+        return new LegacyPrincipalDetails(memberService.findGeneralMemberByEmail(email));
     }
 }

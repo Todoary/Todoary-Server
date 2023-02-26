@@ -33,7 +33,7 @@ public class FcmToken extends BaseTimeEntity {
     }
 
     /*---Setter---*/
-    public void changeToken(String code) {
+    public void changeCode(String code) {
         this.code = code;
     }
 
