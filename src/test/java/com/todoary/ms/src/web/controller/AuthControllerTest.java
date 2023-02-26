@@ -66,8 +66,8 @@ class AuthControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(requestBody))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.accessToken").exists())
-                .andExpect(jsonPath("$.result.refreshToken").exists())
+                .andExpect(jsonPath("$.result.token.accessToken").exists())
+                .andExpect(jsonPath("$.result.token.refreshToken").exists())
                 .andDo(print());
     }
     
@@ -107,8 +107,8 @@ class AuthControllerTest {
                                 .content(loginRequestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("1000"))
-                .andExpect(jsonPath("$.result.accessToken").exists())
-                .andExpect(jsonPath("$.result.refreshToken").value(""))
+                .andExpect(jsonPath("$.result.token.accessToken").exists())
+                .andExpect(jsonPath("$.result.token.refreshToken").value(""))
                 .andDo(print());
     }
 
@@ -129,8 +129,8 @@ class AuthControllerTest {
                                 .content(autoLoginRequestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("1000"))
-                .andExpect(jsonPath("$.result.accessToken").exists())
-                .andExpect(jsonPath("$.result.refreshToken").exists())
+                .andExpect(jsonPath("$.result.token.accessToken").exists())
+                .andExpect(jsonPath("$.result.token.refreshToken").exists())
                 .andDo(print());
     }
 

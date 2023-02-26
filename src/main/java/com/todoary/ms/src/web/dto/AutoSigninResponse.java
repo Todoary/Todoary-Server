@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
-@ToString
 @Getter
 @AllArgsConstructor
 public class AutoSigninResponse {
-    private String accessToken;
-    private String refreshToken;
+    private Token token;
 }

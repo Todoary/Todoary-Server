@@ -53,7 +53,7 @@ public class JpaTestController {
         MemberJoinRequest member = generateMemberRequest();
         authController.joinNormalMember(member);
         SigninResponse token = authController.login(new SigninRequest(member.getEmail(), member.getPassword())).getResult();
-        Long memberId = Long.parseLong(jwtTokenProvider.getUserIdFromAccessToken(token.getAccessToken()));
+        Long memberId = Long.parseLong(jwtTokenProvider.getUserIdFromAccessToken(token.getToken().getAccessToken()));
         return new TestMemberDto(memberId, member, token);
     }
 
