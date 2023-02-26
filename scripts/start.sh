@@ -5,8 +5,8 @@ echo -e "\
  |              3. start              |
  +------------------------------------+"
 
-PROJECT_ROOT="/home/ubuntu/Todoary-Server"
-JAR_FILE="$PROJECT_ROOT/build/libs/todoary-0.0.1-SNAPSHOT.jar"
+PROJECT_ROOT="/home/ubuntu/todoary/dev/project"
+JAR_FILE="$PROJECT_ROOT/build/libs/*.jar"
 
 APP_LOG="$PROJECT_ROOT/application.log"
 ERROR_LOG="$PROJECT_ROOT/error.log"

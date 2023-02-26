@@ -14,7 +14,7 @@ plugins {
 }
 
 group = 'com.todoary'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1-SNAPSHOT'+new Date().format("yyyyMMddHHmmss")
 sourceCompatibility = '11'
 
 configurations {
@@ -83,6 +83,11 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+// plain jar 생성하지 않음
+jar {
+    enabled = false
+}
+
 task copyMainResources {
     doLast {
         println '*********** main copy start ***********'
@@ -90,6 +95,14 @@ task copyMainResources {
             from './config'
             include '*.yml'
             into './src/main/resources'
+        }
+        copy {
+            from './config/firebase/firebase_service_key.json'
+            into './src/main/resources/firebase'
+        }
+        copy {
+            from './config/static/AuthKey_Q97Q56DJS6.p8'
+            into './src/main/resources/static'
         }
         println '*********** main copy end *************'
     }
