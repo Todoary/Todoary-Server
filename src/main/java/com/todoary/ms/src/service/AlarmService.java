@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -17,5 +19,9 @@ public class AlarmService {
     public void updateRemindAlarmToDate(Long memberId, LocalDate alarmDate) {
         Member member = memberService.findById(memberId);
         member.changeRemindAlarm(new RemindAlarm(member, alarmDate));
+    }
+
+    public List<Member> findMembersForRemindAlarm(LocalDate now) {
+        return memberService.findAllForRemindAlarm(now);
     }
 }
