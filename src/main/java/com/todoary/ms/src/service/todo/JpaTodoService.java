@@ -35,7 +35,7 @@ public class JpaTodoService {
     @Transactional
     public Long saveTodo(Long memberId, TodoRequest request) {
         Member member = memberService.findById(memberId);
-        Category category = findCategoryByIdAndMember(request.getCategoryId(), member);
+        Category category = categoryService.findCategoryByIdAndMember(request.getCategoryId(), member);
         return todoRepository.save(
                 request.toEntity(member, category)
         ).getId();
@@ -44,7 +44,7 @@ public class JpaTodoService {
     @Transactional
     public void updateTodo(Long memberId, Long todoId, TodoRequest request) {
         Member member = memberService.findById(memberId);
-        Category category = findCategoryByIdAndMember(request.getCategoryId(), member);
+        Category category = categoryService.findCategoryByIdAndMember(request.getCategoryId(), member);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.update(
                 request.getTitle(),
@@ -97,8 +97,7 @@ public class JpaTodoService {
 
     @Transactional(readOnly = true)
     public List<TodoResponse> findTodosByCategory(Long memberId, Long categoryId) {
-        Member member = memberService.findById(memberId);
-        Category category = findCategoryByIdAndMember(categoryId, member);
+        Category category = categoryService.findCategoryByIdAndMember(categoryId, memberId);
         return todoRepository.findByCategoryAndSatisfy(category, todoByCategoryCondition.getPredicate())
                 .stream().map(TodoResponse::from).collect(Collectors.toList());
     }
@@ -113,8 +112,7 @@ public class JpaTodoService {
 
     @Transactional(readOnly = true)
     public PageResponse<TodoResponse> findTodoPageByCategory(Pageable pageable, Long memberId, Long categoryId) {
-        Member member = memberService.findById(memberId);
-        Category category = findCategoryByIdAndMember(categoryId, member);
+        Category category = categoryService.findCategoryByIdAndMember(categoryId, memberId);
         return PageResponse.of(
                 todoRepository
                         .findSliceByCategoryAndSatisfy(pageable, category, todoByCategoryCondition.getPredicate())
@@ -131,10 +129,6 @@ public class JpaTodoService {
                 .stream().map(todo -> todo.getTargetDate().getDayOfMonth())
                 .distinct()
                 .collect(Collectors.toList());
-    }
-
-    private Category findCategoryByIdAndMember(Long categoryId, Member member) {
-        return categoryService.findCategoryByIdAndMember(categoryId, member);
     }
 
     private Todo findTodoByIdAndMember(Long todoId, Member member) {

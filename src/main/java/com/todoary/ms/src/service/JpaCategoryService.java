@@ -31,15 +31,11 @@ public class JpaCategoryService {
     @Transactional
     public void updateCategory(Long memberId, Long categoryId, CategoryRequest request) {
         Member member = memberService.findById(memberId);
-        Category target = findCategoryByIdAndMember(categoryId, member);
-        Color nextColor = new Color(request.getColor());
-        String nextTitle = request.getTitle();
-        if (target.getTitle().equals(nextTitle)) {
-            target.update(nextColor);
-            return;
+        Category category = findCategoryByIdAndMember(categoryId, member);
+        if (!category.hasTitle(request.getTitle())) {
+            validateMembersCategoryTitle(member, request.getTitle());
         }
-        validateMembersCategoryTitle(member, nextTitle);
-        target.update(nextTitle, nextColor);
+        category.update(request.getTitle(), Color.from(request.getColor()));
     }
 
     private void validateMembersCategoryTitle(Member member, String title) {
@@ -49,8 +45,7 @@ public class JpaCategoryService {
 
     @Transactional
     public void deleteCategory(Long memberId, Long categoryId) {
-        Member member = memberService.findById(memberId);
-        Category category = findCategoryByIdAndMember(categoryId, member);
+        Category category = findCategoryByIdAndMember(categoryId, memberId);
         category.removeAssociations();
         categoryRepository.delete(category);
     }
@@ -62,6 +57,12 @@ public class JpaCategoryService {
                 .stream().map(c -> new CategoryResponse(
                         c.getId(), c.getTitle(), c.getColor().getCode())
                 ).toArray(CategoryResponse[]::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Category findCategoryByIdAndMember(Long categoryId, Long memberId) {
+        Member member = memberService.findById(memberId);
+        return findCategoryByIdAndMember(categoryId, member);
     }
 
     @Transactional(readOnly = true)
