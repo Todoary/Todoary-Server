@@ -37,7 +37,7 @@ public class JpaAuthController {
     @PostMapping("/signin")
     public BaseResponse<SigninResponse> login(@RequestBody SigninRequest signinRequest) {
         Long memberId = authService.authenticate(signinRequest.getEmail(), signinRequest.getPassword());
-        return new BaseResponse<>(new SigninResponse(authService.issueAccessToken(memberId).getCode(), ""));
+        return new BaseResponse<>(new SigninResponse(new Token(authService.issueAccessToken(memberId).getCode(), "")));
     }
 
     /**
@@ -50,7 +50,7 @@ public class JpaAuthController {
     @PostMapping("/signin/auto")
     public BaseResponse<AutoSigninResponse> autoLogin(@RequestBody AutoSigninRequest autoSigninRequest) {
         Long memberId = authService.authenticate(autoSigninRequest.getEmail(), autoSigninRequest.getPassword());
-        return new BaseResponse<>(new AutoSigninResponse(authService.issueAccessToken(memberId).getCode(), authService.issueRefreshToken(memberId).getCode()));
+        return new BaseResponse<>(new AutoSigninResponse(new Token(authService.issueAccessToken(memberId).getCode(), authService.issueRefreshToken(memberId).getCode())));
     }
 
     /**
@@ -72,7 +72,7 @@ public class JpaAuthController {
         AccessToken accessToken = authService.issueAccessToken(refreshTokenCode);
         RefreshToken refreshToken = authService.issueRefreshToken(refreshTokenCode);
 
-        return new BaseResponse<>(new AuthenticationTokenIssueResponse(accessToken.getCode(), refreshToken.getCode()));
+        return new BaseResponse<>(new AuthenticationTokenIssueResponse(new Token(accessToken.getCode(), refreshToken.getCode())));
     }
 
     public void validateMemberByRefreshToken(String refreshTokenCode) {
@@ -165,9 +165,9 @@ public class JpaAuthController {
                 !memberExists,
                 appleSigninRequest.getName(),
                 appleSigninRequest.getEmail(),
-                providerAccount,
-                authService.issueAccessToken(memberId).getCode(),
-                authService.issueRefreshToken(memberId).getCode(),
+                providerAccount.getProvider().name(),
+                providerAccount.getProviderId(),
+                new Token(authService.issueAccessToken(memberId).getCode(), authService.issueRefreshToken(memberId).getCode()),
                 appleRefreshToken
         ));
     }
