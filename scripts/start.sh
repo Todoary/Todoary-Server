@@ -6,7 +6,7 @@ echo -e "\
  +------------------------------------+"
 
 PROJECT_ROOT="/home/ubuntu/todoary/dev/project"
-JAR_FILE="$PROJECT_ROOT/build/libs/todoary-0.0.1-SNAPSHOT.jar"
+JAR_FILE="$PROJECT_ROOT/build/libs/*.jar"
 
 APP_LOG="$PROJECT_ROOT/application.log"
 ERROR_LOG="$PROJECT_ROOT/error.log"
