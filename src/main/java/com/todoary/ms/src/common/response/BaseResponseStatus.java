@@ -43,6 +43,7 @@ public enum BaseResponseStatus {
     NULL_ARGUMENT(false, 2015, "입력값이 있어야 합니다."),
     MEMBERS_DUPLICATE_NICKNAME(false, 2016, "중복된 닉네임입니다."),
     MEMBERS_DUPLICATE_EMAIL(false, 2017, "중복된 이메일입니다."),
+    MEMBERS_EMPTY_FCM_TOKEN(false, 2018, "FCM 토큰값이 비어있습니다."),
 
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
     USERS_REFRESH_TOKEN_NOT_EXISTS(false, 2113, "유저 정보와 일치하는 Refresh Token이 없습니다."),
