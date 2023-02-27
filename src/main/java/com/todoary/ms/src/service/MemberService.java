@@ -2,16 +2,14 @@ package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.common.exception.TodoaryException;
-import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.FcmToken;
-import com.todoary.ms.src.legacy.BaseException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
-import com.todoary.ms.src.web.dto.MemberProfileRequest;
+import com.todoary.ms.src.web.dto.MemberProfileParam;
 import com.todoary.ms.src.web.dto.MemberResponse;
 import com.todoary.ms.src.web.dto.OauthMemberJoinParam;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +27,6 @@ import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 import static com.todoary.ms.src.common.util.ColumnLengthInfo.MEMBER_NICKNAME_MAX_LENGTH;
 
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
@@ -137,6 +134,7 @@ public class MemberService {
         checkEmailAndOAuthAccountNotUsed(email, ProviderAccount.none());
     }
 
+    @Transactional
     public void changePassword(String email, String newPassword) {
         Member member = findGeneralMemberByEmail(email);
         member.changePassword(encodePassword(newPassword));
@@ -147,14 +145,15 @@ public class MemberService {
         return memberRepository.findAllDailyAlarmEnabled();
     }
 
-    public void updateProfile(Long memberId, MemberProfileRequest request) {
+    @Transactional
+    public void updateProfile(Long memberId, MemberProfileParam param) {
         Member member = findById(memberId);
-        if (!member.getNickname().equals(request.getNickname())) {
-            checkNicknameNotUsed(request.getNickname());
+        if (!member.getNickname().equals(param.getNickname())) {
+            checkNicknameNotUsed(param.getNickname());
         }
         member.update(
-                request.getNickname(),
-                request.getIntroduce()
+                param.getNickname(),
+                param.getIntroduce()
         );
     }
 
@@ -174,36 +173,43 @@ public class MemberService {
         member.activeTodoAlarm(toDoAlarmEnable);
     }
 
+    @Transactional
     public void activeDailyAlarm(Long memberId, boolean dailyAlarmEnable) {
         Member member = findById(memberId);
         member.activeDailyAlarm(dailyAlarmEnable);
     }
 
+    @Transactional
     public void activeRemindAlarm(Long memberId, boolean remindAlarmEnable) {
         Member member = findById(memberId);
         member.activeRemindAlarm(remindAlarmEnable);
     }
 
+    @Transactional
     public void activeTermsStatus(Long memberId, boolean isTermsEnable) {
         Member member = findById(memberId);
         member.activeTermsStatus(isTermsEnable);
     }
 
+    @Transactional
     public void removeMember(Long memberId) {
         Member member = findById(memberId);
         removeMember(member);
     }
 
+    @Transactional
     public void removeMember(Member member) {
         member.deactivate();
     }
 
+    @Transactional
     public void changeProfileImg(Long memberId, String newProfileImgUrl) {
         Member member = findById(memberId);
 
         member.changeProfileImg(newProfileImgUrl);
     }
 
+    @Transactional
     public void removeTokens(Long memberId) {
         Member member = findById(memberId);
 
@@ -233,7 +239,7 @@ public class MemberService {
                 .isPresent();
     }
 
-
+    @Transactional
     public void modifyFcmToken(Long memberId, String newFcmToken) {
         Member member = findById(memberId);
 
