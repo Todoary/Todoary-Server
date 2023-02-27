@@ -2,20 +2,16 @@ package com.todoary.ms.src.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoary.ms.src.common.exception.TodoaryException;
-import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import com.todoary.ms.src.service.AppleAuthService;
-import com.todoary.ms.src.service.JpaAuthService;
+import com.todoary.ms.src.service.AuthService;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.AppleRevokeRequest;
 import com.todoary.ms.src.web.dto.AppleSigninRequest;
-import com.todoary.ms.src.web.dto.AppleSigninResponse;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
 import net.minidev.json.JSONObject;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.todoary.ms.src.common.response.BaseResponseStatus.MEMBERS_DUPLICATE_EMAIL;
-import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -53,7 +47,7 @@ class AuthControllerTest {
     private AppleAuthService appleAuthService;
 
     @MockBean
-    private JpaAuthService authService;
+    private AuthService authService;
 
     @Test
     public void refreshToken_재발급_테스트() throws Exception {
@@ -62,7 +56,7 @@ class AuthControllerTest {
 
         String requestBody = "{\"refreshToken\" : \"formalRefreshToken\"}";
         mockMvc.perform(
-                        post("/auth/jpa/jwt")
+                        post("/auth/jwt")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(requestBody))
                 .andExpect(status().isOk())
@@ -82,7 +76,7 @@ class AuthControllerTest {
                 "\"isTermsEnable\" : true" +
                 "}";
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/auth/jpa/signup")
+                        MockMvcRequestBuilders.post("/auth/signup")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(normalJoinRequestBody))
                 .andExpect(status().isOk())
@@ -102,7 +96,7 @@ class AuthControllerTest {
                 "}";
 
         mockMvc.perform(
-                        post("/auth/jpa/signin")
+                        post("/auth/signin")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(loginRequestBody))
                 .andExpect(status().isOk())
@@ -124,7 +118,7 @@ class AuthControllerTest {
                         "}";
 
         mockMvc.perform(
-                        post("/auth/jpa/signin/auto")
+                        post("/auth/signin/auto")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(autoLoginRequestBody))
                 .andExpect(status().isOk())
@@ -139,7 +133,7 @@ class AuthControllerTest {
         doThrow(new TodoaryException(MEMBERS_DUPLICATE_EMAIL)).when(memberService).checkEmailDuplicationOfGeneral(any());
 
         mockMvc.perform(
-                        get("/auth/jpa/email/duplication")
+                        get("/auth/email/duplication")
                                 .queryParam("email", "emailA"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("2017"))
@@ -149,7 +143,7 @@ class AuthControllerTest {
     @Test
     public void 이메일_중복체크_테스트_존재X() throws Exception {
         mockMvc.perform(
-                        get("/auth/jpa/email/duplication")
+                        get("/auth/email/duplication")
                                 .queryParam("email", "newEmail"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value("가능한 이메일입니다."))
@@ -167,7 +161,7 @@ class AuthControllerTest {
                         "\"newPassword\" : \"" + newPassword + "\"" +
                         "}";
 
-        mockMvc.perform(patch("/auth/jpa/password")
+        mockMvc.perform(patch("/auth/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(changePasswordRequestBody))
                 .andExpect(jsonPath("$.code").value("1000"))
@@ -200,7 +194,7 @@ class AuthControllerTest {
 
         //when
         mockMvc.perform(
-                        post("/auth/jpa/apple/token")
+                        post("/auth/apple/token")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(appleSigninRequest)))
                 .andExpect(status().isOk())
@@ -235,7 +229,7 @@ class AuthControllerTest {
 
         //when
         mockMvc.perform(
-                        post("/auth/jpa/apple/token")
+                        post("/auth/apple/token")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(appleSigninRequest)))
                 .andExpect(status().isOk())
@@ -260,7 +254,7 @@ class AuthControllerTest {
 
         //when
         mockMvc.perform(
-                        post("/auth/jpa/revoke/apple")
+                        post("/auth/revoke/apple")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(appleRevokeRequest)))
                 .andExpect(status().isOk())

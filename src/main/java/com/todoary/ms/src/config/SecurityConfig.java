@@ -1,14 +1,14 @@
 package com.todoary.ms.src.config;
 
-import com.todoary.ms.src.legacy.auth.AuthService;
+import com.todoary.ms.src.common.auth.jwt.filter.JwtAuthorizationFilter;
+import com.todoary.ms.src.legacy.auth.LegacyAuthService;
 import com.todoary.ms.src.common.auth.PrincipalOAuth2UserService;
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.common.auth.jwt.config.CustomAccessDeniedHandler;
 import com.todoary.ms.src.common.auth.jwt.config.CustomAuthenticationEntryPoint;
 import com.todoary.ms.src.common.auth.jwt.config.OAuth2SuccessHandler;
-import com.todoary.ms.src.common.auth.jwt.filter.JwtAuthorizationFilter;
-import com.todoary.ms.src.legacy.user.UserProvider;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.todoary.ms.src.legacy.user.LegacyUserProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,40 +18,26 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final PrincipalOAuth2UserService principalOAuth2UserService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final OAuth2SuccessHandler successHandler;
-    private final AuthService authService;
-    private final UserProvider userProvider;
+    private final LegacyAuthService legacyAuthService;
+    private final LegacyUserProvider legacyUserProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-
-
-    @Autowired
-    public SecurityConfig(PrincipalOAuth2UserService principalOAuth2UserService, JwtTokenProvider jwtTokenProvider, OAuth2SuccessHandler successHandler, AuthService authService, UserProvider userProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
-        this.principalOAuth2UserService = principalOAuth2UserService;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.successHandler = successHandler;
-        this.authService = authService;
-        this.userProvider = userProvider;
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-    }
 
     @Bean
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-
-       // AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);// -> null 발생
-//        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenProvider, authenticationManagerBuilder, authService);
-//        jwtAuthenticationFilter.setFilterProcessesUrl("/auth/signin");
-
-        http
-//                .addFilter(jwtAuthenticationFilter)
-                .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, userProvider, authenticationManagerBuilder.getObject()),
-                        UsernamePasswordAuthenticationFilter.class);
-
+        http.addFilterBefore(
+                new JwtAuthorizationFilter(
+                        jwtTokenProvider,
+                        legacyUserProvider,
+                        authenticationManagerBuilder.getObject()
+                ), UsernamePasswordAuthenticationFilter.class);
+        
         http.csrf().disable() // 세션 사용 안하므로
                 // exception handling 새로 만든 클래스로
                 .exceptionHandling()
@@ -90,7 +76,7 @@ public class SecurityConfig {
                 // .and()
                 .userInfoEndpoint().userService(principalOAuth2UserService)
                 .and()
-                .successHandler(new OAuth2SuccessHandler(jwtTokenProvider, authService));
+                .successHandler(new OAuth2SuccessHandler(jwtTokenProvider, legacyAuthService));
         http.headers().frameOptions().sameOrigin();
         return http.build();
     }

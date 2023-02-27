@@ -1,7 +1,7 @@
 package com.todoary.ms.src.common.auth.jwt.filter;
 
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.legacy.user.UserProvider;
+import com.todoary.ms.src.legacy.user.LegacyUserProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +25,12 @@ import java.util.Collection;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserProvider userProvider;
+    private final LegacyUserProvider legacyUserProvider;
     private final AuthenticationManager authenticationManager;
 
-    public JwtAuthorizationFilter(JwtTokenProvider jwtTokenProvider, UserProvider userProvider, AuthenticationManager authenticationManager) {
+    public JwtAuthorizationFilter(JwtTokenProvider jwtTokenProvider, LegacyUserProvider legacyUserProvider, AuthenticationManager authenticationManager) {
         this.jwtTokenProvider = jwtTokenProvider;
-        this.userProvider = userProvider;
+        this.legacyUserProvider = legacyUserProvider;
         this.authenticationManager = authenticationManager;
     }
 

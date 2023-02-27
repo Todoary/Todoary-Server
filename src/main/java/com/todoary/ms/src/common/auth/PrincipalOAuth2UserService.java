@@ -2,7 +2,7 @@ package com.todoary.ms.src.common.auth;
 
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.ProviderAccount;
-import com.todoary.ms.src.legacy.auth.model.PrincipalDetails;
+import com.todoary.ms.src.legacy.auth.model.LegacyPrincipalDetails;
 import com.todoary.ms.src.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +18,6 @@ import org.springframework.stereotype.Service;
 public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberService memberService;
-
-
-
 //    Name: [112863152981684584640],
 //    Granted Authorities: [[ROLE_USER, SCOPE_https://www.googleapis.com/auth/userinfo.email, SCOPE_https://www.googleapis.com/auth/userinfo.profile, SCOPE_openid]],
 //    User Attributes: [{sub=112863152981684584640, name=유경종, given_name=경종, family_name=유, picture=https://lh3.googleusercontent.com/a/AItbvml_HmcgbKrybHWGtcQJ-E9nnUft8e_XxXbhsNVf=s96-c, email=rudwhd515@gmail.com, email_verified=true, locale=ko}]
@@ -45,10 +42,10 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
                         .providerAccount(providerAccount)
                         .build();
 
-            return new PrincipalDetails(member, oAuth2User.getAttributes(), true);
+            return new LegacyPrincipalDetails(member, oAuth2User.getAttributes(), true);
         } else {
             System.out.println("구글 로그인 기록이 있습니다. 로그인을 진행합니다.");
-            return new PrincipalDetails(member, oAuth2User.getAttributes(), false);
+            return new LegacyPrincipalDetails(member, oAuth2User.getAttributes(), false);
         }
     }
 

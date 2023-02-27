@@ -2,10 +2,13 @@ package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.common.exception.TodoaryException;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
+import com.todoary.ms.src.domain.token.FcmToken;
+import com.todoary.ms.src.legacy.BaseException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
 import com.todoary.ms.src.web.dto.MemberProfileRequest;
@@ -25,8 +28,9 @@ import java.util.Random;
 import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 import static com.todoary.ms.src.common.util.ColumnLengthInfo.MEMBER_NICKNAME_MAX_LENGTH;
 
-@Service
 @RequiredArgsConstructor
+@Transactional
+@Service
 public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -122,19 +126,17 @@ public class MemberService {
         return checkMemberValid(memberRepository.findByProviderAccount(providerAccount));
     }
 
-    private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount provider) {
-        if (memberRepository.isProviderAccountAndEmailUsed(provider, email)) {
+    private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount providerAccount) {
+        if (memberRepository.isProviderAccountAndEmailUsed(providerAccount, email)) {
             throw new TodoaryException(MEMBERS_DUPLICATE_EMAIL);
         }
     }
-
 
     @Transactional(readOnly = true)
     public void checkEmailDuplicationOfGeneral(String email) {
         checkEmailAndOAuthAccountNotUsed(email, ProviderAccount.none());
     }
 
-    @Transactional
     public void changePassword(String email, String newPassword) {
         Member member = findGeneralMemberByEmail(email);
         member.changePassword(encodePassword(newPassword));
@@ -145,7 +147,6 @@ public class MemberService {
         return memberRepository.findAllDailyAlarmEnabled();
     }
 
-    @Transactional
     public void updateProfile(Long memberId, MemberProfileRequest request) {
         Member member = findById(memberId);
         if (!member.getNickname().equals(request.getNickname())) {
@@ -168,49 +169,41 @@ public class MemberService {
         return MemberResponse.from(findById(memberId));
     }
 
-    @Transactional
     public void activeTodoAlarm(Long memberId, boolean toDoAlarmEnable) {
         Member member = findById(memberId);
         member.activeTodoAlarm(toDoAlarmEnable);
     }
 
-    @Transactional
     public void activeDailyAlarm(Long memberId, boolean dailyAlarmEnable) {
         Member member = findById(memberId);
         member.activeDailyAlarm(dailyAlarmEnable);
     }
 
-    @Transactional
     public void activeRemindAlarm(Long memberId, boolean remindAlarmEnable) {
         Member member = findById(memberId);
         member.activeRemindAlarm(remindAlarmEnable);
     }
 
-    @Transactional
     public void activeTermsStatus(Long memberId, boolean isTermsEnable) {
         Member member = findById(memberId);
         member.activeTermsStatus(isTermsEnable);
     }
 
-    @Transactional
     public void removeMember(Long memberId) {
         Member member = findById(memberId);
         removeMember(member);
     }
 
-    @Transactional
     public void removeMember(Member member) {
         member.deactivate();
     }
 
-    @Transactional
     public void changeProfileImg(Long memberId, String newProfileImgUrl) {
         Member member = findById(memberId);
 
         member.changeProfileImg(newProfileImgUrl);
     }
 
-    @Transactional
     public void removeTokens(Long memberId) {
         Member member = findById(memberId);
 
@@ -229,6 +222,28 @@ public class MemberService {
         return memberRepository.isActiveByProviderAccount(providerAccount);
     }
 
+    @Transactional(readOnly = true)
+    public List<Member> findAllForRemindAlarm(LocalDate targetDate) {
+        return memberRepository.findAllForRemindAlarm(targetDate);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByGeneralEmail(String email) {
+        return memberRepository.findGeneralMemberByEmail(email)
+                .isPresent();
+    }
+
+
+    public void modifyFcmToken(Long memberId, String newFcmToken) {
+        Member member = findById(memberId);
+
+        if (member.getFcmToken() == null) {
+            new FcmToken(member, newFcmToken);
+            return;
+        }
+        member.updateFcmToken(newFcmToken);
+    }
+
     private String generateRandomNickname() {
         // 아스키 코드 48 ~ 122까지 랜덤 문자
         // 예: qOji6mPStx
@@ -241,9 +256,5 @@ public class MemberService {
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
         return nickname;
-    }
-
-    public List<Member> findAllForRemindAlarm(LocalDate targetDate) {
-        return memberRepository.findAllForRemindAlarm(targetDate);
     }
 }

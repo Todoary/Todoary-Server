@@ -190,4 +190,9 @@ public class Member extends BaseTimeEntity {
         this.refreshToken.changeCode(code);
         return this.refreshToken;
     }
+
+    public FcmToken updateFcmToken(String code) {
+        this.fcmToken.changeCode(code);
+        return this.fcmToken;
+    }
 }

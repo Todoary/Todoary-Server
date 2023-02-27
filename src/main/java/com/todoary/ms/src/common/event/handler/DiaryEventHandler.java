@@ -1,7 +1,7 @@
 package com.todoary.ms.src.common.event.handler;
 
 import com.todoary.ms.src.common.event.DiaryCreatedEvent;
-import com.todoary.ms.src.service.AlarmService;
+import com.todoary.ms.src.service.alarm.AlarmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
