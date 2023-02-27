@@ -3,22 +3,19 @@ package com.todoary.ms.src.web.controller;
 
 import com.todoary.ms.src.common.auth.annotation.LoginMember;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.legacy.BaseException;
-import com.todoary.ms.src.legacy.user.dto.PatchFcmTokenReq;
 import com.todoary.ms.src.s3.AwsS3Service;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.*;
 import com.todoary.ms.src.common.response.BaseResponse;
 import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.web.dto.alarm.AlarmEnablesResponse;
+import com.todoary.ms.src.web.dto.alarm.DailyAlarmEnablesRequest;
+import com.todoary.ms.src.web.dto.alarm.RemindAlarmEnablesRequest;
+import com.todoary.ms.src.web.dto.alarm.TodoAlarmEnablesRequest;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import static com.todoary.ms.src.common.response.BaseResponseStatus.SUCCESS;
 
@@ -32,14 +29,17 @@ public class MemberController {
 
     // 2.1 닉네임 및 한줄소개 변경 api
     @PatchMapping("/profile")
-    public BaseResponse<BaseResponseStatus> patchProfile(
+    public BaseResponse<MemberProfileUpdateResponse> patchProfile(
             @LoginMember Long memberId,
-            @RequestBody @Valid MemberProfileRequest request
+            @RequestBody MemberProfileUpdateRequest request
     ) {
-        memberService.updateProfile(memberId, request);
-        return BaseResponse.from(SUCCESS);
-    }
+        String newIntroduce = request.getIntroduce();
+        String newNickname = request.getNickname();
 
+        memberService.updateProfile(memberId, new MemberProfileParam(newIntroduce, newNickname));
+
+        return new BaseResponse(new MemberProfileUpdateResponse(newIntroduce, newNickname));
+    }
 
     // 2.2 프로필 사진 수정 api
     @PatchMapping("/profile-img")
@@ -88,9 +88,9 @@ public class MemberController {
     @PatchMapping("/alarm/todo")
     public BaseResponse<BaseResponseStatus> patchTodoAlarmStatus(
             @LoginMember Long memberId,
-            @RequestBody @Valid MemberController.AlarmRequest request
+            @RequestBody TodoAlarmEnablesRequest request
     ) {
-        memberService.activeTodoAlarm(memberId, request.getToDoAlarmEnable());
+        memberService.activeTodoAlarm(memberId, request.isChecked());
         return BaseResponse.from(SUCCESS);
     }
 
@@ -98,9 +98,9 @@ public class MemberController {
     @PatchMapping("/alarm/diary")
     public BaseResponse<BaseResponseStatus> patchDailyAlarmStatus(
             @LoginMember Long memberId,
-            @RequestBody @Valid MemberController.AlarmRequest request
+            @RequestBody DailyAlarmEnablesRequest request
     ) {
-        memberService.activeDailyAlarm(memberId, request.getDailyAlarmEnable());
+        memberService.activeDailyAlarm(memberId, request.isChecked());
         return BaseResponse.from(SUCCESS);
     }
 
@@ -108,9 +108,9 @@ public class MemberController {
     @PatchMapping("/alarm/remind")
     public BaseResponse<BaseResponseStatus> patchRemindAlarmStatus(
             @LoginMember Long memberId,
-            @RequestBody @Valid MemberController.AlarmRequest request
+            @RequestBody RemindAlarmEnablesRequest request
     ) {
-        memberService.activeRemindAlarm(memberId, request.getRemindAlarmEnable());
+        memberService.activeRemindAlarm(memberId, request.isChecked());
         return BaseResponse.from(SUCCESS);
     }
 
@@ -132,9 +132,9 @@ public class MemberController {
     @PatchMapping("/service/terms")
     public BaseResponse<BaseResponseStatus> patchTermsStatus(
             @LoginMember Long memberId,
-            @RequestBody @Valid MemberController.TermsRequest request
+            @RequestBody TermsEnablesRequest request
     ) {
-        memberService.activeTermsStatus(memberId, request.getIsTermsEnable());
+        memberService.activeTermsStatus(memberId, request.isChecked());
         return BaseResponse.from(SUCCESS);
     }
 
@@ -152,31 +152,31 @@ public class MemberController {
         return new BaseResponse("FCM 토큰 갱신에 성공했습니다.");
     }
 
-    @ToString
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @AllArgsConstructor
-    @Builder
-    public static class AlarmRequest {
-        @NotNull(message = "NULL_ARGUMENT")
-        private Long memberId;
-        @NotNull(message = "NULL_ARGUMENT")
-        private Boolean toDoAlarmEnable;
-        @NotNull(message = "NULL_ARGUMENT")
-        private Boolean remindAlarmEnable;
-        @NotNull(message = "NULL_ARGUMENT")
-        private Boolean dailyAlarmEnable;
-    }
-
-    @ToString
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @AllArgsConstructor
-    @Builder
-    public static class TermsRequest {
-        @NotNull(message = "NULL_ARGUMENT")
-        private Long memberId;
-        @NotNull(message = "NULL_ARGUMENT")
-        private Boolean isTermsEnable;
-    }
+//    @ToString
+//    @Getter
+//    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+//    @AllArgsConstructor
+//    @Builder
+//    public static class AlarmRequest {
+//        @NotNull(message = "NULL_ARGUMENT")
+//        private Long memberId;
+//        @NotNull(message = "NULL_ARGUMENT")
+//        private Boolean toDoAlarmEnable;
+//        @NotNull(message = "NULL_ARGUMENT")
+//        private Boolean remindAlarmEnable;
+//        @NotNull(message = "NULL_ARGUMENT")
+//        private Boolean dailyAlarmEnable;
+//    }
+//
+//    @ToString
+//    @Getter
+//    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+//    @AllArgsConstructor
+//    @Builder
+//    public static class TermsRequest {
+//        @NotNull(message = "NULL_ARGUMENT")
+//        private Long memberId;
+//        @NotNull(message = "NULL_ARGUMENT")
+//        private Boolean isTermsEnable;
+//    }
 }

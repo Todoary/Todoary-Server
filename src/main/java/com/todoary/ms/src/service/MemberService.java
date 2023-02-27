@@ -2,16 +2,14 @@ package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
 import com.todoary.ms.src.common.exception.TodoaryException;
-import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.domain.Category;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.FcmToken;
-import com.todoary.ms.src.legacy.BaseException;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
-import com.todoary.ms.src.web.dto.MemberProfileRequest;
+import com.todoary.ms.src.web.dto.MemberProfileParam;
 import com.todoary.ms.src.web.dto.MemberResponse;
 import com.todoary.ms.src.web.dto.OauthMemberJoinParam;
 import lombok.RequiredArgsConstructor;
@@ -148,14 +146,14 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateProfile(Long memberId, MemberProfileRequest request) {
+    public void updateProfile(Long memberId, MemberProfileParam param) {
         Member member = findById(memberId);
-        if (!member.getNickname().equals(request.getNickname())) {
-            checkNicknameNotUsed(request.getNickname());
+        if (!member.getNickname().equals(param.getNickname())) {
+            checkNicknameNotUsed(param.getNickname());
         }
         member.update(
-                request.getNickname(),
-                request.getIntroduce()
+                param.getNickname(),
+                param.getIntroduce()
         );
     }
 
