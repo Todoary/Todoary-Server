@@ -2,20 +2,22 @@ package com.todoary.ms.src.web.controller;
 
 
 import com.todoary.ms.src.common.auth.annotation.LoginMember;
+import com.todoary.ms.src.common.response.BaseResponse;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.s3.AwsS3Service;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.*;
-import com.todoary.ms.src.common.response.BaseResponse;
-import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.web.dto.alarm.AlarmEnablesResponse;
 import com.todoary.ms.src.web.dto.alarm.DailyAlarmEnablesRequest;
 import com.todoary.ms.src.web.dto.alarm.RemindAlarmEnablesRequest;
 import com.todoary.ms.src.web.dto.alarm.TodoAlarmEnablesRequest;
-import lombok.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.Valid;
 
 import static com.todoary.ms.src.common.response.BaseResponseStatus.SUCCESS;
 
@@ -142,9 +144,9 @@ public class MemberController {
      * 2.10 FCM 토큰 갱신 api
      */
     @PatchMapping("/fcm_token")
-    public BaseResponse modifyFcmToken(
+    public BaseResponse<String> modifyFcmToken(
             @LoginMember Long memberId,
-            @RequestBody FcmTokenUpdateRequest request
+            @RequestBody @Valid FcmTokenUpdateRequest request
     ) {
         String fcmToken = request.getFcmToken();
         memberService.modifyFcmToken(memberId, fcmToken);
