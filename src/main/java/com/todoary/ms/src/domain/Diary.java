@@ -25,6 +25,7 @@ public class Diary extends BaseTimeEntity{
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private LocalDate createdDate;
