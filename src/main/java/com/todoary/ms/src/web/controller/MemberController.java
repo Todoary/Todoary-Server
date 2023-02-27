@@ -120,13 +120,12 @@ public class MemberController {
     @GetMapping("/alarm")
     public BaseResponse<AlarmEnablesResponse> getAlarmEnabled(@LoginMember Long memberId) {
         Member member = memberService.findById(memberId);
-
-        return new BaseResponse<>(new AlarmEnablesResponse(
-                member.getId(),
-                member.getToDoAlarmEnable(),
-                member.getDailyAlarmEnable(),
-                member.getRemindAlarmEnable()
-        ));
+        return new BaseResponse<>(AlarmEnablesResponse.builder()
+                                          .memberId(memberId)
+                                          .toDoAlarmEnable(member.getToDoAlarmEnable())
+                                          .dailyAlarmEnable(member.getDailyAlarmEnable())
+                                          .remindAlarmEnable(member.getRemindAlarmEnable())
+                                          .build());
     }
 
 
