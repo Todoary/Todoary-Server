@@ -1,10 +1,10 @@
 package com.todoary.ms.src.web.dto.alarm;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor @Builder
 public class AlarmEnablesResponse {
     private Long memberId;
     private Boolean toDoAlarmEnable;
