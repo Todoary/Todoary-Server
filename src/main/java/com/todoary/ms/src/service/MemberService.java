@@ -168,6 +168,7 @@ public class MemberService {
         return MemberResponse.from(findById(memberId));
     }
 
+    @Transactional
     public void activeTodoAlarm(Long memberId, boolean toDoAlarmEnable) {
         Member member = findById(memberId);
         member.activeTodoAlarm(toDoAlarmEnable);
