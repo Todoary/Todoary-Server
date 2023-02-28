@@ -89,7 +89,7 @@ public class TodoRepository {
     }
 
     public List<Todo> findAllByDate(LocalDate targetDate) {
-        return em.createQuery("select t from Todo t where t.targetDate = :targetDate")
+        return em.createQuery("select t from Todo t where t.targetDate = :targetDate", Todo.class)
                 .setParameter("targetDate", targetDate)
                 .getResultList();
     }
