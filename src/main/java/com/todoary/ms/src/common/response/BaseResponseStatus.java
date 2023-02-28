@@ -41,7 +41,7 @@ public enum BaseResponseStatus {
     ILLEGAL_DATETIME(false, 2014, "날짜나 시간 형식을 확인해주세요."),
 
     NULL_ARGUMENT(false, 2015, "입력값이 있어야 합니다."),
-    MEMBERS_DUPLICATE_NICKNAME(false, 2016, "중복된 닉네임입니다."),
+    MEMBERS_DUPLICATE_NICKNAME(false, 2032, "중복된 닉네임입니다."),
     MEMBERS_DUPLICATE_EMAIL(false, 2017, "중복된 이메일입니다."),
     MEMBERS_EMPTY_FCM_TOKEN(false, 2018, "FCM 토큰값이 비어있습니다."),
 
