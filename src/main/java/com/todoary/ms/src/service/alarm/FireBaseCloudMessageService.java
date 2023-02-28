@@ -109,13 +109,15 @@ public class FireBaseCloudMessageService {
     public void sendTodoAlarm(LocalDate targetDate, LocalTime targetTime) {
         List<Todo> todos = todoService.findAllByDateTime(targetDate, targetTime);
         for (Todo todo : todos) {
+            Member member = todo.getMember();
             if (
-                    !todo.getMember().isDeleted() &&
-                            todo.getMember().getToDoAlarmEnable() &&
-                            todo.getIsAlarmEnabled()
+                    !member.isDeleted() &&
+                    member.getToDoAlarmEnable() &&
+                    todo.getIsAlarmEnabled() &&
+                    member.getFcmToken() != null
             ) {
                 String todoTitle = todo.getTitle();
-                String fcmToken = todo.getMember().getFcmToken().getCode();
+                String fcmToken = member.getFcmToken().getCode();
 
                 sendMessageTo(
                         fcmToken,
