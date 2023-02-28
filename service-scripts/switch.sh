@@ -3,6 +3,7 @@
 ABSPATH=$(readlink -f $0)
 ABSDIR=$(dirname $ABSPATH)
 source ${ABSDIR}/profile.sh
+source ${ABSDIR}/stop.sh
 
 switch_proxy()
 {
@@ -14,4 +15,6 @@ switch_proxy()
 
   echo "> 엔진엑스 Reload"
   sudo service nginx reload
+  # 다른 포트의 jar 종료
+  stop "$(find_not_idle_port)"
 }

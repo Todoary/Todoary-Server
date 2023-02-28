@@ -3,7 +3,7 @@ package com.todoary.ms.src.common.auth.jwt.filter;
 import com.todoary.ms.src.legacy.auth.LegacyAuthService;
 import com.todoary.ms.src.legacy.auth.dto.PostSigninRes;
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.legacy.auth.model.LegacyPrincipalDetails;
+import com.todoary.ms.src.common.auth.PrincipalDetails;
 import com.todoary.ms.src.legacy.auth.dto.Token;
 import com.todoary.ms.src.legacy.user.model.User;
 import com.todoary.ms.src.common.response.BaseResponse;
@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                         // 여기서 PrincipalDetailsService의 loadByUsername 실행됨
             authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             // ^ 갔다와서 실행됨
-            LegacyPrincipalDetails legacyPrincipalDetails = (LegacyPrincipalDetails) authentication.getPrincipal();
+            PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
 
 
         } catch (IOException e) {
@@ -57,9 +57,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        LegacyPrincipalDetails legacyPrincipalDetails = (LegacyPrincipalDetails) authResult.getPrincipal();
+        PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
 
-        Long userid = legacyPrincipalDetails.getMember().getId();
+        Long userid = principalDetails.getMember().getId();
         String accessToken = jwtTokenProvider.createAccessToken(userid);
         String refreshToken = jwtTokenProvider.createRefreshToken(userid);
 

@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.todoary.ms.src.common.response.BaseResponseStatus.MEMBERS_DUPLICATE_EMAIL;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_EMPTY_USER_EMAIL;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -86,6 +88,9 @@ class AuthControllerTest {
 
     @Test
     public void 일반로그인_테스트() throws Exception {
+        // 유저가 존재함
+        given(memberService.existsByGeneralEmail(any())).willReturn(true);
+
         when(authService.authenticate(any(), any())).thenReturn(1L);
         when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
         when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), ""));
@@ -107,7 +112,30 @@ class AuthControllerTest {
     }
 
     @Test
+    public void 일반로그인시_이메일없을때_에러코드_응답() throws Exception {
+        // 유저가 존재하지 않음
+        given(memberService.existsByGeneralEmail(any())).willReturn(false);
+
+        String loginRequestBody =
+                "{" +
+                        "\"email\" : \"emailA\"," +
+                        "\"password\" : \"passwordA\"" +
+                        "}";
+        mockMvc.perform(
+                        post("/auth/signin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("2011"))
+                .andExpect(jsonPath("$.message").value(USERS_EMPTY_USER_EMAIL.getMessage()))
+                .andDo(print());
+    }
+
+    @Test
     public void 자동로그인_테스트() throws Exception {
+        // 유저가 존재함
+        given(memberService.existsByGeneralEmail(any())).willReturn(true);
+
         when(authService.authenticate(any(), any())).thenReturn(1L);
         when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
         when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));

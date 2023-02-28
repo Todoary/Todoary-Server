@@ -3,11 +3,10 @@ package com.todoary.ms.src.service.alarm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.todoary.ms.src.web.dto.alarm.FcmMessage;
 import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Todo;
 import com.todoary.ms.src.service.todo.TodoService;
+import com.todoary.ms.src.web.dto.alarm.FcmMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -16,12 +15,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.function.Predicate;
 
-import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.FCM_MESSAGE_PARSING_FAILURE;
 
 @Slf4j
 @Transactional
@@ -41,12 +42,15 @@ public class FireBaseCloudMessageService {
     private final TodoService todoService;
 
     public void sendMessageTo(String fcm_token, String title, String body) { // targetToken : 에 해당하는 device로 보낼 것이다.
+        if (fcm_token == null || fcm_token.isEmpty() || fcm_token.isBlank()) {
+            return;
+        }
         try {
             String message = makeMessage(fcm_token, title, body);
 
             OkHttpClient client = new OkHttpClient(); // okhttp3를 이용해 Http post request 생성
             RequestBody requestBody = RequestBody.create(message,
-                    MediaType.get("application/json; charset=utf-8"));
+                                                         MediaType.get("application/json; charset=utf-8"));
             Request request = new Request.Builder()
                     .url(MESSAGE_SEND_URL)
                     .post(requestBody)
@@ -66,15 +70,15 @@ public class FireBaseCloudMessageService {
             FcmMessage fcmMessage =
                     FcmMessage.builder()
                             .message(FcmMessage.Message
-                                            .builder()
-                                            .token(fcm_token)
-                                            .notification(FcmMessage.Notification
-                                                                .builder()
-                                                                .title(title)
-                                                                .body(body)
-                                                                .image(null)
-                                                                .build())
-                                    .build())
+                                             .builder()
+                                             .token(fcm_token)
+                                             .notification(FcmMessage.Notification
+                                                                   .builder()
+                                                                   .title(title)
+                                                                   .body(body)
+                                                                   .image(null)
+                                                                   .build())
+                                             .build())
                             .validateOnly(false)
                             .build();
             return objectMapper.writeValueAsString(fcmMessage);
@@ -98,6 +102,7 @@ public class FireBaseCloudMessageService {
 
     public void sendDailyAlarm(List<Member> dailyAlarmEnabledMembers) {
         dailyAlarmEnabledMembers.stream()
+                .filter(member -> canMemberReceiveAlarm(member, Member::getDailyAlarmEnable))
                 .map(member -> member.getFcmToken().getCode())
                 .forEach(fcmToken -> sendMessageTo(
                         fcmToken,
@@ -107,29 +112,22 @@ public class FireBaseCloudMessageService {
     }
 
     public void sendTodoAlarm(LocalDate targetDate, LocalTime targetTime) {
-        List<Todo> todos = todoService.findAllByDateTime(targetDate, targetTime);
-        for (Todo todo : todos) {
-            Member member = todo.getMember();
-            if (
-                    !member.isDeleted() &&
-                    member.getToDoAlarmEnable() &&
-                    todo.getIsAlarmEnabled() &&
-                    member.getFcmToken() != null
-            ) {
-                String todoTitle = todo.getTitle();
-                String fcmToken = member.getFcmToken().getCode();
-
-                sendMessageTo(
-                        fcmToken,
-                        "Todoary 알림",
-                        todoTitle
-                );
-            }
-        }
+        todoService.findAllByDateTime(targetDate, targetTime).stream()
+                .filter(todo -> canMemberReceiveAlarm(todo.getMember(), Member::getToDoAlarmEnable))
+                .forEach(todo -> {
+                    String todoTitle = todo.getTitle();
+                    String fcmToken = todo.getMember().getFcmToken().getCode();
+                    sendMessageTo(
+                            fcmToken,
+                            "Todoary 알림",
+                            todoTitle
+                    );
+                });
     }
 
     public void sendRemindAlarm(List<Member> targetMembers) {
         targetMembers.stream()
+                .filter(member -> canMemberReceiveAlarm(member, Member::getRemindAlarmEnable))
                 .map(member -> member.getFcmToken().getCode())
                 .forEach(fcmToken -> sendMessageTo(
                         fcmToken,
@@ -137,4 +135,13 @@ public class FireBaseCloudMessageService {
                         "하루기록을 작성한 지 일주일이 경과했습니다.")
                 );
     }
+
+    private boolean canMemberReceiveAlarm(Member member, Predicate<Member> alarmEnabled) {
+        return !member.isDeleted() && member.getFcmToken() != null && isCodeValid(member.getFcmToken().getCode()) && alarmEnabled.test(member);
+    }
+
+    private boolean isCodeValid(String code) {
+        return code != null && !code.isEmpty() && !code.isBlank();
+    }
+
 }

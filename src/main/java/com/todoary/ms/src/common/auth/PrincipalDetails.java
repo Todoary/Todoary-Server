@@ -1,4 +1,4 @@
-package com.todoary.ms.src.legacy.auth.model;
+package com.todoary.ms.src.common.auth;
 
 import com.todoary.ms.src.domain.Member;
 import lombok.Getter;
@@ -11,18 +11,18 @@ import java.util.Collection;
 import java.util.Map;
 
 @Getter
-public class LegacyPrincipalDetails implements UserDetails, OAuth2User {
+public class PrincipalDetails implements UserDetails, OAuth2User {
 
     private Member member;
     private Map<String, Object> attributes;
     // 새로 가입시킨 멤버인가
     boolean isNewMember = false;
 
-    public LegacyPrincipalDetails(Member member) {
+    public PrincipalDetails(Member member) {
         this.member = member;
     }
 
-    public LegacyPrincipalDetails(Member member, Map<String, Object> attributes, boolean isNewMember) {
+    public PrincipalDetails(Member member, Map<String, Object> attributes, boolean isNewMember) {
         this.member = member;
         this.attributes = attributes;
         this.isNewMember = isNewMember;

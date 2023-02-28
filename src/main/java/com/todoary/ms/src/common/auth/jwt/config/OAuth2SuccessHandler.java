@@ -5,7 +5,7 @@ import com.todoary.ms.src.legacy.auth.LegacyAuthService;
 import com.todoary.ms.src.legacy.auth.dto.GetOauth2SuccessRes;
 import com.todoary.ms.src.legacy.auth.dto.GetOauth2UserRes;
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.legacy.auth.model.LegacyPrincipalDetails;
+import com.todoary.ms.src.common.auth.PrincipalDetails;
 import com.todoary.ms.src.legacy.auth.dto.Token;
 import com.todoary.ms.src.common.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         
-        LegacyPrincipalDetails oAuth2User = (LegacyPrincipalDetails) authentication.getPrincipal();
+        PrincipalDetails oAuth2User = (PrincipalDetails) authentication.getPrincipal();
 
         GetOauth2SuccessRes getOauth2SuccessRes;
         if (oAuth2User.isNewMember()) { // 새로 가입한 유저

@@ -1,4 +1,4 @@
-#!/user/bin/env bash
+#!/usr/bin/env bash
 
 # bash는 return value가 안되니 *제일 마지막줄에 echo로 결과 출력*후, 클라이언트에서 값 사용
 
@@ -29,10 +29,22 @@ find_idle_port()
 {
   IDLE_PROFILE=$(find_idle_profile)
 
-  if [ ${IDLE_PROFILE} == release1 ]
+  if [ "${IDLE_PROFILE}" == release1 ]
   then
     echo "9001"
   else
     echo "9002"
   fi
+}
+
+find_not_idle_port()
+{
+    IDLE_PROFILE=$(find_idle_profile)
+
+    if [ "${IDLE_PROFILE}" == release1 ]
+    then
+      echo "9002"
+    else
+      echo "9001"
+    fi
 }

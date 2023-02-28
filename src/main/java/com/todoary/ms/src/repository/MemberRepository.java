@@ -119,7 +119,7 @@ public class MemberRepository {
     }
 
     public Optional<Member> findGeneralMemberByEmail(String email) {
-        return em.createQuery("select m from Member m where m.providerAccount = :providerAccount and m.email = :email")
+        return em.createQuery("select m from Member m where m.providerAccount = :providerAccount and m.email = :email", Member.class)
                 .setParameter("providerAccount", ProviderAccount.none())
                 .setParameter("email", email)
                 .getResultStream()
@@ -127,7 +127,7 @@ public class MemberRepository {
     }
 
     public List<Member> findAllForRemindAlarm(LocalDate targetDate) {
-        return em.createQuery("select m from Member m where m.remindAlarm.targetDate = :targetDate and m.remindAlarmEnable = true")
+        return em.createQuery("select m from Member m where m.remindAlarm.targetDate = :targetDate and m.remindAlarmEnable = true", Member.class)
                 .setParameter("targetDate", targetDate)
                 .getResultList();
     }

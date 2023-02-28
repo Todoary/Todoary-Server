@@ -2,7 +2,6 @@ package com.todoary.ms.src.common.auth;
 
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.ProviderAccount;
-import com.todoary.ms.src.legacy.auth.model.LegacyPrincipalDetails;
 import com.todoary.ms.src.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,10 +41,10 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
                         .providerAccount(providerAccount)
                         .build();
 
-            return new LegacyPrincipalDetails(member, oAuth2User.getAttributes(), true);
+            return new PrincipalDetails(member, oAuth2User.getAttributes(), true);
         } else {
             System.out.println("구글 로그인 기록이 있습니다. 로그인을 진행합니다.");
-            return new LegacyPrincipalDetails(member, oAuth2User.getAttributes(), false);
+            return new PrincipalDetails(member, oAuth2User.getAttributes(), false);
         }
     }
 
