@@ -18,7 +18,11 @@ public class LoggingAspectHandler {
     private void allControllers() {
     }
 
-    @AfterReturning(value = "allControllers()", returning = "result")
+    @Pointcut("execution(* com.todoary.ms.src.service.alarm.FireBaseCloudMessageService.*(..))")
+    private void allInNotificationService() {
+    }
+
+    @AfterReturning(value = "allControllers() || allInNotificationService()", returning = "result")
     public void doReturnLogging(JoinPoint joinPoint, Object result) {
         if (result instanceof BaseResponse) {
             log.info("[Return] {} request={} return={}", joinPoint.getSignature().toShortString(), joinPoint.getArgs(), ((BaseResponse<?>) result).getResult());
@@ -27,7 +31,7 @@ public class LoggingAspectHandler {
         }
     }
 
-    @AfterThrowing(value = "allControllers()", throwing = "exception")
+    @AfterThrowing(value = "allControllers() || allInNotificationService()", throwing = "exception")
     public void doExceptionLogging(JoinPoint joinPoint, Exception exception) {
         log.error("[Exception] {} request={} message={}", joinPoint.getSignature().toShortString(), joinPoint.getArgs(), exception.getMessage());
     }
