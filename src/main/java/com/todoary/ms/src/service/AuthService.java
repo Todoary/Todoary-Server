@@ -1,7 +1,7 @@
 package com.todoary.ms.src.service;
 
 import com.todoary.ms.src.common.auth.jwt.JwtTokenProvider;
-import com.todoary.ms.src.legacy.auth.model.LegacyPrincipalDetails;
+import com.todoary.ms.src.common.auth.PrincipalDetails;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
@@ -40,7 +40,6 @@ public class AuthService {
         return memberId == Long.parseLong(jwtTokenProvider.getUserIdFromAccessToken(accessTokenCode));
     }
 
-    @Transactional
     public RefreshToken createRefreshToken(Member member) {
         String code = jwtTokenProvider.createRefreshToken(member.getId());
         if (member.hasRefreshToken()) {
@@ -56,8 +55,9 @@ public class AuthService {
         try {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
+            //PrincipalDetailsService::loadUserByUsername
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            return ((LegacyPrincipalDetails) authentication.getPrincipal())
+            return ((PrincipalDetails) authentication.getPrincipal())
                     .getMember()
                     .getId();
         } catch (BadCredentialsException badCredentialsException) {

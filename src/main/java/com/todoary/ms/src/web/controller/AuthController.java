@@ -1,26 +1,24 @@
 package com.todoary.ms.src.web.controller;
 
+import com.todoary.ms.src.common.exception.TodoaryException;
+import com.todoary.ms.src.common.response.BaseResponse;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
-import com.todoary.ms.src.legacy.BaseException;
-import com.todoary.ms.src.legacy.auth.dto.PostSignupOauth2Req;
 import com.todoary.ms.src.service.AppleAuthService;
 import com.todoary.ms.src.service.AuthService;
 import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.*;
-import com.todoary.ms.src.common.response.BaseResponse;
-import com.todoary.ms.src.common.response.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
-import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.SUCCESS;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_EMPTY_USER_EMAIL;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,7 +38,7 @@ public class AuthController {
      */
     @PostMapping("/signin")
     public BaseResponse<SigninResponse> login(@RequestBody SigninRequest signinRequest) {
-        Long memberId = authService.authenticate(signinRequest.getEmail(), signinRequest.getPassword());
+        Long memberId = authenticateGeneralMember(signinRequest.getEmail(), signinRequest.getPassword());
         return new BaseResponse<>(new SigninResponse(new Token(authService.issueAccessToken(memberId).getCode(), "")));
     }
 
@@ -53,8 +51,15 @@ public class AuthController {
      */
     @PostMapping("/signin/auto")
     public BaseResponse<AutoSigninResponse> autoLogin(@RequestBody AutoSigninRequest autoSigninRequest) {
-        Long memberId = authService.authenticate(autoSigninRequest.getEmail(), autoSigninRequest.getPassword());
+        Long memberId = authenticateGeneralMember(autoSigninRequest.getEmail(), autoSigninRequest.getPassword());
         return new BaseResponse<>(new AutoSigninResponse(new Token(authService.issueAccessToken(memberId).getCode(), authService.issueRefreshToken(memberId).getCode())));
+    }
+
+    private Long authenticateGeneralMember(String email, String password) {
+        if (!memberService.existsByGeneralEmail(email)) {
+            throw new TodoaryException(USERS_EMPTY_USER_EMAIL);
+        }
+        return authService.authenticate(email, password);
     }
 
     /**
@@ -65,7 +70,8 @@ public class AuthController {
      * @return
      */
     @PostMapping("/jwt")
-    public BaseResponse<AuthenticationTokenIssueResponse> reIssueAuthenticationToken(@RequestBody RefreshTokenIssueRequest refreshTokenIssueRequest) {
+    public BaseResponse<AuthenticationTokenIssueResponse> reIssueAuthenticationToken(
+            @RequestBody RefreshTokenIssueRequest refreshTokenIssueRequest) {
         String refreshTokenCode = refreshTokenIssueRequest.getRefreshToken();
 
         // refreshTokenCode 검증
@@ -169,7 +175,8 @@ public class AuthController {
      * @return
      */
     @PatchMapping("/password")
-    public BaseResponse<BaseResponseStatus> patchUserPassword(@RequestBody MemberPasswordChangeRequest memberPasswordChangeRequest) {
+    public BaseResponse<BaseResponseStatus> patchUserPassword(
+            @RequestBody MemberPasswordChangeRequest memberPasswordChangeRequest) {
         memberService.changePassword(memberPasswordChangeRequest.getEmail(), memberPasswordChangeRequest.getNewPassword());
         return new BaseResponse<>(SUCCESS);
     }
