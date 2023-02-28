@@ -1,6 +1,7 @@
 package com.todoary.ms.src.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.todo.TodoService;
 import com.todoary.ms.src.web.controller.TodoController.MarkTodoRequest;
@@ -10,7 +11,6 @@ import com.todoary.ms.src.web.dto.todo.TodoAlarmRequest;
 import com.todoary.ms.src.web.dto.todo.TodoRequest;
 import com.todoary.ms.src.web.dto.todo.TodoResponse;
 import com.todoary.ms.src.web.dto.todo.TodoSaveResponse;
-import com.todoary.ms.src.common.response.BaseResponseStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration;
@@ -29,14 +29,13 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
 
-import static com.todoary.ms.src.web.controller.TodoControllerTest.REQUEST_URL.*;
-import static com.todoary.ms.src.web.controller.TestUtils.*;
 import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 import static com.todoary.ms.src.common.util.ColumnLengthInfo.TODO_TITLE_MAX_LENGTH;
 import static com.todoary.ms.src.common.util.ColumnLengthInfo.getGraphemeLength;
+import static com.todoary.ms.src.web.controller.TestUtils.*;
+import static com.todoary.ms.src.web.controller.TodoControllerTest.REQUEST_URL.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -241,7 +240,16 @@ class TodoControllerTest {
                 .categoryId(10L)
                 .targetDate(LocalDate.of(2022, 2, 4))
                 .targetTime(LocalTime.of(21, 40))
+                .isAlarmEnabled(true)
                 .build();
+        given(todoService.updateTodo(anyLong(), anyLong(), any()))
+                .willReturn(TodoResponse.builder()
+                                    .title("제목")
+                                    .categoryId(10L)
+                                    .targetDate(LocalDate.of(2022, 2, 4))
+                                    .targetTime(LocalTime.of(21, 40))
+                                    .isAlarmEnabled(true)
+                                    .build());
         // when
         MvcResult result = mvc.perform(patch(REQUEST_URL.MODIFY, 1L).with(csrf())
                                                .contentType(MediaType.APPLICATION_JSON)
@@ -249,9 +257,15 @@ class TodoControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
-        BaseResponseStatus response = getResponseObject(result);
         // then
-        assertThat(response).isEqualTo(SUCCESS);
+        TodoResponse response = getResponseObject(result, TodoResponse.class, objectMapper);
+        assertThat(response.getTitle()).isEqualTo("제목");
+        assertThat(response.getCategoryId()).isEqualTo(10L);
+        assertThat(response.getTargetDate()).isEqualTo(LocalDate.of(2022, 2, 4));
+        assertThat(response.getTargetTime()).isEqualTo(LocalTime.of(21, 40));
+        assertThat(response.getIsAlarmEnabled()).isTrue();
+        assertThat(response.getIsChecked()).isFalse();
+        assertThat(response.getIsPinned()).isFalse();
     }
 
     // 투두 생성과 똑같은 request dto 사용하므로 나머지는 생략

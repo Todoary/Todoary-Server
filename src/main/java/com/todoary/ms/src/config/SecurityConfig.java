@@ -63,7 +63,7 @@ public class SecurityConfig {
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/favicon.ico").permitAll()
                 // for test
-                .antMatchers("/jpa/test").permitAll()
+                .antMatchers("/test").permitAll()
                 // profile check
                 .antMatchers("/profile").permitAll()
                 .and()

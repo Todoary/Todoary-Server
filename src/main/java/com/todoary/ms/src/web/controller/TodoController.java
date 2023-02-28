@@ -40,13 +40,12 @@ public class TodoController {
 
     // 3.2 투두 수정
     @PatchMapping("/{todoId}")
-    public BaseResponse<BaseResponseStatus> modifyTodo(
+    public BaseResponse<TodoResponse> modifyTodo(
             @LoginMember Long memberId,
             @PathVariable("todoId") Long todoId,
             @RequestBody @Valid TodoRequest request
     ) {
-        todoService.updateTodo(memberId, todoId, request);
-        return BaseResponse.from(SUCCESS);
+        return new BaseResponse<>(todoService.updateTodo(memberId, todoId, request));
     }
 
     // 3.3 투두 삭제
