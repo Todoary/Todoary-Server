@@ -42,7 +42,7 @@ public class TodoService {
     }
 
     @Transactional
-    public void updateTodo(Long memberId, Long todoId, TodoRequest request) {
+    public TodoResponse updateTodo(Long memberId, Long todoId, TodoRequest request) {
         Member member = memberService.findById(memberId);
         Category category = categoryService.findCategoryByIdAndMember(request.getCategoryId(), member);
         Todo todo = findTodoByIdAndMember(todoId, member);
@@ -53,6 +53,7 @@ public class TodoService {
                 request.getTargetDate(),
                 request.getTargetTime()
         );
+        return TodoResponse.from(todo);
     }
 
     @Transactional
