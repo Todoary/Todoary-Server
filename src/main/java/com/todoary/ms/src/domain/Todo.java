@@ -8,7 +8,7 @@ import java.time.LocalTime;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@ToString
+@ToString(exclude = {"member", "category"})
 public class Todo extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "todo_id")

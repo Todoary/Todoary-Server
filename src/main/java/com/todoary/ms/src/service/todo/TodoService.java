@@ -104,10 +104,10 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<Todo> findAllByDateTime(LocalDate targetDate, LocalTime targetTime) {
-        List<Todo> todos = todoRepository.findAllByDate(targetDate);
+    public List<Todo> retrieveTodosShouldNotifiedAtDateTime(LocalDate targetDate, LocalTime targetTime) {
+        List<Todo> todos = todoRepository.findAllByDateTime(targetDate, targetTime);
         return todos.stream()
-                .filter(todo -> todo.getTargetTime().equals(targetTime))
+                .filter(Todo::getIsAlarmEnabled)
                 .collect(Collectors.toList());
     }
 

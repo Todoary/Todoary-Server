@@ -14,7 +14,7 @@ import static com.todoary.ms.src.domain.Category.InitialCategoryValue.initialTit
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
+@ToString(exclude = {"member", "todos"})
 @Entity
 public class Category extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
