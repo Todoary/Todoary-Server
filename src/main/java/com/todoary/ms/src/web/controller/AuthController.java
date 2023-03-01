@@ -230,7 +230,7 @@ public class AuthController {
 
         // revoke from Todoary
         Member member = memberService.findByProviderEmail(Provider.APPLE, appleRevokeRequest.getEmail());
-        memberService.removeMember(member);
+        memberService.removeOauthMember(member);
 
         return new BaseResponse<>(SUCCESS);
     }
