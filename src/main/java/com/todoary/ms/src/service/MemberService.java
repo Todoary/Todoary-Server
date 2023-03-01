@@ -123,6 +123,11 @@ public class MemberService {
         return checkMemberValid(memberRepository.findByProviderAccount(providerAccount));
     }
 
+    @Transactional(readOnly = true)
+    public Member findByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
+        return checkMemberValid(memberRepository.findByEmailAndProviderAccount(email, providerAccount));
+    }
+
     private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount providerAccount) {
         if (memberRepository.isProviderAccountAndEmailUsed(providerAccount, email)) {
             throw new TodoaryException(MEMBERS_DUPLICATE_EMAIL);
