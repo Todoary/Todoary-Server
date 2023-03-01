@@ -88,4 +88,8 @@ public class Todo extends BaseTimeEntity {
     public void pin(boolean isPinned){
         this.isPinned = isPinned;
     }
+
+    public boolean has(Member member) {
+        return this.member == member;
+    }
 }

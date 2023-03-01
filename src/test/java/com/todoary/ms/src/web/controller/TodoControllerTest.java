@@ -1,6 +1,7 @@
 package com.todoary.ms.src.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.config.auth.WithTodoaryMockUser;
 import com.todoary.ms.src.service.todo.TodoService;
@@ -36,7 +37,7 @@ import static com.todoary.ms.src.web.controller.TestUtils.*;
 import static com.todoary.ms.src.web.controller.TodoControllerTest.REQUEST_URL.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -295,7 +296,9 @@ class TodoControllerTest {
     @WithTodoaryMockUser
     void 투두_삭제O() throws Exception {
         // given
-
+        willDoNothing()
+                .given(todoService)
+                .deleteTodo(any(), any());
         // when
         MvcResult result = mvc.perform(delete(REQUEST_URL.DELETE, 1L).with(csrf()))
                 .andExpect(status().isOk())
@@ -304,6 +307,23 @@ class TodoControllerTest {
         BaseResponseStatus status = getResponseObject(result);
         // then
         assertThat(status).isEqualTo(SUCCESS);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    void 투두_없을때_삭제X() throws Exception {
+        // given
+        willThrow(new TodoaryException(USERS_TODO_NOT_EXISTS))
+                .given(todoService)
+                .deleteTodo(any(), any());
+        // when
+        MvcResult result = mvc.perform(delete(REQUEST_URL.DELETE, 1L).with(csrf()))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+        BaseResponseStatus status = getResponseObject(result);
+        // then
+        assertThat(status).isEqualTo(USERS_TODO_NOT_EXISTS);
     }
 
     @Test
