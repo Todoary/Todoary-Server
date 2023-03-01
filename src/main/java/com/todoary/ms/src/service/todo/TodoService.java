@@ -22,7 +22,7 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_CATEGORY_NOT_EXISTS;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_TODO_NOT_EXISTS;
 
 @RequiredArgsConstructor
 @Service
@@ -134,9 +134,9 @@ public class TodoService {
 
     private Todo findTodoByIdAndMember(Long todoId, Member member) {
         Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoaryException(USERS_CATEGORY_NOT_EXISTS));
-        if (!todo.getMember().equals(member))
-            throw new TodoaryException(USERS_CATEGORY_NOT_EXISTS);
+                .orElseThrow(() -> new TodoaryException(USERS_TODO_NOT_EXISTS));
+        if (!todo.has(member))
+            throw new TodoaryException(USERS_TODO_NOT_EXISTS);
         return todo;
     }
 
