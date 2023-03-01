@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,9 +89,10 @@ public class TodoRepository {
                 .getResultList();
     }
 
-    public List<Todo> findAllByDate(LocalDate targetDate) {
-        return em.createQuery("select t from Todo t where t.targetDate = :targetDate", Todo.class)
+    public List<Todo> findAllByDateTime(LocalDate targetDate, LocalTime targetTime) {
+        return em.createQuery("select t from Todo t where t.targetDate = :targetDate and t.targetTime = :targetTime", Todo.class)
                 .setParameter("targetDate", targetDate)
+                .setParameter("targetTime", targetTime)
                 .getResultList();
     }
 }

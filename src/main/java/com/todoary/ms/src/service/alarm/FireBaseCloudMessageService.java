@@ -112,7 +112,7 @@ public class FireBaseCloudMessageService {
     }
 
     public void sendTodoAlarm(LocalDate targetDate, LocalTime targetTime) {
-        todoService.findAllByDateTime(targetDate, targetTime).stream()
+        todoService.retrieveTodosShouldNotifiedAtDateTime(targetDate, targetTime).stream()
                 .filter(todo -> canMemberReceiveAlarm(todo.getMember(), Member::getToDoAlarmEnable))
                 .forEach(todo -> {
                     String todoTitle = todo.getTitle();
