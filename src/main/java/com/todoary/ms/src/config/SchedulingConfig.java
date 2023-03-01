@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
-@Profile({"release1, release2"})
+@Profile({"release1", "release2"})
 @EnableScheduling
 public class SchedulingConfig {
 }
