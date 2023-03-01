@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -91,13 +93,13 @@ public class AppleAuthService {
     }
 
     private Map getTokenRequest(String authenticationCode) {
-        Map<String, String> tokenRequest = new HashMap<>();
+        MultiValueMap<String, String> tokenRequest = new LinkedMultiValueMap<>();
 
-        tokenRequest.put("client_id", CLIENT_ID);
-        tokenRequest.put("client_secret", getClientSecret());
-        tokenRequest.put("code", authenticationCode);
-        tokenRequest.put("grant_type", "authorization_code");
-        tokenRequest.put("redirect_uri", APPLE_WEBSITE_URL);
+        tokenRequest.add("client_id", CLIENT_ID);
+        tokenRequest.add("client_secret", getClientSecret());
+        tokenRequest.add("code", authenticationCode);
+        tokenRequest.add("grant_type", "authorization_code");
+        tokenRequest.add("redirect_uri", APPLE_WEBSITE_URL);
 
         return tokenRequest;
     }
@@ -163,12 +165,12 @@ public class AppleAuthService {
     }
 
     private Map getRevokeRequest(String appleRefreshToken) {
-        Map<String, String> revokeRequest = new HashMap<>();
+        MultiValueMap<String, String> revokeRequest = new LinkedMultiValueMap<>();
 
-        revokeRequest.put("client_id", CLIENT_ID);
-        revokeRequest.put("client_secret", getClientSecret());
-        revokeRequest.put("token", appleRefreshToken);
-        revokeRequest.put("token_type_hint", "refresh_token");
+        revokeRequest.add("client_id", CLIENT_ID);
+        revokeRequest.add("client_secret", getClientSecret());
+        revokeRequest.add("token", appleRefreshToken);
+        revokeRequest.add("token_type_hint", "refresh_token");
 
         return revokeRequest;
     }
