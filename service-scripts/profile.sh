@@ -36,15 +36,3 @@ find_idle_port()
     echo "9002"
   fi
 }
-
-find_not_idle_port()
-{
-    IDLE_PROFILE=$(find_idle_profile)
-
-    if [ "${IDLE_PROFILE}" == release1 ]
-    then
-      echo "9002"
-    else
-      echo "9001"
-    fi
-}
