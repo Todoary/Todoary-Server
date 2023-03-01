@@ -56,7 +56,7 @@ public class AuthService {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
             //PrincipalDetailsService::loadUserByUsername
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            Authentication authentication = getAuthentication(authenticationToken);
             return ((PrincipalDetails) authentication.getPrincipal())
                     .getMember()
                     .getId();
@@ -66,6 +66,18 @@ public class AuthService {
         } catch (AuthenticationException authenticationException) {
             // authenticate 실패했을 때 예외 발생
             throw new TodoaryException(USERS_AUTHENTICATION_FAILURE);
+        }
+    }
+
+    // authService의 통제 밖인 authenticationManger(authenticationManagerBuilder.getObject())를 테스트하기 위해 메서드 분리
+    public Authentication getAuthentication(UsernamePasswordAuthenticationToken authenticationToken)
+            throws BadCredentialsException, AuthenticationException{
+        try {
+            return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        } catch (BadCredentialsException badCredentialsException) {
+            throw badCredentialsException;
+        } catch (AuthenticationException authenticationException) {
+            throw authenticationException;
         }
     }
 

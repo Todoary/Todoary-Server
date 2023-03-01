@@ -18,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +27,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.todoary.ms.src.common.response.BaseResponseStatus.MEMBERS_DUPLICATE_EMAIL;
-import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_EMPTY_USER_EMAIL;
+import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -128,6 +128,29 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("2011"))
                 .andExpect(jsonPath("$.message").value(USERS_EMPTY_USER_EMAIL.getMessage()))
+                .andDo(print());
+    }
+
+
+    @Test
+    public void 일반로그인시_비밀번호_틀릴때_에러코드_응답() throws Exception {
+        // 유저가 존재하지 않음
+        given(memberService.existsByGeneralEmail(any())).willReturn(true);
+        when(authService.authenticate(any(), any())).thenCallRealMethod();
+        when(authService.getAuthentication(any())).thenThrow(BadCredentialsException.class);
+
+        String loginRequestBody =
+                "{" +
+                        "\"email\" : \"emailA\"," +
+                        "\"password\" : \"passwordA\"" +
+                        "}";
+        mockMvc.perform(
+                        post("/auth/signin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("2112"))
+                .andExpect(jsonPath("$.message").value(USERS_DISACCORD_PASSWORD.getMessage()))
                 .andDo(print());
     }
 

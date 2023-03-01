@@ -64,7 +64,7 @@ jobs:
             git fetch --all || exit 1
             git reset --hard origin/Develop || exit 1
             git pull origin Develop || exit 1
-            git submodule update --remote --merge || exit 1
+            git submodule update --remote --hard || exit 1
 
             ./scripts/build.sh || exit 1
             ./scripts/stop.sh || exit 1
