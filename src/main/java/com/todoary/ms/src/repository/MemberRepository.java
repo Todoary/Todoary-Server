@@ -144,4 +144,7 @@ public class MemberRepository {
                 .findAny();
     }
 
+    public void deleteMember(Member member) {
+        em.remove(member);
+    }
 }

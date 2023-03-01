@@ -200,12 +200,21 @@ public class MemberService {
     @Transactional
     public void removeMember(Long memberId) {
         Member member = findById(memberId);
-        removeMember(member);
+        if (member.getProviderAccount().equals(ProviderAccount.none())) {
+            removeGeneralMember(member);
+        } else {
+            removeOauthMember(member);
+        }
     }
 
     @Transactional
-    public void removeMember(Member member) {
+    public void removeGeneralMember(Member member) {
         member.deactivate();
+    }
+
+    @Transactional
+    public void removeOauthMember(Member member) {
+        memberRepository.deleteMember(member);
     }
 
     @Transactional
