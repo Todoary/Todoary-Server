@@ -31,7 +31,7 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
         String provider_id = (String) oAuth2User.getAttributes().get("sub");
 
         ProviderAccount providerAccount = ProviderAccount.from(provider, provider_id);
-        Member member = memberService.findByProviderAccount(providerAccount);
+        Member member = memberService.findByEmailAndProviderAccount(email, providerAccount);
 
         if (member == null) {
             System.out.println("구글 로그인 최초입니다. 회원가입을 진행합니다.");

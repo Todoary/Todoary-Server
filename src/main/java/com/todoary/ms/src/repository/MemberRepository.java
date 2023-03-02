@@ -131,4 +131,20 @@ public class MemberRepository {
                 .setParameter("targetDate", targetDate)
                 .getResultList();
     }
+
+    public Optional<Member> findByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
+        return em.createQuery("select m from Member m " +
+                "where m.email = :email " +
+                "and m.providerAccount.provider = :provider " +
+                "and m.providerAccount.providerId = :providerId")
+                .setParameter("email", email)
+                .setParameter("provider", providerAccount.getProvider())
+                .setParameter("providerId", providerAccount.getProviderId())
+                .getResultStream()
+                .findAny();
+    }
+
+    public void deleteMember(Member member) {
+        em.remove(member);
+    }
 }
