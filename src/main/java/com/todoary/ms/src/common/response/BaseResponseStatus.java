@@ -95,7 +95,8 @@ public enum BaseResponseStatus {
     AWS_FILE_CONVERT_FAIL(false, 5003, "파일 변환에 실패했습니다."),
 
     // 6000 : Firebase 관련 오류
-    FCM_MESSAGE_PARSING_FAILURE(false, 6001, "FCM 메시지 변환에 실패했습니다.");
+    FCM_MESSAGE_PARSING_FAILURE(false, 6001, "FCM 메시지 변환에 실패했습니다."),
+    FCM_CONFIG_FILE_LOAD_FAILURE(false, 6002, "FCM 설정 파일 로드에 실패했습니다.");
 
     private final boolean isSuccess;
     private final int code;
