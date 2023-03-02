@@ -97,8 +97,8 @@ task copyMainResources {
             into './src/main/resources'
         }
         copy {
-            from './config/firebase/firebase_service_key.json'
-            into './src/main/resources/firebase'
+            from './config/static/firebase/firebase_service_key.json'
+            into './src/main/resources/static/firebase'
         }
         copy {
             from './config/static/AuthKey_Q97Q56DJS6.p8'
