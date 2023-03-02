@@ -92,9 +92,11 @@ public class FireBaseCloudMessageService {
             GoogleCredentials googleCredentials = GoogleCredentials // GoogleCredentials : Google API를 사용하기 위해 oauth2를 이용해 인증한 대상
                     .fromStream(new ClassPathResource(FCM_CONFIG_FILE_PATH).getInputStream()) // firebase/firebase_service_key.json를 inputstream으로 가져옴
                     .createScoped(List.of(FCM_GETTING_AUTHORIZATION_URL)); // 서버에서 필요로하는 권한 설정
-
+            System.out.println("checkPoint");
             googleCredentials.refreshIfExpired(); //설정이 적용된 객체로부터 access token 생성
-            return googleCredentials.getAccessToken().getTokenValue(); // access token 값을 가져옴 >> rest api를 통해 fcm에 push 요청을 할 때 header에 담아서 인증할 것임.
+            String tokenValue = googleCredentials.getAccessToken().getTokenValue();// access token 값을 가져옴 >> rest api를 통해 fcm에 push 요청을 할 때 header에 담아서 인증할 것임.
+            System.out.println("FCM AccessToken : " + tokenValue);
+            return tokenValue;
         } catch (IOException exception) {
             throw new TodoaryException(FCM_MESSAGE_PARSING_FAILURE);
         }
