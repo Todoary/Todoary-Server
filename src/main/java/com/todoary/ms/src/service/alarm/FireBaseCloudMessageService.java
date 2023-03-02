@@ -22,6 +22,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.todoary.ms.src.common.response.BaseResponseStatus.FCM_CONFIG_FILE_LOAD_FAILURE;
 import static com.todoary.ms.src.common.response.BaseResponseStatus.FCM_MESSAGE_PARSING_FAILURE;
 
 @Slf4j
@@ -89,14 +90,22 @@ public class FireBaseCloudMessageService {
 
     private String getAccessToken() {
         try {
+            GoogleCredentials googleCredentials = getGoogleCredentials();
+            googleCredentials.refreshIfExpired(); //설정이 적용된 객체로부터 access token 생성
+            return googleCredentials.getAccessToken().getTokenValue();// access token 값을 가져옴 >> rest api를 통해 fcm에 push 요청을 할 때 header에 담아서 인증할 것임.
+        } catch (IOException exception) {
+            throw new TodoaryException(FCM_MESSAGE_PARSING_FAILURE);
+        }
+    }
+
+    private GoogleCredentials getGoogleCredentials() {
+        try {
             GoogleCredentials googleCredentials = GoogleCredentials // GoogleCredentials : Google API를 사용하기 위해 oauth2를 이용해 인증한 대상
                     .fromStream(new ClassPathResource(FCM_CONFIG_FILE_PATH).getInputStream()) // firebase/firebase_service_key.json를 inputstream으로 가져옴
                     .createScoped(List.of(FCM_GETTING_AUTHORIZATION_URL)); // 서버에서 필요로하는 권한 설정
-
-            googleCredentials.refreshIfExpired(); //설정이 적용된 객체로부터 access token 생성
-            return googleCredentials.getAccessToken().getTokenValue(); // access token 값을 가져옴 >> rest api를 통해 fcm에 push 요청을 할 때 header에 담아서 인증할 것임.
+            return googleCredentials;
         } catch (IOException exception) {
-            throw new TodoaryException(FCM_MESSAGE_PARSING_FAILURE);
+            throw new TodoaryException(FCM_CONFIG_FILE_LOAD_FAILURE);
         }
     }
 

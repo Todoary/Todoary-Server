@@ -102,7 +102,7 @@ public class AwsS3Service {
                 fos.write(file.getBytes());
                 return convertFile;
             }
-
+            log.info("createNewFile failed");
             // 파일 변환할 수 없으면 예외
             throw new TodoaryException(AWS_FILE_CONVERT_FAIL);
         } catch (IOException exception) {
