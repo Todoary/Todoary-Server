@@ -92,7 +92,7 @@ public class AwsS3Service {
 
     // 로컬에 파일 업로드 하기
     private File convert(MultipartFile file) {
-        File convertFile = new File(System.getProperty("user.dir") + "/" + file.getOriginalFilename());
+        File convertFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename());
         try {
             // 바로 위에서 지정한 경로에 File이 생성됨 (경로가 잘못되었다면 생성 불가능)
             if (convertFile.createNewFile()) {
