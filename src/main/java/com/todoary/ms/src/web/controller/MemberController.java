@@ -13,6 +13,7 @@ import com.todoary.ms.src.web.dto.alarm.DailyAlarmEnablesRequest;
 import com.todoary.ms.src.web.dto.alarm.RemindAlarmEnablesRequest;
 import com.todoary.ms.src.web.dto.alarm.TodoAlarmEnablesRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,11 +58,15 @@ public class MemberController {
     }
 
     // 2.3 프로필 사진 삭제 api
+    @PatchMapping("/profile-img/default")
+    public BaseResponse<String> resetProfileImg(@LoginMember Long memberId) {
+        if (memberService.checkProfileImgIsDefault(memberId)) {
+            return new BaseResponse<>("삭제에 성공했습니다.");
+        }
 
-    /**
-     * API 2.3은 멤버 회원 탈퇴 시에 AWS S3에 저장된 프로필 사진을 삭제하기 위함.
-     * 따라서 별도의 API 대신 memberService에 로직 추가하는 것으로 대체.
-     */
+        memberService.setProfileImgDefault(memberId);
+        return new BaseResponse<>("삭제에 성공했습니다.");
+    }
 
     // 2.4 프로필 조회 api
     @GetMapping("")

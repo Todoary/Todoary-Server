@@ -24,9 +24,9 @@ import java.io.IOException;
 import static com.todoary.ms.src.web.controller.TestUtils.getResponseObject;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
@@ -135,6 +135,27 @@ class MemberControllerTest {
 
         //then
         assertThat(getResponseObject(result)).isEqualTo(BaseResponseStatus.SUCCESS);
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    public void 기본_프로필일때_프로필_사진_초기화_테스트() throws Exception {
+        when(memberService.checkProfileImgIsDefault(any())).thenReturn(true);
+
+        mockMvc.perform(patch("/member/profile-img/default"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("1000"));
+    }
+
+    @Test
+    @WithTodoaryMockUser
+    public void 수정된_프로필일때_프로필_사진_초기화_테스트() throws Exception {
+        when(memberService.checkProfileImgIsDefault(any())).thenReturn(false);
+        doNothing().when(memberService).setProfileImgDefault(anyLong());
+
+        mockMvc.perform(patch("/member/profile-img/default"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("1000"));
     }
 
     String createTestImage(String fileName, String contentType, String directory) throws IOException {

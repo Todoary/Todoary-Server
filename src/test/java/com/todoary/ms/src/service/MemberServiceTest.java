@@ -8,12 +8,15 @@ import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.repository.FcmTokenRepository;
 import com.todoary.ms.src.repository.MemberRepository;
 import com.todoary.ms.src.repository.RefreshTokenRepository;
+import com.todoary.ms.src.s3.AwsS3Service;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -24,6 +27,7 @@ import static com.todoary.ms.src.domain.Category.InitialCategoryValue.initialCol
 import static com.todoary.ms.src.domain.Category.InitialCategoryValue.initialTitle;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 @Transactional
 @SpringBootTest
@@ -39,6 +43,9 @@ class MemberServiceTest {
     RefreshTokenRepository refreshTokenRepository;
     @Autowired
     FcmTokenRepository fcmTokenRepository;
+
+    @MockBean
+    AwsS3Service awsS3Service;
 
     @Value("${profile-image.default-url}")
     private String defaultProfileImageUrl;
@@ -214,6 +221,67 @@ class MemberServiceTest {
         ProviderAccount apple2 = ProviderAccount.appleFrom(providerId);
         // then
         assertThat(apple1).isEqualTo(apple2);
+    }
+
+    @Test
+    public void 프로필사진이_default일때_check() throws Exception {
+        //given
+        Long memberId = memberService.joinGeneralMember(createMemberJoinParam());
+
+        //when
+        boolean result = memberService.checkProfileImgIsDefault(memberId);
+
+        //then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void 프로필사진이_default가_아닐때_check() throws Exception {
+        //given
+        Member member = Member.builder()
+                .email("emailA")
+                .profileImgUrl("modifiedProfileImgUrl")
+                .providerAccount(ProviderAccount.none())
+                .build();
+        em.persist(member);
+
+        //when
+        boolean result = memberService.checkProfileImgIsDefault(member.getId());
+
+        //then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void 프로필_사진_초기화테스트_기본_프로필사진일때() throws Exception {
+        //given
+        Long memberId = memberService.joinGeneralMember(createMemberJoinParam());
+
+        //when
+        memberService.setProfileImgDefault(memberId);
+
+        //then
+        assertThat(memberService.findById(memberId).getProfileImgUrl()).isEqualTo(defaultProfileImageUrl);
+    }
+
+    @Test
+    public void 프로필_사진_초기화테스트_수정된_프로필사진일때() throws Exception {
+        //given
+        when(awsS3Service.fileDelete(any())).thenReturn(true);
+
+        Member member = Member.builder()
+                .email("emailA")
+                .profileImgUrl("modifiedProfileImgUrl")
+                .providerAccount(ProviderAccount.none())
+                .build();
+
+        em.persist(member);
+        //when
+        memberService.setProfileImgDefault(member.getId());
+
+        //then
+        Member findMember = memberService.findById(member.getId());
+        assertThat(findMember.getProfileImgUrl()).isEqualTo(defaultProfileImageUrl);
     }
 
     MemberJoinParam createMemberJoinParam(String nickname, String email) {
