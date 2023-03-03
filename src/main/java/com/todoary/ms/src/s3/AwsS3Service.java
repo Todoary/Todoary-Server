@@ -1,6 +1,6 @@
 package com.todoary.ms.src.s3;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.todoary.ms.src.common.exception.TodoaryException;
@@ -23,8 +23,7 @@ import static com.todoary.ms.src.common.response.BaseResponseStatus.AWS_FILE_NOT
 @Slf4j
 @Service
 public class AwsS3Service {
-    private final AmazonS3Client amazonS3Client;
-
+    private final AmazonS3 amazonS3;
     @Value("${profile-image.default-url}")
     private String defaultImageUrl;
     @Value("${profile-image.path}")
@@ -34,9 +33,9 @@ public class AwsS3Service {
     private final Pattern fileNamePattern;
 
     @Autowired
-    public AwsS3Service(AmazonS3Client amazonS3Client,
-                        @Value("${profile-image.filename-pattern}") String fileNamePattern) {
-        this.amazonS3Client = amazonS3Client;
+    public AwsS3Service(
+            AmazonS3 amazonS3, @Value("${profile-image.filename-pattern}") String fileNamePattern) {
+        this.amazonS3 = amazonS3;
         this.fileNamePattern = Pattern.compile(fileNamePattern);
     }
 
@@ -55,8 +54,8 @@ public class AwsS3Service {
 
     // S3로 업로드
     private String putS3(File uploadFile, String fileName) {
-        amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
-        return amazonS3Client.getUrl(bucket, fileName).toString();
+        amazonS3.putObject(new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
+        return amazonS3.getUrl(bucket, fileName).toString();
     }
 
     // delete file
@@ -65,11 +64,11 @@ public class AwsS3Service {
             return false;
         }
         String fileName = getFileName(fileUrl);
-        if (!amazonS3Client.doesObjectExist(bucket, fileName)) {
+        if (!amazonS3.doesObjectExist(bucket, fileName)) {
             throw new TodoaryException(AWS_FILE_NOT_FOUND);
         }
         log.info((fileName).replace(File.separatorChar, '/'));
-        amazonS3Client.deleteObject(this.bucket, fileName);
+        amazonS3.deleteObject(this.bucket, fileName);
         return true;
     }
 
