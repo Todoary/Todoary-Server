@@ -8,6 +8,7 @@ import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.FcmToken;
 import com.todoary.ms.src.repository.MemberRepository;
+import com.todoary.ms.src.s3.AwsS3Service;
 import com.todoary.ms.src.web.dto.MemberJoinParam;
 import com.todoary.ms.src.web.dto.MemberProfileParam;
 import com.todoary.ms.src.web.dto.MemberResponse;
@@ -31,6 +32,7 @@ import static com.todoary.ms.src.common.util.ColumnLengthInfo.MEMBER_NICKNAME_MA
 public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AwsS3Service awsS3Service;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -263,6 +265,28 @@ public class MemberService {
             return;
         }
         member.updateFcmToken(newFcmToken);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkProfileImgIsDefault(Long memberId) {
+        return findById(memberId)
+                .getProfileImgUrl()
+                .equals(defaultProfileImageUrl);
+    }
+
+    @Transactional
+    public void setProfileImgDefault(Long memberId) {
+        Member member = findById(memberId);
+        String profileImgUrl = member.getProfileImgUrl();
+
+        if (profileImgUrl.equals(defaultProfileImageUrl)) {
+            return;
+        }
+
+        // delete image at S3 storage
+        awsS3Service.fileDelete(member.getProfileImgUrl());
+        // set profile-image default
+        member.changeProfileImg(defaultProfileImageUrl);
     }
 
     private String generateRandomNickname() {
