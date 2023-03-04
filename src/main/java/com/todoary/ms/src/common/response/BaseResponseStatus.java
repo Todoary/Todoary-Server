@@ -35,12 +35,12 @@ public enum BaseResponseStatus {
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     USERS_EMPTY_USER_EMAIL(false, 2011, "유저 이메일 값을 확인해주세요."),
     USERS_DELETED_USER(false, 2012, "삭제된 유저입니다."),
-
     NULL_ARGUMENT(false, 2015, "입력값이 있어야 합니다."),
     MEMBERS_DUPLICATE_NICKNAME(false, 2032, "중복된 닉네임입니다."),
     MEMBERS_DUPLICATE_EMAIL(false, 2017, "중복된 이메일입니다."),
     MEMBERS_EMPTY_FCM_TOKEN(false, 2018, "FCM 토큰값이 비어있습니다."),
-
+    NOT_USED_EMAIL(true, 2019, "사용 가능한 이메일입니다."),
+    EMAIL_USED_BY_DEACTIVATED_MEMBER(false, 2020, "탈퇴한 멤버의 이메일입니다."),
     USERS_DISACCORD_PASSWORD(false, 2112, "비밀번호가 일치하지 않습니다"),
     USERS_REFRESH_TOKEN_NOT_EXISTS(false, 2113, "유저 정보와 일치하는 Refresh Token이 없습니다."),
     USERS_AUTHENTICATION_FAILURE(false, 2114, "유저 인증을 실패했습니다."),

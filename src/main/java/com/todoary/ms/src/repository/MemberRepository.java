@@ -2,7 +2,6 @@ package com.todoary.ms.src.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,13 +98,6 @@ public class MemberRepository {
                 .getResultStream().findAny();
     }
 
-    public Optional<Member> findByProviderEmail(Provider provider, String email) {
-        return em.createQuery("select m from Member m where m.providerAccount.provider = :provider and m.email = :email", Member.class)
-                .setParameter("provider", provider)
-                .setParameter("email", email)
-                .getResultStream().findAny();
-    }
-
     public Optional<Member> findByProviderAccount(ProviderAccount providerAccount) {
         return em.createQuery("select m from Member m where m.providerAccount = :providerAccount", Member.class)
                 .setParameter("providerAccount", providerAccount)
@@ -136,7 +128,7 @@ public class MemberRepository {
         return em.createQuery("select m from Member m " +
                 "where m.email = :email " +
                 "and m.providerAccount.provider = :provider " +
-                "and m.providerAccount.providerId = :providerId")
+                "and m.providerAccount.providerId = :providerId", Member.class)
                 .setParameter("email", email)
                 .setParameter("provider", providerAccount.getProvider())
                 .setParameter("providerId", providerAccount.getProviderId())
@@ -144,7 +136,13 @@ public class MemberRepository {
                 .findAny();
     }
 
-    public void deleteMember(Member member) {
+    public void removeMember(Member member) {
         em.remove(member);
+    }
+
+    public List<Member> findMemberDeactivatedTimeBefore(LocalDateTime time) {
+        return em.createQuery("select m from Member m where m.status = 0 and m.modifiedAt < :time", Member.class)
+                .setParameter("time", time)
+                .getResultList();
     }
 }

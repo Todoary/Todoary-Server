@@ -13,7 +13,6 @@ import com.todoary.ms.src.web.dto.alarm.DailyAlarmEnablesRequest;
 import com.todoary.ms.src.web.dto.alarm.RemindAlarmEnablesRequest;
 import com.todoary.ms.src.web.dto.alarm.TodoAlarmEnablesRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -80,7 +79,7 @@ public class MemberController {
     public BaseResponse<BaseResponseStatus> patchMemberStatus(
             @LoginMember Long memberId
     ) {
-        memberService.removeMember(memberId);
+        memberService.deactivateMember(memberId);
         return BaseResponse.from(SUCCESS);
     }
 

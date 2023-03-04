@@ -3,6 +3,7 @@ package com.todoary.ms.src.domain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 
 import static com.todoary.ms.src.domain.Provider.APPLE;
 
+@ToString
 @Getter
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"provider", "providerId"})
@@ -42,5 +44,18 @@ public class ProviderAccount {
 
     public static ProviderAccount from(String provider, String provider_id) {
         return new ProviderAccount(Provider.findByProviderName(provider), provider_id);
+    }
+
+    public static ProviderAccount of(String provider, String providerId) {
+        if (provider.equalsIgnoreCase("apple")) {
+            return appleFrom(providerId);
+        } else if (provider.equalsIgnoreCase("google")) {
+            return googleFrom(providerId);
+        }
+        return ProviderAccount.none();
+    }
+
+    public boolean isGeneral() {
+        return this.provider.equals(Provider.NONE);
     }
 }

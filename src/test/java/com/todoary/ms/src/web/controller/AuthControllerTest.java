@@ -14,30 +14,30 @@ import com.todoary.ms.src.web.dto.MemberJoinParam;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Transactional
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(value = AuthController.class)
+@WithMockUser(roles = "GUEST")
 class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -58,7 +58,7 @@ class AuthControllerTest {
 
         String requestBody = "{\"refreshToken\" : \"formalRefreshToken\"}";
         mockMvc.perform(
-                        post("/auth/jwt")
+                        post("/auth/jwt").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(requestBody))
                 .andExpect(status().isOk())
@@ -78,7 +78,7 @@ class AuthControllerTest {
                 "\"isTermsEnable\" : true" +
                 "}";
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/auth/signup")
+                        MockMvcRequestBuilders.post("/auth/signup").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(normalJoinRequestBody))
                 .andExpect(status().isOk())
@@ -101,7 +101,7 @@ class AuthControllerTest {
                 "}";
 
         mockMvc.perform(
-                        post("/auth/signin")
+                        post("/auth/signin").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(loginRequestBody))
                 .andExpect(status().isOk())
@@ -122,7 +122,7 @@ class AuthControllerTest {
                         "\"password\" : \"passwordA\"" +
                         "}";
         mockMvc.perform(
-                        post("/auth/signin")
+                        post("/auth/signin").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(loginRequestBody))
                 .andExpect(status().isOk())
@@ -145,7 +145,7 @@ class AuthControllerTest {
                         "\"password\" : \"passwordA\"" +
                         "}";
         mockMvc.perform(
-                        post("/auth/signin")
+                        post("/auth/signin").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(loginRequestBody))
                 .andExpect(status().isOk())
@@ -169,7 +169,7 @@ class AuthControllerTest {
                         "}";
 
         mockMvc.perform(
-                        post("/auth/signin/auto")
+                        post("/auth/signin/auto").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(autoLoginRequestBody))
                 .andExpect(status().isOk())
@@ -197,7 +197,8 @@ class AuthControllerTest {
                         get("/auth/email/duplication")
                                 .queryParam("email", "newEmail"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value("가능한 이메일입니다."))
+                .andExpect(jsonPath("$.code").value("2019"))
+                .andExpect(jsonPath("$.message").value("사용 가능한 이메일입니다."))
                 .andDo(print());
     }
     
@@ -212,7 +213,7 @@ class AuthControllerTest {
                         "\"newPassword\" : \"" + newPassword + "\"" +
                         "}";
 
-        mockMvc.perform(patch("/auth/password")
+        mockMvc.perform(patch("/auth/password").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(changePasswordRequestBody))
                 .andExpect(jsonPath("$.code").value("1000"))
@@ -234,8 +235,8 @@ class AuthControllerTest {
         tokenResponse.put("id_token", "idToken");
         tokenResponse.put("refresh_token", "appleRefreshToken");
 
-        when(memberService.existsByProviderAccount(any())).thenReturn(false);
-        when(memberService.findByProviderAccount(any())).thenReturn(createMemberWithId(1L));
+        when(memberService.existsActiveMemberByProviderAccount(any())).thenReturn(false);
+        when(memberService.findActiveMemberByProviderAccount(any())).thenReturn(createMemberWithId(1L));
         when(memberService.joinOauthMember(any())).thenReturn(1L);
         when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
         when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
@@ -245,7 +246,7 @@ class AuthControllerTest {
 
         //when
         mockMvc.perform(
-                        post("/auth/apple/token")
+                        post("/auth/apple/token").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(appleSigninRequest)))
                 .andExpect(status().isOk())
@@ -269,8 +270,8 @@ class AuthControllerTest {
         tokenResponse.put("id_token", "idToken");
         tokenResponse.put("refresh_token", "appleRefreshToken");
 
-        when(memberService.existsByProviderAccount(any())).thenReturn(true);
-        when(memberService.findByProviderAccount(any())).thenReturn(createMemberWithId(1L));
+        when(memberService.existsActiveMemberByProviderAccount(any())).thenReturn(true);
+        when(memberService.findMemberOrEmptyByProviderAccount(any())).thenReturn(Optional.ofNullable(createMemberWithId(1L)));
         when(memberService.joinOauthMember(any())).thenReturn(1L);
         when(authService.issueAccessToken(anyLong())).thenReturn(new AccessToken("accessToken"));
         when(authService.issueRefreshToken(anyLong())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
@@ -280,13 +281,14 @@ class AuthControllerTest {
 
         //when
         mockMvc.perform(
-                        post("/auth/apple/token")
+                        post("/auth/apple/token").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(appleSigninRequest)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$.code").value("1000"))
-                .andExpect(jsonPath("$.result.isNewUser").value(false));
+                .andExpect(jsonPath("$.result.isNewUser").value(false))
+                .andExpect(jsonPath("$.result.isDeactivatedUser").value(false));
     }
 
     @Test
@@ -301,18 +303,18 @@ class AuthControllerTest {
         tokenResponse.put("refresh_token", "appleRefreshToken");
 
         when(appleAuthService.getTokenResponseByCode(anyString())).thenReturn(new JSONObject(tokenResponse));
-        when(memberService.findByProviderEmail(any(), any())).thenReturn(createMemberWithId(1L));
+        when(memberService.findActiveMemberByProviderAccount(any())).thenReturn(createMemberWithId(1L));
 
         //when
         mockMvc.perform(
-                        post("/auth/revoke/apple")
+                        post("/auth/revoke/apple").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(appleRevokeRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("1000"))
                 .andReturn();
     }
-    
+
     public Member createMemberWithId(Long id) throws NoSuchFieldException, IllegalAccessException {
         Member member = Member.builder().build();
         Field idField = member.getClass().getDeclaredField("id");
