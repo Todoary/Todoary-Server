@@ -10,6 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @Component
 @Aspect
 public class LoggingAspectHandler {
@@ -25,14 +28,14 @@ public class LoggingAspectHandler {
     @AfterReturning(value = "allControllers() || allInNotificationService()", returning = "result")
     public void doReturnLogging(JoinPoint joinPoint, Object result) {
         if (result instanceof BaseResponse) {
-            log.info("[Return] {} request={} return={}", joinPoint.getSignature().toShortString(), joinPoint.getArgs(), ((BaseResponse<?>) result).getResult());
+            log.info("[Return] {} | request={} | return={}", joinPoint.getSignature().toShortString(), joinPoint.getArgs(), ((BaseResponse<?>) result).getResult());
         } else {
-            log.info("[Return] {} request={} return={}", joinPoint.getSignature().toShortString(), joinPoint.getArgs(), result);
+            log.info("[Return] {} | request={} | return={}", joinPoint.getSignature().toShortString(), joinPoint.getArgs(), result);
         }
     }
 
     @AfterThrowing(value = "allControllers() || allInNotificationService()", throwing = "exception")
     public void doExceptionLogging(JoinPoint joinPoint, Exception exception) {
-        log.error("[Exception] {} request={} message={}", joinPoint.getSignature().toShortString(), joinPoint.getArgs(), exception.getMessage());
+        log.error("[Exception] {} | request={} | message={} | stacktrace={}", joinPoint.getSignature().toShortString(), joinPoint.getArgs(), exception.getMessage(), Arrays.stream(exception.getStackTrace()).limit(5).collect(Collectors.toList()));
     }
 }
