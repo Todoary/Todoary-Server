@@ -17,8 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
-import static com.todoary.ms.src.common.response.BaseResponseStatus.SUCCESS;
-import static com.todoary.ms.src.common.response.BaseResponseStatus.USERS_EMPTY_USER_EMAIL;
+import javax.validation.Valid;
+import java.util.Optional;
+
+import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -58,6 +60,9 @@ public class AuthController {
     private Long authenticateGeneralMember(String email, String password) {
         if (!memberService.existsByGeneralEmail(email)) {
             throw new TodoaryException(USERS_EMPTY_USER_EMAIL);
+        }
+        if (memberService.existsDeactivatedGeneralMemberByEmail(email)) {
+            throw new TodoaryException(EMAIL_USED_BY_DEACTIVATED_MEMBER);
         }
         return authService.authenticate(email, password);
     }
@@ -140,30 +145,30 @@ public class AuthController {
     /**
      * 1.8 이메일 중복체크 api
      * [GET] /email/duplication?email=
-     *
-     * @param email
-     * @return
      */
     @GetMapping("/email/duplication")
-    public BaseResponse<String> checkEmailDuplication(@RequestParam(required = true) String email) {
+    public BaseResponse<BaseResponseStatus> checkEmailDuplication(@RequestParam String email) {
         memberService.checkEmailDuplicationOfGeneral(email);
-
-        return new BaseResponse<>("가능한 이메일입니다.");
+        if (!memberService.existsByGeneralEmail(email)) {
+            return BaseResponse.from(NOT_USED_EMAIL);
+        }
+        if (memberService.isEmailUsedByDeactivatedGeneralMember(email)) {
+            return BaseResponse.from(EMAIL_USED_BY_DEACTIVATED_MEMBER);
+        }
+        return BaseResponse.from(MEMBERS_DUPLICATE_EMAIL);
     }
 
     /**
      * 1.9.1 이메일 검증 api
      * [GET] /auth/email/existence?email=
-     *
-     * @param email
-     * @return
+     * 비밀번호 찾기 시 이메일 검증 위해 사용됨
+     * 탈퇴한 멤버든 아니든 비밀번호 찾기 가능
      */
     @GetMapping("/email/existence")
-    public BaseResponse<String> checkEmailExistence(@RequestParam(required = true) String email) {
+    public BaseResponse<String> checkEmailExistence(@RequestParam String email) {
         if (memberService.existsByGeneralEmail(email)) {
             return new BaseResponse<>("존재하는 일반 이메일입니다.");
         }
-
         return new BaseResponse<>(USERS_EMPTY_USER_EMAIL);
     }
 
@@ -193,13 +198,11 @@ public class AuthController {
 
         // member existence check by providerId
         ProviderAccount providerAccount = ProviderAccount.appleFrom(providerId);
-        boolean memberExists = memberService.existsByProviderAccount(providerAccount);
 
-        // issue tokens
+        boolean memberExists = false, memberDeactivated = false;
+        Optional<Member> member = memberService.findMemberOrEmptyByProviderAccount(providerAccount);
         Long memberId;
-        if (memberExists) {
-            memberId = memberService.findByProviderAccount(providerAccount).getId();
-        } else {
+        if (member.isEmpty()) {
             memberId = memberService.joinOauthMember(new OauthMemberJoinParam(
                     appleSigninRequest.getName(),
                     appleSigninRequest.getEmail(),
@@ -207,10 +210,14 @@ public class AuthController {
                     "ROLE_USER",
                     appleSigninRequest.isTermsEnable()
             ));
+        } else {
+            memberExists = true;
+            memberDeactivated = member.get().isDeactivated();
+            memberId = member.get().getId();
         }
-
         return new BaseResponse<>(new AppleSigninResponse(
                 !memberExists,
+                memberDeactivated,
                 appleSigninRequest.getName(),
                 appleSigninRequest.getEmail(),
                 providerAccount.getProvider().name(),
@@ -229,9 +236,16 @@ public class AuthController {
         appleAuthService.revoke(appleRefreshToken);
 
         // revoke from Todoary
-        Member member = memberService.findByProviderEmail(Provider.APPLE, appleRevokeRequest.getEmail());
-        memberService.removeOauthMember(member);
+        Member member = memberService.findActiveMemberByProviderEmail(Provider.APPLE, appleRevokeRequest.getEmail());
+        memberService.deactivateMember(member);
 
         return new BaseResponse<>(SUCCESS);
+    }
+
+    @PostMapping("/restore")
+    public BaseResponse<BaseResponseStatus> activateMember(@RequestBody @Valid RestoreRequest request) {
+        memberService.activateMember(
+                request.getEmail(), ProviderAccount.of(request.getProvider(), request.getProviderId()));
+        return BaseResponse.from(SUCCESS);
     }
 }

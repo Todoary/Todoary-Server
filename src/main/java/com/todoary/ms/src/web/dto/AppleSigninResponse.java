@@ -1,14 +1,13 @@
 package com.todoary.ms.src.web.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
 public class AppleSigninResponse {
-    @JsonProperty("isNewUser")
-    private boolean isNewUser;
+    private Boolean isNewUser;
+    private Boolean isDeactivatedUser;
     private String name;
     private String email;
     private String provider;

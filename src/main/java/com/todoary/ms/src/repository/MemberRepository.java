@@ -136,7 +136,7 @@ public class MemberRepository {
         return em.createQuery("select m from Member m " +
                 "where m.email = :email " +
                 "and m.providerAccount.provider = :provider " +
-                "and m.providerAccount.providerId = :providerId")
+                "and m.providerAccount.providerId = :providerId", Member.class)
                 .setParameter("email", email)
                 .setParameter("provider", providerAccount.getProvider())
                 .setParameter("providerId", providerAccount.getProviderId())
@@ -144,7 +144,13 @@ public class MemberRepository {
                 .findAny();
     }
 
-    public void deleteMember(Member member) {
+    public void removeMember(Member member) {
         em.remove(member);
+    }
+
+    public List<Member> findMemberDeactivatedTimeBefore(LocalDateTime time) {
+        return em.createQuery("select m from Member m where m.status = 0 and m.modifiedAt < :time", Member.class)
+                .setParameter("time", time)
+                .getResultList();
     }
 }

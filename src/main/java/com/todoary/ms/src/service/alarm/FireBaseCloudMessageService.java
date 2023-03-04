@@ -146,7 +146,7 @@ public class FireBaseCloudMessageService {
     }
 
     private boolean canMemberReceiveAlarm(Member member, Predicate<Member> alarmEnabled) {
-        return !member.isDeleted() && member.getFcmToken() != null && isCodeValid(member.getFcmToken().getCode()) && alarmEnabled.test(member);
+        return !member.isDeactivated() && member.getFcmToken() != null && isCodeValid(member.getFcmToken().getCode()) && alarmEnabled.test(member);
     }
 
     private boolean isCodeValid(String code) {

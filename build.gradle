@@ -112,8 +112,9 @@ task copyTestResources {
     doLast {
         println '*********** test copy start ***********'
         copy {
-            from './config/application-local-h2.yml', './config/application.yml'
+            from './config/application-test.yml'
             into './src/test/resources'
+            rename 'application-test.yml', 'application.yml'
         }
         println '*********** test copy end *************'
     }

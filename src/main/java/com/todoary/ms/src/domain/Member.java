@@ -56,7 +56,7 @@ public class Member extends BaseTimeEntity {
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Diary> diaries = new ArrayList<>();
 
@@ -172,8 +172,12 @@ public class Member extends BaseTimeEntity {
         this.introduce = introduce;
     }
 
-    public boolean isDeleted() {
+    public boolean isDeactivated() {
         return status == 0;
+    }
+
+    public void activate() {
+        this.status = 1;
     }
 
     public void deactivate() {

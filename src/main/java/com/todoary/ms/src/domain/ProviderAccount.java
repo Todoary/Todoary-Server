@@ -43,4 +43,13 @@ public class ProviderAccount {
     public static ProviderAccount from(String provider, String provider_id) {
         return new ProviderAccount(Provider.findByProviderName(provider), provider_id);
     }
+
+    public static ProviderAccount of(String provider, String providerId) {
+        if (provider.equals("apple")) {
+            return appleFrom(providerId);
+        } else if (provider.equals("google")) {
+            return googleFrom(providerId);
+        }
+        return ProviderAccount.none();
+    }
 }
