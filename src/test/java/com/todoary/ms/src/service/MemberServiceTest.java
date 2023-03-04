@@ -251,13 +251,21 @@ class MemberServiceTest {
     }
 
     @Test
-    void 멤버_동등성_검사_이메일과_provider기준() {
+    void 소셜멤버_동등성_검사_provider기준() {
         // given
-        String email = "email";
-        String providerId = "1234";
+        Member member1 = Member.builder().email("email1").providerAccount(ProviderAccount.appleFrom("providerId")).build();
+        Member member2 = Member.builder().email("email2").providerAccount(ProviderAccount.appleFrom("providerId")).build();
         // when
-        Member member1 = Member.builder().email(email).providerAccount(ProviderAccount.appleFrom(providerId)).build();
-        Member member2 = Member.builder().email(email).providerAccount(ProviderAccount.appleFrom(providerId)).build();
+        // then
+        assertThat(member1).isEqualTo(member2);
+    }
+
+    @Test
+    void 일반멤버_동등성_검사_email기준() {
+        // given
+        Member member1 = Member.builder().email("email").providerAccount(ProviderAccount.none()).build();
+        Member member2 = Member.builder().email("email").providerAccount(ProviderAccount.none()).build();
+        // when
         // then
         assertThat(member1).isEqualTo(member2);
     }

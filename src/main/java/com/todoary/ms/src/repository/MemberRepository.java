@@ -2,7 +2,6 @@ package com.todoary.ms.src.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.RefreshToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,13 +94,6 @@ public class MemberRepository {
 
     public Optional<Member> findByEmail(String email) {
         return em.createQuery("select m from Member m where m.email = :email and m.status = 1", Member.class)
-                .setParameter("email", email)
-                .getResultStream().findAny();
-    }
-
-    public Optional<Member> findByProviderEmail(Provider provider, String email) {
-        return em.createQuery("select m from Member m where m.providerAccount.provider = :provider and m.email = :email", Member.class)
-                .setParameter("provider", provider)
                 .setParameter("email", email)
                 .getResultStream().findAny();
     }

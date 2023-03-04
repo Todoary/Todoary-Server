@@ -8,11 +8,13 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+@ToString(exclude = {"todos", "categories", "diaries"})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor @Builder
-@EqualsAndHashCode(of = {"email", "providerAccount"}, callSuper = false)
+@AllArgsConstructor
+@Builder
 @Entity
 public class Member extends BaseTimeEntity {
     @Id
@@ -198,5 +200,27 @@ public class Member extends BaseTimeEntity {
     public FcmToken updateFcmToken(String code) {
         this.fcmToken.changeCode(code);
         return this.fcmToken;
+    }
+
+    @Override
+    public int hashCode() {
+        if (this.providerAccount.isGeneral()) {
+            return Objects.hash(email, this.providerAccount);
+        } else {
+            return Objects.hash(this.providerAccount);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Member)) return false;
+        Member member = (Member) o;
+        if (this.providerAccount.getProvider() != member.providerAccount.getProvider()) return false;
+        if (this.providerAccount.isGeneral()) {
+            return this.email.equals(member.getEmail());
+        } else {
+            return this.providerAccount.equals(member.getProviderAccount());
+        }
     }
 }

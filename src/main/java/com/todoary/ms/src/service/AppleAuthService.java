@@ -31,11 +31,9 @@ import java.security.PrivateKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
-import static com.todoary.ms.src.common.response.BaseResponseStatus.APPLE_AUTHENTICATION_CODE_VALIDATION_FAILURE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -115,13 +113,15 @@ public class AppleAuthService {
 
         HttpEntity httpEntity = new HttpEntity(tokenRequest, httpHeaders);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Map> response = restTemplate.postForEntity(AUTH_TOKEN_URL, httpEntity, Map.class);
-
-        if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(AUTH_TOKEN_URL, httpEntity, Map.class);
+            if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+                throw new TodoaryException(APPLE_AUTHENTICATION_CODE_VALIDATION_FAILURE);
+            }
+            return response.getBody();
+        } catch(Exception e) {
             throw new TodoaryException(APPLE_AUTHENTICATION_CODE_VALIDATION_FAILURE);
         }
-
-        return response.getBody();
     }
 
     private PrivateKey getPrivateKey() {

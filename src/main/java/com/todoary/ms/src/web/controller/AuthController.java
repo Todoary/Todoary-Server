@@ -4,7 +4,6 @@ import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.common.response.BaseResponse;
 import com.todoary.ms.src.common.response.BaseResponseStatus;
 import com.todoary.ms.src.domain.Member;
-import com.todoary.ms.src.domain.Provider;
 import com.todoary.ms.src.domain.ProviderAccount;
 import com.todoary.ms.src.domain.token.AccessToken;
 import com.todoary.ms.src.domain.token.RefreshToken;
@@ -236,11 +235,11 @@ public class AuthController {
         // revoke from Apple
         JSONObject tokenResponse = appleAuthService.getTokenResponseByCode(appleRevokeRequest.getCode());
         String appleRefreshToken = tokenResponse.getAsString("refresh_token");
-
         appleAuthService.revoke(appleRefreshToken);
 
         // revoke from Todoary
-        Member member = memberService.findActiveMemberByProviderEmail(Provider.APPLE, appleRevokeRequest.getEmail());
+        String providerId = appleAuthService.getProviderIdFrom(tokenResponse.getAsString("id_token"));
+        Member member = memberService.findActiveMemberByProviderAccount(ProviderAccount.appleFrom(providerId));
         memberService.deactivateMember(member);
 
         return new BaseResponse<>(SUCCESS);

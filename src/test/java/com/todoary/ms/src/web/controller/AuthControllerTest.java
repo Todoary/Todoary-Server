@@ -303,7 +303,7 @@ class AuthControllerTest {
         tokenResponse.put("refresh_token", "appleRefreshToken");
 
         when(appleAuthService.getTokenResponseByCode(anyString())).thenReturn(new JSONObject(tokenResponse));
-        when(memberService.findActiveMemberByProviderEmail(any(), any())).thenReturn(createMemberWithId(1L));
+        when(memberService.findActiveMemberByProviderAccount(any())).thenReturn(createMemberWithId(1L));
 
         //when
         mockMvc.perform(
