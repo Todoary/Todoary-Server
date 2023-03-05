@@ -213,10 +213,17 @@ public class Member extends BaseTimeEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Member)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Member)) {
+            return false;
+        }
+
         Member member = (Member) o;
-        if (this.providerAccount.getProvider() != member.providerAccount.getProvider()) return false;
+        if (this.providerAccount.getProvider() != member.providerAccount.getProvider()) {
+            return false;
+        }
         if (this.providerAccount.isGeneral()) {
             return this.email.equals(member.getEmail());
         } else {
