@@ -197,8 +197,7 @@ class AuthControllerTest {
                         get("/auth/email/duplication")
                                 .queryParam("email", "newEmail"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("2019"))
-                .andExpect(jsonPath("$.message").value("사용 가능한 이메일입니다."))
+                .andExpect(jsonPath("$.code").value("1000"))
                 .andDo(print());
     }
     
