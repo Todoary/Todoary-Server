@@ -149,7 +149,7 @@ public class AuthController {
     public BaseResponse<BaseResponseStatus> checkEmailDuplication(@RequestParam String email) {
         memberService.checkEmailDuplicationOfGeneral(email);
         if (!memberService.existsByGeneralEmail(email)) {
-            return BaseResponse.from(NOT_USED_EMAIL);
+            return BaseResponse.from(SUCCESS);
         }
         if (memberService.isEmailUsedByDeactivatedGeneralMember(email)) {
             return BaseResponse.from(EMAIL_USED_BY_DEACTIVATED_MEMBER);
