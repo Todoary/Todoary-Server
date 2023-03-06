@@ -1,4 +1,4 @@
-package com.todoary.ms.src.service.diary;
+package com.todoary.ms.src.service;
 
 
 import com.todoary.ms.src.common.event.DiaryCreatedEvent;
@@ -6,7 +6,6 @@ import com.todoary.ms.src.common.exception.TodoaryException;
 import com.todoary.ms.src.domain.*;
 import com.todoary.ms.src.repository.DiaryRepository;
 import com.todoary.ms.src.repository.StickerRepository;
-import com.todoary.ms.src.service.MemberService;
 import com.todoary.ms.src.web.dto.diary.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -59,10 +58,11 @@ public class DiaryService {
     }
 
     @Transactional(readOnly = true)
-    public DiaryResponse findDiaryByDate(LocalDate createdDate, Long memberId) {
+    public DiaryResponse retrieveDiaryByDate(LocalDate createdDate, Long memberId) {
         Member member = memberService.findById(memberId);
-        Diary diary = findDiaryByDate(createdDate, member);
-        return DiaryResponse.from(diary);
+        return findDiaryByDateIfExists(createdDate, member)
+                .map(DiaryResponse::from)
+                .orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -90,7 +90,7 @@ public class DiaryService {
     }
 
     @Transactional(readOnly = true)
-    public List<StickerResponse> findStickersInDiaryOnDate(Long memberId, LocalDate createdDate) {
+    public List<StickerResponse> retrieveStickersInDiaryOnDate(Long memberId, LocalDate createdDate) {
         Member member = memberService.findById(memberId);
         Diary diary = findDiaryByDate(createdDate, member);
         return diary.getStickers()

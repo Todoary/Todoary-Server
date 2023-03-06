@@ -41,7 +41,7 @@ public class ErrorLogWriter {
      * @param request
      */
     public static void writeExceptionWithRequest(String causedMethodName, Exception exception, HttpServletRequest request) {
-        log.error("[{}] {} - Authorization: {} | uri: {} {} | query string: {}", causedMethodName, exception.getMessage(), request.getHeader("Authorization"),
+        log.error("[{}] {} - ip: {} | Authorization: {} | uri: {} {} | query string: {}", causedMethodName, exception.getMessage(), request.getHeader("X-Real-IP"), request.getHeader("Authorization"),
                 request.getMethod(), request.getRequestURI(), parameterMapToString(request.getParameterMap()));
     }
 
@@ -53,7 +53,7 @@ public class ErrorLogWriter {
      * @param messageBody
      */
     public static void writeExceptionWithRequest(String causedMethodName, Exception exception, HttpServletRequest request, String messageBody) {
-        log.error("[{}] {} - Authorization: {} | uri: {} {} | query string: {} | body: {}", causedMethodName, exception.getMessage(), request.getHeader("Authorization"),
+        log.error("[{}] {} - ip: {} | Authorization: {} | uri: {} {} | query string: {} | body: {}", causedMethodName, exception.getMessage(), request.getHeader("X-Real-IP"), request.getHeader("Authorization"),
                 request.getMethod(), request.getRequestURI(), parameterMapToString(request.getParameterMap()), messageBody);
     }
 

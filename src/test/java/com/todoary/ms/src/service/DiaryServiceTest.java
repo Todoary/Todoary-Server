@@ -1,12 +1,13 @@
 package com.todoary.ms.src.service;
 
 
+import com.todoary.ms.src.domain.Diary;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.repository.DiaryRepository;
 import com.todoary.ms.src.repository.MemberRepository;
-import com.todoary.ms.src.service.diary.DiaryService;
 import com.todoary.ms.src.web.dto.diary.DiaryRequest;
 import com.todoary.ms.src.web.dto.diary.DiaryResponse;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,10 +34,10 @@ public class DiaryServiceTest {
     @MockBean
     MemberRepository memberRepository;
 
-    @MockBean
+    @Autowired
     DiaryService diaryService;
 
-    @MockBean
+    @Autowired
     DiaryRepository diaryRepository;
 
 
@@ -49,9 +50,13 @@ public class DiaryServiceTest {
                 .content("content")
                 .build();
         LocalDate date = LocalDate.now();
-        //then
+        //when
         diaryService.saveDiaryOrUpdate(member.getId(), request, date);
-
+        //then
+        Optional<Diary> diary = diaryRepository.findByMemberAndDate(member, date);
+        assertThat(diary).isNotEmpty();
+        assertThat(diary.get().getTitle()).isEqualTo("title");
+        assertThat(diary.get().getContent()).isEqualTo("content");
     }
 
     @Test
@@ -62,14 +67,16 @@ public class DiaryServiceTest {
                 .title("title")
                 .content("content")
                 .build();
-        LocalDate firstDate = LocalDate.of(2023, 1, 1);
-        diaryService.saveDiaryOrUpdate(member.getId(), request, firstDate);
+        diaryService.saveDiaryOrUpdate(member.getId(), request, LocalDate.of(2023, 1, 1));
         // when
         String title = "title2";
         String content="content2";
-        LocalDate modifiedDate = LocalDate.now();
-        diaryService.saveDiaryOrUpdate(member.getId(), new DiaryRequest(title, content), modifiedDate);
-
+        diaryService.saveDiaryOrUpdate(member.getId(), new DiaryRequest(title, content), LocalDate.of(2023, 1, 1));
+        // then
+        Optional<Diary> diary = diaryRepository.findByMemberAndDate(member, LocalDate.of(2023, 1, 1));
+        assertThat(diary).isNotEmpty();
+        assertThat(diary.get().getTitle()).isEqualTo("title2");
+        assertThat(diary.get().getContent()).isEqualTo("content2");
     }
 
 
@@ -81,30 +88,38 @@ public class DiaryServiceTest {
                 .title("title")
                 .content("content")
                 .build();
-        LocalDate createdDate = LocalDate.of(2023, 1, 1);
+        diaryService.saveDiaryOrUpdate(member.getId(), request, LocalDate.of(2023, 1, 1));
         // when
-        diaryService.deleteDiary(member.getId(), createdDate);
+        diaryService.deleteDiary(member.getId(), LocalDate.of(2023, 1, 1));
         // then
-        assertThat(diaryRepository.findByMemberAndDate(member, createdDate)).isEmpty();
+        assertThat(diaryRepository.findByMemberAndDate(member, LocalDate.of(2023, 1, 1))).isEmpty();
         assertThat(member.getDiaries()).hasSize(0);
     }
 
 
     @Test
-    void Diary_조회() {
+    void 존재하는_Diary_조회() {
         // given
         Member member = createMember();
         DiaryRequest request = new DiaryRequest("title", "content");
         LocalDate createdDate = LocalDate.of(2023, 1, 1);
         diaryService.saveDiaryOrUpdate(member.getId(), request, createdDate);
         // when
-        DiaryResponse diary = diaryService.findDiaryByDate(createdDate, member.getId());
+        DiaryResponse diary = diaryService.retrieveDiaryByDate(createdDate, member.getId());
         // then
-        //assertThat(diary.getTitle()).isEqualTo(request.getTitle());
-        //assertThat(diary.getContent()).isEqualTo(request.getContent());
-
+        assertThat(diary.getTitle()).isEqualTo(request.getTitle());
+        assertThat(diary.getContent()).isEqualTo(request.getContent());
     }
 
+    @Test
+    void 존재하지않는_Diary_조회시_null응답() {
+        // given
+        Member member = createMember();
+        // when
+        DiaryResponse diary = diaryService.retrieveDiaryByDate(LocalDate.now(), member.getId());
+        // then
+        assertThat(diary).isNull();
+    }
 
     @Test
     void 특정_달의_Diary가_있는_날짜들_조회() {
@@ -115,7 +130,7 @@ public class DiaryServiceTest {
                 LocalDate.of(2023, 1, 21),
                 LocalDate.of(2023, 2, 14),
                 LocalDate.of(2023, 2, 26),
-                LocalDate.of(2023, 3, 4),
+                LocalDate.of(2023, 2, 4),
                 LocalDate.of(2023, 3, 25),
         };
         Arrays.stream(dates)
@@ -128,9 +143,11 @@ public class DiaryServiceTest {
         List<Integer> february = diaryService.findDaysHavingDiaryInMonth(member.getId(), YearMonth.of(2023, 2));
         List<Integer> march = diaryService.findDaysHavingDiaryInMonth(member.getId(), YearMonth.of(2023, 3));
         // then
-        assertThat(january).hasSize(0);
-        assertThat(february).hasSize(0);
-        assertThat(march).hasSize(0);
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(january).hasSize(2);
+            softly.assertThat(february).hasSize(3);
+            softly.assertThat(march).hasSize(1);
+        });
     }
 
 

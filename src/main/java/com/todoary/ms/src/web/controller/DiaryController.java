@@ -2,7 +2,7 @@ package com.todoary.ms.src.web.controller;
 
 
 import com.todoary.ms.src.common.auth.annotation.LoginMember;
-import com.todoary.ms.src.service.diary.DiaryService;
+import com.todoary.ms.src.service.DiaryService;
 import com.todoary.ms.src.web.dto.diary.DiaryRequest;
 import com.todoary.ms.src.web.dto.diary.DiaryResponse;
 import com.todoary.ms.src.web.dto.diary.StickerResponse;
@@ -55,7 +55,7 @@ public class DiaryController {
             @LoginMember Long memberId,
             @RequestParam("createdDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate createdDate
     ) {
-        return new BaseResponse<>(diaryService.findDiaryByDate(createdDate, memberId));
+        return new BaseResponse<>(diaryService.retrieveDiaryByDate(createdDate, memberId));
     }
 
     //5.4 월별 일기 존재 여부 조회 api
@@ -85,7 +85,7 @@ public class DiaryController {
             @LoginMember Long memberId,
             @PathVariable("createdDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate createdDate
     ) {
-        List<StickerResponse> stickers = diaryService.findStickersInDiaryOnDate(memberId, createdDate);
+        List<StickerResponse> stickers = diaryService.retrieveStickersInDiaryOnDate(memberId, createdDate);
         return new BaseResponse<>(stickers);
     }
 }

@@ -23,14 +23,12 @@ import static com.todoary.ms.src.common.response.BaseResponseStatus.*;
 public class ExceptionController {
     @ExceptionHandler(TodoaryException.class)
     private ResponseEntity<BaseResponse<BaseResponseStatus>> handleTodoaryException(TodoaryException exception) {
-        // ErrorLogWriter.writeExceptionWithRequest(exception, httpServletRequest);
         return ResponseEntity.ok()
                 .body(BaseResponse.from(exception.getStatus()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     private ResponseEntity<BaseResponse<BaseResponseStatus>> handleBadRequest(MethodArgumentNotValidException exception) {
-        // ErrorLogWriter.writeExceptionWithRequest(exception, httpServletRequest);
         FieldError fieldError = exception.getBindingResult().getFieldError();
         String enumName = fieldError.getDefaultMessage();
         return ResponseEntity.ok()
@@ -39,7 +37,6 @@ public class ExceptionController {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     private ResponseEntity<BaseResponse<BaseResponseStatus>> handleBadRequest(MethodArgumentTypeMismatchException exception) {
-        // ErrorLogWriter.writeExceptionWithRequest(exception, httpServletRequest);
         String typeName = Optional.ofNullable(exception.getRequiredType())
                 .map(Class::getSimpleName)
                 .orElse("");
@@ -53,7 +50,6 @@ public class ExceptionController {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     private ResponseEntity<BaseResponse<BaseResponseStatus>> handleBadRequest(HttpMessageNotReadableException exception) {
-        // ErrorLogWriter.writeExceptionWithRequest(exception, httpServletRequest);
         Throwable cause = exception.getCause();
         if (cause instanceof InvalidFormatException) {
             String simpleName = ((InvalidFormatException) cause).getTargetType().getSimpleName();
@@ -74,7 +70,6 @@ public class ExceptionController {
 
     @ExceptionHandler({Exception.class})
     private ResponseEntity<BaseResponse<BaseResponseStatus>> handleServerException(Exception exception) {
-        // ErrorLogWriter.writeExceptionWithRequest(exception, httpServletRequest);
         return ResponseEntity.ok()
                 .body(BaseResponse.from(INTERNAL_SERVER_ERROR));
     }
