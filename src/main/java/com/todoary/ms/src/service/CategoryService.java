@@ -23,14 +23,14 @@ public class CategoryService {
 
     @Transactional
     public Long saveCategory(Long memberId, CategoryRequest request) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         validateMembersCategoryTitle(member, request.getTitle());
         return categoryRepository.save(request.toEntity(member)).getId();
     }
 
     @Transactional
     public void updateCategory(Long memberId, Long categoryId, CategoryRequest request) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Category category = findCategoryByIdAndMember(categoryId, member);
         if (!category.hasTitle(request.getTitle())) {
             validateMembersCategoryTitle(member, request.getTitle());
@@ -52,7 +52,7 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public CategoryResponse[] findCategories(Long memberId) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         return member.getCategories()
                 .stream().map(c -> new CategoryResponse(
                         c.getId(), c.getTitle(), c.getColor().getCode())
@@ -61,7 +61,7 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public Category findCategoryByIdAndMember(Long categoryId, Long memberId) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         return findCategoryByIdAndMember(categoryId, member);
     }
 

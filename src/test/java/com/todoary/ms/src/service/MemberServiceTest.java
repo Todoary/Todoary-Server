@@ -55,7 +55,7 @@ class MemberServiceTest {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
         //when
         Long joinMemberId = memberService.joinGeneralMember(memberJoinParam);
-        Member member = memberService.findById(joinMemberId);
+        Member member = memberService.findActiveMemberById(joinMemberId);
         //then
         assertThat(member.getEmail()).isEqualTo(memberJoinParam.getEmail());
         assertThat(member.getProviderAccount()).isEqualTo(ProviderAccount.none());
@@ -93,11 +93,11 @@ class MemberServiceTest {
     void 같은_이메일_일반멤버_탈퇴했을때_재가입_O() {
         // given
         Long memberId = memberService.joinGeneralMember(createMemberJoinParam("nickname1", "email@email.com"));
-        memberService.findById(memberId).deactivate();
+        memberService.findActiveMemberById(memberId).deactivate();
         // when
         MemberJoinParam memberJoinParam = createMemberJoinParam("nickname2", "email@email.com");
         Long newMemberId = memberService.joinGeneralMember(memberJoinParam);
-        Member newMember = memberService.findById(newMemberId);
+        Member newMember = memberService.findActiveMemberById(newMemberId);
         // then
         assertThat(memberId).isNotEqualTo(newMemberId);
         assertThat(newMember.getNickname()).isEqualTo("nickname2");
@@ -107,14 +107,14 @@ class MemberServiceTest {
     void 같은_이메일_애플멤버_탈퇴했을때_재가입_O() {
         // given
         Long memberId = memberService.joinOauthMember(createOauthMemberJoinParamOfEmail("email@email.com"));
-        memberService.findById(memberId).deactivate();
+        memberService.findActiveMemberById(memberId).deactivate();
         // when
         Long newMemberId = memberService.joinOauthMember(createOauthMemberJoinParamOfEmail("email@email.com"));
-        Member newMember = memberService.findById(newMemberId);
+        Member newMember = memberService.findActiveMemberById(newMemberId);
         // then
         assertThat(memberId).isNotEqualTo(newMemberId);
         assertThat(newMember.getEmail()).isEqualTo("email@email.com");
-        assertThatThrownBy(() -> memberService.findById(memberId))
+        assertThatThrownBy(() -> memberService.findActiveMemberById(memberId))
                 .isInstanceOf(TodoaryException.class)
                 .matches(e -> ((TodoaryException) e).getStatus().equals(EMPTY_USER));
     }
@@ -169,7 +169,7 @@ class MemberServiceTest {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
         Long joinMemberId = memberService.joinGeneralMember(memberJoinParam);
         // when
-        Member member = memberService.findById(joinMemberId);
+        Member member = memberService.findActiveMemberById(joinMemberId);
         // then
         assertThat(member.getId()).isEqualTo(joinMemberId);
         assertThat(member.isDeactivated()).isFalse();
@@ -179,7 +179,7 @@ class MemberServiceTest {
     void 멤버_조회시_id없을때_exception() {
         // given
         // when
-        ThrowingCallable action = () -> memberService.findById(10L);
+        ThrowingCallable action = () -> memberService.findActiveMemberById(10L);
         // then
         assertThatThrownBy(action)
                 .isInstanceOf(TodoaryException.class)
@@ -193,7 +193,7 @@ class MemberServiceTest {
         // when
         Long joinMemberId = memberService.joinGeneralMember(memberJoinParam);
         // then
-        List<Category> categories = memberService.findById(joinMemberId).getCategories();
+        List<Category> categories = memberService.findActiveMemberById(joinMemberId).getCategories();
         assertThat(categories).hasSize(1);
         assertThat(categories.get(0).getTitle()).isEqualTo(initialTitle);
         assertThat(categories.get(0).getColor()).isEqualTo(initialColor);
@@ -206,7 +206,7 @@ class MemberServiceTest {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
         // when
         Long joinMemberId = memberService.joinGeneralMember(memberJoinParam);
-        String profileImgUrl = memberService.findById(joinMemberId).getProfileImgUrl();
+        String profileImgUrl = memberService.findActiveMemberById(joinMemberId).getProfileImgUrl();
         // then
         assertThat(profileImgUrl).isEqualTo(defaultProfileImageUrl);
     }
@@ -219,7 +219,7 @@ class MemberServiceTest {
         // when
         memberService.deactivateMember(joinMemberId);
         // then
-        assertThatThrownBy(() -> memberService.findById(joinMemberId))
+        assertThatThrownBy(() -> memberService.findActiveMemberById(joinMemberId))
                 .isInstanceOf(TodoaryException.class)
                 .matches(e -> ((TodoaryException) e).getStatus().equals(USERS_DELETED_USER));
     }
@@ -329,7 +329,7 @@ class MemberServiceTest {
         memberService.setProfileImgDefault(memberId);
 
         //then
-        assertThat(memberService.findById(memberId).getProfileImgUrl()).isEqualTo(defaultProfileImageUrl);
+        assertThat(memberService.findActiveMemberById(memberId).getProfileImgUrl()).isEqualTo(defaultProfileImageUrl);
     }
 
     @Test
@@ -348,7 +348,7 @@ class MemberServiceTest {
         memberService.setProfileImgDefault(member.getId());
 
         //then
-        Member findMember = memberService.findById(member.getId());
+        Member findMember = memberService.findActiveMemberById(member.getId());
         assertThat(findMember.getProfileImgUrl()).isEqualTo(defaultProfileImageUrl);
     }
 

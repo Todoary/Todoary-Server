@@ -214,10 +214,6 @@ public class AuthController {
             memberDeactivated = member.get().isDeactivated();
             memberId = member.get().getId();
         }
-        Token token = null;
-        if (!memberDeactivated) {
-            token = new Token(authService.issueAccessToken(memberId).getCode(), authService.issueRefreshToken(memberId).getCode());
-        }
         return new BaseResponse<>(new AppleSigninResponse(
                 !memberExists,
                 memberDeactivated,
@@ -225,7 +221,7 @@ public class AuthController {
                 appleSigninRequest.getEmail(),
                 providerAccount.getProvider().name(),
                 providerAccount.getProviderId(),
-                token,
+                new Token(authService.issueAccessToken(memberId).getCode(), authService.issueRefreshToken(memberId).getCode()),
                 appleRefreshToken
         ));
     }

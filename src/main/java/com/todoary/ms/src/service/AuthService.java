@@ -82,8 +82,7 @@ public class AuthService {
     }
 
     public AccessToken issueAccessToken(Long memberId) {
-        Member findMember = memberService.findById(memberId);
-
+        memberService.checkMemberExistsById(memberId);
         return new AccessToken(jwtTokenProvider.createAccessToken(memberId));
     }
 
@@ -92,7 +91,7 @@ public class AuthService {
     }
 
     public RefreshToken issueRefreshToken(Long memberId) {
-        Member findMember = memberService.findById(memberId);
+        Member findMember = memberService.findMemberById(memberId);
         RefreshToken refreshToken = createRefreshToken(findMember);
 
         return refreshToken;

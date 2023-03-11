@@ -113,7 +113,7 @@ class AuthServiceTest {
 
     Member createMember() {
         MemberJoinParam memberJoinParam = createMemberJoinParam();
-        return memberService.findById(memberService.joinGeneralMember(memberJoinParam));
+        return memberService.findActiveMemberById(memberService.joinGeneralMember(memberJoinParam));
     }
 
     Member createMemberHasRefreshToken() {

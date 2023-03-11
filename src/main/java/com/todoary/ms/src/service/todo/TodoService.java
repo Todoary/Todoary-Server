@@ -34,7 +34,7 @@ public class TodoService {
 
     @Transactional
     public Long createMembersTodo(Long memberId, TodoRequest request) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Category category = categoryService.findCategoryByIdAndMember(request.getCategoryId(), member);
         return todoRepository.save(
                 request.toEntity(member, category)
@@ -43,7 +43,7 @@ public class TodoService {
 
     @Transactional
     public TodoResponse updateMembersTodo(Long memberId, Long todoId, TodoRequest request) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Category category = categoryService.findCategoryByIdAndMember(request.getCategoryId(), member);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.update(
@@ -58,7 +58,7 @@ public class TodoService {
 
     @Transactional
     public void deleteMembersTodo(Long memberId, Long todoId) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.removeAssociations();
         todoRepository.delete(todo);
@@ -66,21 +66,21 @@ public class TodoService {
 
     @Transactional
     public void updateMembersTodoMarkedStatus(Long memberId, Long todoId, boolean isChecked) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.check(isChecked);
     }
 
     @Transactional
     public void updateMembersTodoPinnedStatus(Long memberId, Long todoId, boolean isPinned) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.pin(isPinned);
     }
 
     @Transactional
     public void updateMembersTodoAlarm(Long memberId, Long todoId, TodoAlarmRequest request) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.updateAlarm(
                 request.getIsAlarmEnabled(),
@@ -91,7 +91,7 @@ public class TodoService {
 
     @Transactional(readOnly = true)
     public List<TodoResponse> retrieveMembersTodosOnDate(Long memberId, LocalDate targetDate) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         return todoRepository.findByDateAndMember(targetDate, member)
                 .stream().map(TodoResponse::from).collect(Collectors.toList());
     }
@@ -122,7 +122,7 @@ public class TodoService {
 
     @Transactional(readOnly = true)
     public List<Integer> retrieveDaysHavingTodoOfMemberInMonth(Long memberId, YearMonth yearMonth) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         LocalDate firstDay = yearMonth.atDay(1);
         LocalDate lastDay = yearMonth.atEndOfMonth();
 
