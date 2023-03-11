@@ -146,12 +146,20 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public Member findActiveMemberByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
-        return checkMemberValid(memberRepository.findByEmailAndProviderAccount(email, providerAccount));
+        return checkMemberValid(findMemberOrEmptyByEmailAndProviderAccount(email, providerAccount));
     }
 
     @Transactional(readOnly = true)
     public Member findMemberByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
-        return checkMemberExists(memberRepository.findByEmailAndProviderAccount(email, providerAccount));
+        return checkMemberExists(findMemberOrEmptyByEmailAndProviderAccount(email, providerAccount));
+    }
+
+    private Optional<Member> findMemberOrEmptyByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
+        if (providerAccount.isGeneral()) {
+            return memberRepository.findGeneralMemberByEmail(email);
+        }else {
+            return memberRepository.findByProviderAccount(providerAccount);
+        }
     }
 
     private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount providerAccount) {
