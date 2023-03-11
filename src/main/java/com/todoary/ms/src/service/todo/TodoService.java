@@ -33,7 +33,7 @@ public class TodoService {
     private final TodoByCategoryCondition todoByCategoryCondition;
 
     @Transactional
-    public Long saveTodo(Long memberId, TodoRequest request) {
+    public Long createMembersTodo(Long memberId, TodoRequest request) {
         Member member = memberService.findById(memberId);
         Category category = categoryService.findCategoryByIdAndMember(request.getCategoryId(), member);
         return todoRepository.save(
@@ -42,7 +42,7 @@ public class TodoService {
     }
 
     @Transactional
-    public TodoResponse updateTodo(Long memberId, Long todoId, TodoRequest request) {
+    public TodoResponse updateMembersTodo(Long memberId, Long todoId, TodoRequest request) {
         Member member = memberService.findById(memberId);
         Category category = categoryService.findCategoryByIdAndMember(request.getCategoryId(), member);
         Todo todo = findTodoByIdAndMember(todoId, member);
@@ -57,7 +57,7 @@ public class TodoService {
     }
 
     @Transactional
-    public void deleteTodo(Long memberId, Long todoId) {
+    public void deleteMembersTodo(Long memberId, Long todoId) {
         Member member = memberService.findById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.removeAssociations();
@@ -65,21 +65,21 @@ public class TodoService {
     }
 
     @Transactional
-    public void markTodoAsDone(Long memberId, Long todoId, boolean isChecked) {
+    public void updateMembersTodoMarkedStatus(Long memberId, Long todoId, boolean isChecked) {
         Member member = memberService.findById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.check(isChecked);
     }
 
     @Transactional
-    public void pinTodo(Long memberId, Long todoId, boolean isPinned) {
+    public void updateMembersTodoPinnedStatus(Long memberId, Long todoId, boolean isPinned) {
         Member member = memberService.findById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.pin(isPinned);
     }
 
     @Transactional
-    public void updateTodoAlarm(Long memberId, Long todoId, TodoAlarmRequest request) {
+    public void updateMembersTodoAlarm(Long memberId, Long todoId, TodoAlarmRequest request) {
         Member member = memberService.findById(memberId);
         Todo todo = findTodoByIdAndMember(todoId, member);
         todo.updateAlarm(
@@ -90,14 +90,14 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<TodoResponse> findTodosByDate(Long memberId, LocalDate targetDate) {
+    public List<TodoResponse> retrieveMembersTodosOnDate(Long memberId, LocalDate targetDate) {
         Member member = memberService.findById(memberId);
         return todoRepository.findByDateAndMember(targetDate, member)
                 .stream().map(TodoResponse::from).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<TodoResponse> findTodosByCategory(Long memberId, Long categoryId) {
+    public List<TodoResponse> retrieveMembersTodosByCategory(Long memberId, Long categoryId) {
         Category category = categoryService.findCategoryByIdAndMember(categoryId, memberId);
         return todoRepository.findByCategoryAndSatisfy(category, todoByCategoryCondition.getPredicate())
                 .stream().map(TodoResponse::from).collect(Collectors.toList());
@@ -121,7 +121,7 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<Integer> findDaysHavingTodoInMonth(Long memberId, YearMonth yearMonth) {
+    public List<Integer> retrieveDaysHavingTodoOfMemberInMonth(Long memberId, YearMonth yearMonth) {
         Member member = memberService.findById(memberId);
         LocalDate firstDay = yearMonth.atDay(1);
         LocalDate lastDay = yearMonth.atEndOfMonth();

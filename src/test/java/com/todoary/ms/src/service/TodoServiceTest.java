@@ -66,7 +66,7 @@ class TodoServiceTest {
                 .categoryId(category.getId())
                 .build();
         // when
-        Long todoId = todoService.saveTodo(member.getId(), request);
+        Long todoId = todoService.createMembersTodo(member.getId(), request);
         Todo todo = todoRepository.findById(todoId).get();
         // then
         assertThat(member.getTodos()).hasSize(1);
@@ -88,13 +88,13 @@ class TodoServiceTest {
                 .targetTime(LocalTime.of(19, 40))
                 .categoryId(category.getId())
                 .build();
-        Long todoId = todoService.saveTodo(member.getId(), request);
+        Long todoId = todoService.createMembersTodo(member.getId(), request);
         // when
         Category expectedCategory = createCategoryWithTitle(member, "category2");
         String title = "todo~!";
         LocalDate expectedDate = LocalDate.of(2022, 1, 4);
         LocalTime expectedTime = LocalTime.of(19, 48);
-        todoService.updateTodo(member.getId(), todoId, new TodoRequest(title, false, expectedDate, expectedTime, expectedCategory.getId()));
+        todoService.updateMembersTodo(member.getId(), todoId, new TodoRequest(title, false, expectedDate, expectedTime, expectedCategory.getId()));
         Todo todo = todoRepository.findById(todoId).get();
         // then
         assertThat(todo.getTitle()).isEqualTo(title);
@@ -114,7 +114,7 @@ class TodoServiceTest {
         LocalDate expectedDate = LocalDate.of(2022, 1, 4);
         LocalTime expectedTime = LocalTime.of(19, 48);
         boolean isAlarmEnabled = true;
-        todoService.updateTodoAlarm(
+        todoService.updateMembersTodoAlarm(
                 member.getId(), todoId, TodoAlarmRequest.builder()
                         .isAlarmEnabled(isAlarmEnabled)
                         .targetDate(expectedDate)
@@ -139,9 +139,9 @@ class TodoServiceTest {
                 .targetTime(LocalTime.of(19, 40))
                 .categoryId(category.getId())
                 .build();
-        Long todoId = todoService.saveTodo(member.getId(), request);
+        Long todoId = todoService.createMembersTodo(member.getId(), request);
         // when
-        todoService.deleteTodo(member.getId(), todoId);
+        todoService.deleteMembersTodo(member.getId(), todoId);
         // then
         assertThat(todoRepository.findById(todoId)).isEmpty();
         assertThat(category.getTodos()).hasSize(0);
@@ -160,7 +160,7 @@ class TodoServiceTest {
                 .targetTime(LocalTime.of(19, 40))
                 .categoryId(category.getId())
                 .build();
-        Long todoId = todoService.saveTodo(member.getId(), request);
+        Long todoId = todoService.createMembersTodo(member.getId(), request);
         // when
         em.remove(category);
         // then
@@ -173,7 +173,7 @@ class TodoServiceTest {
         Member member = createMember();
         Long todoId = createDefaultTodo(member);
         // when
-        todoService.markTodoAsDone(member.getId(), todoId, true);
+        todoService.updateMembersTodoMarkedStatus(member.getId(), todoId, true);
         // then
         assertThat(todoRepository.findById(todoId).get().getIsChecked()).isTrue();
     }
@@ -184,7 +184,7 @@ class TodoServiceTest {
         Member member = createMember();
         Long todoId = createDefaultTodo(member);
         // when
-        todoService.pinTodo(member.getId(), todoId, true);
+        todoService.updateMembersTodoPinnedStatus(member.getId(), todoId, true);
         // then
         assertThat(todoRepository.findById(todoId).get().getIsPinned()).isTrue();
     }
@@ -197,20 +197,20 @@ class TodoServiceTest {
         Category category2 = createCategoryWithTitle(member, "category2");
         LocalDate otherDate = LocalDate.of(2021, 11, 11);
         LocalDate date = LocalDate.of(2022, 1, 2);
-        Long todoId1 = todoService.saveTodo(
+        Long todoId1 = todoService.createMembersTodo(
                 member.getId(),
                 new TodoRequest("todo1", true, date, LocalTime.of(10, 10), category1.getId())
         );
-        Long todoId2 = todoService.saveTodo(
+        Long todoId2 = todoService.createMembersTodo(
                 member.getId(),
                 new TodoRequest("todo2", true, date, LocalTime.of(12, 20), category2.getId())
         );
-        todoService.saveTodo(
+        todoService.createMembersTodo(
                 member.getId(),
                 new TodoRequest("todo3", true, otherDate, LocalTime.of(15, 10), category1.getId())
         );
         // when
-        List<TodoResponse> todos = todoService.findTodosByDate(member.getId(), date);
+        List<TodoResponse> todos = todoService.retrieveMembersTodosOnDate(member.getId(), date);
         // then
         assertThat(todos).hasSize(2);
         assertThat(todos)
@@ -227,7 +227,7 @@ class TodoServiceTest {
         LocalDate now = LocalDate.now();
         LocalDate beforeNow = now.minusDays(1);
         IntStream.range(0, 5)
-                .forEach(__ -> todoService.saveTodo(
+                .forEach(__ -> todoService.createMembersTodo(
                         member.getId(),
                         TodoRequest.builder()
                                 .targetDate(beforeNow)
@@ -235,7 +235,7 @@ class TodoServiceTest {
                                 .build()
                 ));
         IntStream.range(0, 3)
-                .forEach(__ -> todoService.saveTodo(
+                .forEach(__ -> todoService.createMembersTodo(
                         member.getId(),
                         TodoRequest.builder()
                                 .targetDate(now)
@@ -243,8 +243,8 @@ class TodoServiceTest {
                                 .build()
                 ));
         // when
-        List<TodoResponse> todos1 = todoService.findTodosByCategory(member.getId(), category1.getId());
-        List<TodoResponse> todos2 = todoService.findTodosByCategory(member.getId(), category2.getId());
+        List<TodoResponse> todos1 = todoService.retrieveMembersTodosByCategory(member.getId(), category1.getId());
+        List<TodoResponse> todos2 = todoService.retrieveMembersTodosByCategory(member.getId(), category2.getId());
         // then
         assertThat(todos1).hasSize(3);
         assertThat(todos2).isEmpty();
@@ -270,14 +270,14 @@ class TodoServiceTest {
                 null,
                 LocalTime.of(22, 15)};
         List<Long> todoIds = IntStream.range(0, 5)
-                .mapToObj(i -> todoService.saveTodo(member.getId(), TodoRequest.builder()
+                .mapToObj(i -> todoService.createMembersTodo(member.getId(), TodoRequest.builder()
                         .targetDate(dates[i])
                         .targetTime(times[i])
                         .categoryId(category.getId())
                         .build()))
                 .collect(Collectors.toList());
         // when
-        List<TodoResponse> todos = todoService.findTodosByCategory(member.getId(), category.getId());
+        List<TodoResponse> todos = todoService.retrieveMembersTodosByCategory(member.getId(), category.getId());
         // then
         assertThat(todos)
                 .extracting(TodoResponse::getTodoId)
@@ -292,7 +292,7 @@ class TodoServiceTest {
         LocalDate now = LocalDate.now();
         // 5개 생성
         List<Long> todoIds = IntStream.range(0, 5)
-                .mapToObj(i -> todoService.saveTodo(member.getId(), TodoRequest.builder()
+                .mapToObj(i -> todoService.createMembersTodo(member.getId(), TodoRequest.builder()
                         .targetDate(now)
                         .targetTime(LocalTime.of(14, 10))
                         .categoryId(category.getId())
@@ -334,14 +334,14 @@ class TodoServiceTest {
                 LocalDate.of(2023, 2, 10),
                 LocalDate.of(2023, 3, 25)};
         Arrays.stream(dates)
-                .forEach(date -> todoService.saveTodo(
+                .forEach(date -> todoService.createMembersTodo(
                         member.getId(),
                         new TodoRequest("todo", true, date, LocalTime.of(10, 8), category.getId())
                 ));
         // when
-        List<Integer> january = todoService.findDaysHavingTodoInMonth(member.getId(), YearMonth.of(2023, 1));
-        List<Integer> february = todoService.findDaysHavingTodoInMonth(member.getId(), YearMonth.of(2023, 2));
-        List<Integer> march = todoService.findDaysHavingTodoInMonth(member.getId(), YearMonth.of(2023, 3));
+        List<Integer> january = todoService.retrieveDaysHavingTodoOfMemberInMonth(member.getId(), YearMonth.of(2023, 1));
+        List<Integer> february = todoService.retrieveDaysHavingTodoOfMemberInMonth(member.getId(), YearMonth.of(2023, 2));
+        List<Integer> march = todoService.retrieveDaysHavingTodoOfMemberInMonth(member.getId(), YearMonth.of(2023, 3));
         // then
         assertThat(january).hasSize(3);
         assertThat(february).hasSize(1);
@@ -371,6 +371,6 @@ class TodoServiceTest {
                 .targetTime(LocalTime.of(19, 40))
                 .categoryId(category.getId())
                 .build();
-        return todoService.saveTodo(member.getId(), request);
+        return todoService.createMembersTodo(member.getId(), request);
     }
 }

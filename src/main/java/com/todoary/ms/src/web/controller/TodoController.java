@@ -34,7 +34,7 @@ public class TodoController {
             @LoginMember Long memberId,
             @RequestBody @Valid TodoRequest request
     ) {
-        Long todoId = todoService.saveTodo(memberId, request);
+        Long todoId = todoService.createMembersTodo(memberId, request);
         return new BaseResponse<>(new TodoSaveResponse(todoId));
     }
 
@@ -45,7 +45,7 @@ public class TodoController {
             @PathVariable("todoId") Long todoId,
             @RequestBody @Valid TodoRequest request
     ) {
-        return new BaseResponse<>(todoService.updateTodo(memberId, todoId, request));
+        return new BaseResponse<>(todoService.updateMembersTodo(memberId, todoId, request));
     }
 
     // 3.3 투두 삭제
@@ -54,7 +54,7 @@ public class TodoController {
             @LoginMember Long memberId,
             @PathVariable("todoId") Long todoId
     ) {
-        todoService.deleteTodo(memberId, todoId);
+        todoService.deleteMembersTodo(memberId, todoId);
         return BaseResponse.from(SUCCESS);
     }
 
@@ -64,7 +64,7 @@ public class TodoController {
             @LoginMember Long memberId,
             @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate targetDate
     ) {
-        List<TodoResponse> todos = todoService.findTodosByDate(memberId, targetDate);
+        List<TodoResponse> todos = todoService.retrieveMembersTodosOnDate(memberId, targetDate);
         return new BaseResponse<>(todos);
     }
 
@@ -75,7 +75,7 @@ public class TodoController {
             @LoginMember Long memberId,
             @PathVariable("categoryId") Long categoryId
     ) {
-        List<TodoResponse> todos = todoService.findTodosByCategory(memberId, categoryId);
+        List<TodoResponse> todos = todoService.retrieveMembersTodosByCategory(memberId, categoryId);
         return new BaseResponse<>(todos);
     }
 
@@ -85,7 +85,7 @@ public class TodoController {
             @LoginMember Long memberId,
             @RequestBody @Valid MarkTodoRequest request
     ) {
-        todoService.markTodoAsDone(memberId, request.getTodoId(), request.getIsChecked());
+        todoService.updateMembersTodoMarkedStatus(memberId, request.getTodoId(), request.getIsChecked());
         return BaseResponse.from(SUCCESS);
     }
 
@@ -95,7 +95,7 @@ public class TodoController {
             @LoginMember Long memberId,
             @RequestBody @Valid PinTodoRequest request
     ) {
-        todoService.pinTodo(memberId, request.getTodoId(), request.getIsPinned());
+        todoService.updateMembersTodoPinnedStatus(memberId, request.getTodoId(), request.getIsPinned());
         return BaseResponse.from(SUCCESS);
     }
 
@@ -105,7 +105,7 @@ public class TodoController {
             @LoginMember Long memberId,
             @PathVariable("yearMonth") @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth
     ) {
-        List<Integer> days = todoService.findDaysHavingTodoInMonth(memberId, yearMonth);
+        List<Integer> days = todoService.retrieveDaysHavingTodoOfMemberInMonth(memberId, yearMonth);
         return new BaseResponse<>(days);
     }
 
@@ -116,7 +116,7 @@ public class TodoController {
             @PathVariable("todoId") Long todoId,
             @RequestBody @Valid TodoAlarmRequest request
     ) {
-        todoService.updateTodoAlarm(memberId, todoId, request);
+        todoService.updateMembersTodoAlarm(memberId, todoId, request);
         return BaseResponse.from(SUCCESS);
     }
 
