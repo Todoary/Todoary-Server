@@ -245,7 +245,7 @@ public class AuthController {
         return new BaseResponse<>(SUCCESS);
     }
 
-    @PostMapping("/restore")
+    @PatchMapping("/restore")
     public BaseResponse<BaseResponseStatus> activateMember(@RequestBody @Valid RestoreRequest request) {
         memberService.activateMember(
                 request.getEmail(), ProviderAccount.of(request.getProvider(), request.getProviderId()));
