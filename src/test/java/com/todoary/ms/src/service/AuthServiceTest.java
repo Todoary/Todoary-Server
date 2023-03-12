@@ -54,7 +54,7 @@ class AuthServiceTest {
      * saveRefreshToken()
      */
     @Test
-    void refreshToken이_존재하는_멤버에게_새로_저장할_경우() throws NoSuchFieldException, InterruptedException {
+    void refreshToken이_존재하는_멤버에게_새로_저장할_경우() throws InterruptedException {
         // 멤버에게 새로운 refreshToken 저장
         Member member = createMemberHasRefreshToken();
         String beforeRefreshTokenCode = member.getRefreshToken().getCode();
@@ -62,7 +62,7 @@ class AuthServiceTest {
         // 추가로 refreshToken 저장
         // sleep하지 않으면 시간 차이가 얼마 나지 않아 refresh token 값이 같음 (밀리 세컨드 단위는 없어진다)
         Thread.sleep(1000);
-        RefreshToken found = authService.createRefreshToken(member);
+        RefreshToken found = authService.issueRefreshToken(member.getId());
         RefreshToken findRefreshToken = refreshTokenService.findByMemberId(member.getId());
 
         assertThat(beforeRefreshTokenCode).isNotEqualTo(findRefreshToken.getCode());
@@ -73,7 +73,7 @@ class AuthServiceTest {
     void refreshToken이_존재하지_않는_멤버에게_새로_저장할_경우() throws NoSuchFieldException {
         Member member = createMember();
 
-        authService.createRefreshToken(member);
+        authService.issueRefreshToken(member.getId());
         RefreshToken findRefreshToken = refreshTokenService.findByMemberId(member.getId());
 
         assertThat(member.getRefreshToken()).isEqualTo(findRefreshToken);
@@ -103,8 +103,8 @@ class AuthServiceTest {
         RefreshToken findRefreshToken = refreshTokenService.findByMemberId(member.getId());
 
         //when
-        AccessToken accessToken = authService.issueAccessToken(findRefreshToken.getCode());
-        RefreshToken refreshToken = authService.issueRefreshToken(findRefreshToken.getCode());
+        AccessToken accessToken = authService.issueAccessTokenFromRefreshTokenCode(findRefreshToken.getCode());
+        RefreshToken refreshToken = authService.issueRefreshTokenFromRefreshTokenCode(findRefreshToken.getCode());
 
         //then
         assertThat(authService.decodableAccessToken(accessToken.getCode(), member.getId())).isTrue();

@@ -53,8 +53,8 @@ class AuthControllerTest {
 
     @Test
     public void refreshToken_재발급_테스트() throws Exception {
-        when(authService.issueAccessToken(anyString())).thenReturn(new AccessToken("accessToken"));
-        when(authService.issueRefreshToken(anyString())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
+        when(authService.issueAccessTokenFromRefreshTokenCode(anyString())).thenReturn(new AccessToken("accessToken"));
+        when(authService.issueRefreshTokenFromRefreshTokenCode(anyString())).thenReturn(new RefreshToken(Member.builder().build(), "refreshToken"));
 
         String requestBody = "{\"refreshToken\" : \"formalRefreshToken\"}";
         mockMvc.perform(

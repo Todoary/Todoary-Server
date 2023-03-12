@@ -30,7 +30,7 @@ public class PrincipalOAuth2UserService extends DefaultOAuth2UserService {
         String provider = userRequest.getClientRegistration().getRegistrationId();
         String provider_id = (String) oAuth2User.getAttributes().get("sub");
 
-        ProviderAccount providerAccount = ProviderAccount.from(provider, provider_id);
+        ProviderAccount providerAccount = ProviderAccount.of(provider, provider_id);
         Member member = memberService.findActiveMemberByEmailAndProviderAccount(email, providerAccount);
 
         if (member == null) {

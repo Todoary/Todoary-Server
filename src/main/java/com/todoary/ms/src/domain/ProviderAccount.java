@@ -42,10 +42,6 @@ public class ProviderAccount {
         return new ProviderAccount(Provider.GOOGLE, providerId);
     }
 
-    public static ProviderAccount from(String provider, String provider_id) {
-        return new ProviderAccount(Provider.findByProviderName(provider), provider_id);
-    }
-
     public static ProviderAccount of(String provider, String providerId) {
         if (provider.equalsIgnoreCase("apple")) {
             return appleFrom(providerId);

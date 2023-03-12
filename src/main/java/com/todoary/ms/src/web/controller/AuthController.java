@@ -83,8 +83,8 @@ public class AuthController {
         validateMemberByRefreshToken(refreshTokenCode);
 
         // accessToken, refreshToken 재발급
-        AccessToken accessToken = authService.issueAccessToken(refreshTokenCode);
-        RefreshToken refreshToken = authService.issueRefreshToken(refreshTokenCode);
+        AccessToken accessToken = authService.issueAccessTokenFromRefreshTokenCode(refreshTokenCode);
+        RefreshToken refreshToken = authService.issueRefreshTokenFromRefreshTokenCode(refreshTokenCode);
 
         return new BaseResponse<>(new AuthenticationTokenIssueResponse(new Token(accessToken.getCode(), refreshToken.getCode())));
     }
@@ -123,22 +123,19 @@ public class AuthController {
     /**
      * 1.7 소셜 회원가입 api
      * [POST] /auth/signup/oauth2
-     * 소셜 로그인 시도 후 새로운 유저라면 클라이언트가 약관 동의 후에
-     * 이 api 호출하여 최종 회원가입
+     * 탈퇴한 소셜 유저가 복구 대신 새로 회원가입할 경우 호출
      */
     @PostMapping("/signup/oauth2")
-    public BaseResponse<BaseResponseStatus> PostSignupOauth2(@RequestBody OauthMemberJoinRequest request) {
+    public BaseResponse<AutoSigninResponse> PostSignupOauth2(@RequestBody OauthMemberJoinRequest request) {
         OauthMemberJoinParam memberJoinParam = new OauthMemberJoinParam(
                 request.getName(),
                 request.getEmail(),
-                ProviderAccount.from(request.getProvider(), request.getProviderId()),
+                ProviderAccount.of(request.getProvider(), request.getProviderId()),
                 "ROLE_USER",
                 request.isTermsEnable()
         );
-
-        memberService.joinOauthMember(memberJoinParam);
-
-        return new BaseResponse<>(SUCCESS);
+        Long memberId = memberService.joinOauthMember(memberJoinParam);
+        return new BaseResponse<>(new AutoSigninResponse(authService.issueTokens(memberId)));
     }
 
     /**
