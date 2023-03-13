@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: deploy
+name: test-deploy
 
 # Controls when the workflow will run
 on:
@@ -29,54 +29,43 @@ jobs:
           java-version: '11'
           distribution: 'temurin' # https://github.com/actions/setup-java
 
-      - name: Gradle Caching
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew clean build -x test --info
+        run: ./gradlew clean build -x test
         shell: bash
 
       - name: Test with Gradle
         run: ./gradlew test
 
-      - name: zip 파일 생성
-        run: |
-          mkdir -p before-deploy
-          cp service-scripts/*.sh before-deploy/
-          cp appspec.yml before-deploy/
-          cp $(ls -tr build/libs/*.jar | tail -n 1) before-deploy/
-          cd before-deploy && zip -r before-deploy *
-          cd ../ && mkdir -p deploy
-          mv before-deploy/before-deploy.zip deploy/todoary-service$GITHUB_SHA.zip
-        shell: bash
-
-      - name: AWS 자격 증명
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Deploy
+        uses: appleboy/ssh-action@master
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ap-northeast-2
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_SSH_ID }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          port: ${{ secrets.REMOTE_SSH_PORT }}
+          script: |
+            whoami
+            cd /home/ubuntu/todoary/dev/project
+             echo -e "\
+             +------------------------------------+
+             |              1. build              |
+             +------------------------------------+"
+            
+            echo ">>>>>> making auth key..."
+            echo "${{ secrets.AUTH_KEY }}" > ./src/main/resources/static/AuthKey_Q97Q56DJS6.p8
+            
+            echo -e "\
+             >>>>>> git pull... "
+            cd "/home/ubuntu/todoary/test/project" || exit 1
+            git fetch --all || exit 1
+            git reset --hard origin/Test || exit 1
+            git pull origin Test || exit 1
+            git submodule update --remote --force || exit 1
 
-      - name: S3 로드
-        run: |
-          aws s3 cp \
-          --region ap-northeast-2 \
-          ./deploy/todoary-service$GITHUB_SHA.zip s3://todoary-service-s3/artifacts/todoary-service$GITHUB_SHA.zip
-
-      - name: CodeDeploy 배포
-        run: |
-          aws deploy create-deployment \
-          --application-name todoary-service \
-          --deployment-group-name todoary-service-group \
-          --s3-location bucket=todoary-service-s3,bundleType=zip,key=artifacts/todoary-service$GITHUB_SHA.zip
+            ./test-scripts/build.sh || exit 1
+            ./test-scripts/stop.sh || exit 1
+            ./test-scripts/start.sh || exit 1

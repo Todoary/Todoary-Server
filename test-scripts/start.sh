@@ -5,8 +5,8 @@ echo -e "\
  |              3. start              |
  +------------------------------------+"
 
-PROJECT_ROOT="/home/ubuntu/todoary/dev/project"
-JAR_FILE="$PROJECT_ROOT/build/libs/todoary-0.0.1-SNAPSHOT.jar"
+PROJECT_ROOT="/home/ubuntu/todoary/test/project"
+JAR_FILE="$PROJECT_ROOT/build/libs/*.jar"
 
 APP_LOG="$PROJECT_ROOT/application.log"
 ERROR_LOG="$PROJECT_ROOT/error.log"
@@ -17,7 +17,7 @@ TIME_NOW=$(date +%c)
 # jar 파일 실행
 echo "$TIME_NOW > $JAR_FILE 파일 실행" | tee -a $DEPLOY_LOG
 nohup java -jar \
-  -Dspring.profiles.active=dev \
+  -Dspring.profiles.active=test-deploy \
   $JAR_FILE > $APP_LOG 2> $ERROR_LOG &
 
 CURRENT_PID=$(pgrep -f $JAR_FILE)
