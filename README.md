@@ -30,7 +30,6 @@
 
 **Subject**
 
-- 50자를 넘기지 않고 대문자로 작성
 - 과거시제를 사용하지 않고 명령어로 작성 (ex : Fixed → Fix,  Added → Add)
 
 **commit message**
