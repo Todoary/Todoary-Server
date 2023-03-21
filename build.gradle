@@ -74,9 +74,12 @@ dependencies {
     // 스프링 시큐리티 테스트
     testImplementation('org.springframework.security:spring-security-test')
 
-    // querydsl 이놈
+    // querydsl
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
+
+    // base responses
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 tasks.named('test') {

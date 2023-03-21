@@ -11,6 +11,7 @@ import com.todoary.ms.src.legacy.user.LegacyUserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -66,6 +67,8 @@ public class SecurityConfig {
                 .antMatchers("/test").permitAll()
                 // profile check
                 .antMatchers("/profile").permitAll()
+                // base response status
+                .antMatchers(HttpMethod.GET, "/responses").permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()
