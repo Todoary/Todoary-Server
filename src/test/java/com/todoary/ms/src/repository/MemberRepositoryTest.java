@@ -32,18 +32,17 @@ class MemberRepositoryTest {
     @Test
     public void 멤버를_이메일과_provider로_검색_유저_존재O() throws Exception {
         //given
-        ProviderAccount providerAccount = createProviderAccount();
         Member member = Member.builder()
                 .name("memberA")
                 .email("member@member")
-                .providerAccount(providerAccount)
+                .providerAccount(ProviderAccount.appleFrom("test.1234"))
                 .isTermsEnable(true)
                 .build();
 
         memberRepository.save(member);
 
         //when
-        Boolean result = memberRepository.isProviderAccountAndEmailUsed(providerAccount, "member@member");
+        Boolean result = memberRepository.isProviderAccountUsed(ProviderAccount.appleFrom("test.1234"));
 
         //then
         assertThat(result).isTrue();
@@ -63,7 +62,7 @@ class MemberRepositoryTest {
         memberRepository.save(member);
 
         //when
-        Boolean result = memberRepository.isProviderAccountAndEmailUsed(providerAccount, "member2@member");
+        Boolean result = memberRepository.isEmailOfGeneralMemberUsed("member2@member");
 
         //then
         assertThat(result).isFalse();
