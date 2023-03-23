@@ -43,7 +43,7 @@ class MemberRepositoryTest {
         memberRepository.save(member);
 
         //when
-        Boolean result = memberRepository.isProviderAccountAndEmailUsed(providerAccount, "member@member");
+        Boolean result = memberRepository.isEmailOfGeneralMemberUsed("member@member");
 
         //then
         assertThat(result).isTrue();
@@ -63,7 +63,7 @@ class MemberRepositoryTest {
         memberRepository.save(member);
 
         //when
-        Boolean result = memberRepository.isProviderAccountAndEmailUsed(providerAccount, "member2@member");
+        Boolean result = memberRepository.isEmailOfGeneralMemberUsed("member2@member");
 
         //then
         assertThat(result).isFalse();

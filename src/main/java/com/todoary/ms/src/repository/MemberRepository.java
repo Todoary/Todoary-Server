@@ -3,7 +3,6 @@ package com.todoary.ms.src.repository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todoary.ms.src.domain.Member;
 import com.todoary.ms.src.domain.ProviderAccount;
-import com.todoary.ms.src.domain.token.RefreshToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -36,11 +35,20 @@ public class MemberRepository {
         return Optional.ofNullable(em.find(Member.class, memberId));
     }
 
-    public Boolean isProviderAccountAndEmailUsed(ProviderAccount providerAccount, String email) {
+    public Boolean isProviderAccountUsed(ProviderAccount providerAccount) {
         Integer fetchOne = queryFactory
                 .selectOne()
                 .from(member)
-                .where(member.email.eq(email), member.providerAccount.eq(providerAccount))
+                .where(member.providerAccount.eq(providerAccount))
+                .fetchFirst();
+        return fetchOne != null;
+    }
+
+    public Boolean isEmailOfGeneralMemberUsed(String email) {
+        Integer fetchOne = queryFactory
+                .selectOne()
+                .from(member)
+                .where(member.email.eq(email), member.providerAccount.eq(ProviderAccount.none()))
                 .fetchFirst();
         return fetchOne != null;
     }
@@ -83,22 +91,7 @@ public class MemberRepository {
                 .executeUpdate();
     }
 
-    public Boolean existByRefreshToken(RefreshToken refreshToken) {
-        Integer fetchOne = queryFactory
-                .selectOne()
-                .from(member)
-                .where(member.refreshToken.code.eq(refreshToken.getCode()))
-                .fetchFirst();
-        return fetchOne != null;
-    }
-
-    public Optional<Member> findByEmail(String email) {
-        return em.createQuery("select m from Member m where m.email = :email and m.status = 1", Member.class)
-                .setParameter("email", email)
-                .getResultStream().findAny();
-    }
-
-    public Optional<Member> findByProviderAccount(ProviderAccount providerAccount) {
+    public Optional<Member> findOauthMemberByProviderAccount(ProviderAccount providerAccount) {
         return em.createQuery("select m from Member m where m.providerAccount = :providerAccount", Member.class)
                 .setParameter("providerAccount", providerAccount)
                 .getResultStream()
@@ -122,18 +115,6 @@ public class MemberRepository {
         return em.createQuery("select m from Member m where m.remindAlarm.targetDate = :targetDate and m.remindAlarmEnable = true", Member.class)
                 .setParameter("targetDate", targetDate)
                 .getResultList();
-    }
-
-    public Optional<Member> findByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
-        return em.createQuery("select m from Member m " +
-                "where m.email = :email " +
-                "and m.providerAccount.provider = :provider " +
-                "and m.providerAccount.providerId = :providerId", Member.class)
-                .setParameter("email", email)
-                .setParameter("provider", providerAccount.getProvider())
-                .setParameter("providerId", providerAccount.getProviderId())
-                .getResultStream()
-                .findAny();
     }
 
     public void removeMember(Member member) {
