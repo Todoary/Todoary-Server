@@ -48,7 +48,7 @@ public class MemberService {
 
     @Transactional
     public Long joinOauthMember(OauthMemberJoinParam oauthMemberJoinParam) {
-        removeMemberIfDeactivatedBefore(oauthMemberJoinParam.getEmail(), oauthMemberJoinParam.getProviderAccount());
+        removeOAuthMemberIfDeactivatedBefore(oauthMemberJoinParam.getProviderAccount());
         MemberJoinParam joinParam = MemberJoinParam.builder()
                 .name(oauthMemberJoinParam.getName())
                 .email(oauthMemberJoinParam.getEmail())
@@ -61,14 +61,18 @@ public class MemberService {
     }
 
     private void removeGeneralMemberIfDeactivatedBefore(String email) {
-        removeMemberIfDeactivatedBefore(email, ProviderAccount.none());
+        removeMemberIfDeactivatedBefore(memberRepository.findByEmailAndProviderAccount(email, ProviderAccount.none()));
     }
 
-    private void removeMemberIfDeactivatedBefore(String email, ProviderAccount providerAccount) {
-        memberRepository.findByEmailAndProviderAccount(email, providerAccount)
+    private void removeOAuthMemberIfDeactivatedBefore(ProviderAccount providerAccount) {
+        removeMemberIfDeactivatedBefore(memberRepository.findByProviderAccount(providerAccount));
+    }
+
+    private void removeMemberIfDeactivatedBefore(Optional<Member> memberOrEmpty) {
+        memberOrEmpty
                 .filter(Member::isDeactivated)
                 .ifPresent(member -> {
-                    log.info("탈퇴한 멤버 재가입 | 이메일: {} / Provider: {} / 탈퇴날짜: {}", email, providerAccount.getProvider(), member.getModifiedAt());
+                    log.info("탈퇴한 멤버 재가입 | 이메일: {} / Provider: {} / 탈퇴날짜: {}", member.getEmail(), member.getProviderAccount().getProvider(), member.getModifiedAt());
                     memberRepository.removeMember(member);
                 });
     }
@@ -162,7 +166,7 @@ public class MemberService {
     private Optional<Member> findMemberOrEmptyByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
         if (providerAccount.isGeneral()) {
             return memberRepository.findGeneralMemberByEmail(email);
-        }else {
+        } else {
             return memberRepository.findByProviderAccount(providerAccount);
         }
     }
