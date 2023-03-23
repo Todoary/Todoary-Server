@@ -48,7 +48,7 @@ public class MemberService {
 
     @Transactional
     public Long joinOauthMember(OauthMemberJoinParam oauthMemberJoinParam) {
-        removeMemberIfDeactivatedBefore(oauthMemberJoinParam.getEmail(), oauthMemberJoinParam.getProviderAccount());
+        removeOAuthMemberIfDeactivatedBefore(oauthMemberJoinParam.getProviderAccount());
         MemberJoinParam joinParam = MemberJoinParam.builder()
                 .name(oauthMemberJoinParam.getName())
                 .email(oauthMemberJoinParam.getEmail())
@@ -61,14 +61,18 @@ public class MemberService {
     }
 
     private void removeGeneralMemberIfDeactivatedBefore(String email) {
-        removeMemberIfDeactivatedBefore(email, ProviderAccount.none());
+        removeMemberIfDeactivatedBefore(memberRepository.findByEmailAndProviderAccount(email, ProviderAccount.none()));
     }
 
-    private void removeMemberIfDeactivatedBefore(String email, ProviderAccount providerAccount) {
-        memberRepository.findByEmailAndProviderAccount(email, providerAccount)
+    private void removeOAuthMemberIfDeactivatedBefore(ProviderAccount providerAccount) {
+        removeMemberIfDeactivatedBefore(memberRepository.findByProviderAccount(providerAccount));
+    }
+
+    private void removeMemberIfDeactivatedBefore(Optional<Member> memberOrEmpty) {
+        memberOrEmpty
                 .filter(Member::isDeactivated)
                 .ifPresent(member -> {
-                    log.info("탈퇴한 멤버 재가입 | 이메일: {} / Provider: {} / 탈퇴날짜: {}", email, providerAccount.getProvider(), member.getModifiedAt());
+                    log.info("탈퇴한 멤버 재가입 | 이메일: {} / Provider: {} / 탈퇴날짜: {}", member.getEmail(), member.getProviderAccount().getProvider(), member.getModifiedAt());
                     memberRepository.removeMember(member);
                 });
     }
@@ -95,7 +99,12 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public Member findById(Long memberId) {
+    public Member findMemberById(Long memberId) {
+        return checkMemberExists(memberRepository.findById(memberId));
+    }
+
+    @Transactional(readOnly = true)
+    public Member findActiveMemberById(Long memberId) {
         return checkMemberValid(memberRepository.findById(memberId));
     }
 
@@ -118,7 +127,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public void validateMemberByRefreshToken(String refreshTokenCode) {
         Long memberId = Long.parseLong(jwtTokenProvider.getUserIdFromRefreshToken(refreshTokenCode));
-        Member findMember = findById(memberId);
+        Member findMember = findActiveMemberById(memberId);
 
         if (!findMember.hasRefreshTokenCode(refreshTokenCode)) {
             throw new TodoaryException(INVALID_JWT);
@@ -146,12 +155,20 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public Member findActiveMemberByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
-        return checkMemberValid(memberRepository.findByEmailAndProviderAccount(email, providerAccount));
+        return checkMemberValid(findMemberOrEmptyByEmailAndProviderAccount(email, providerAccount));
     }
 
     @Transactional(readOnly = true)
     public Member findMemberByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
-        return checkMemberExists(memberRepository.findByEmailAndProviderAccount(email, providerAccount));
+        return checkMemberExists(findMemberOrEmptyByEmailAndProviderAccount(email, providerAccount));
+    }
+
+    private Optional<Member> findMemberOrEmptyByEmailAndProviderAccount(String email, ProviderAccount providerAccount) {
+        if (providerAccount.isGeneral()) {
+            return memberRepository.findGeneralMemberByEmail(email);
+        } else {
+            return memberRepository.findByProviderAccount(providerAccount);
+        }
     }
 
     private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount providerAccount) {
@@ -178,7 +195,7 @@ public class MemberService {
 
     @Transactional
     public void updateProfile(Long memberId, MemberProfileParam param) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
         if (!member.getNickname().equals(param.getNickname())) {
             checkNicknameNotUsed(param.getNickname());
         }
@@ -196,36 +213,36 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MemberResponse findMemberProfile(Long memberId) {
-        return MemberResponse.from(findById(memberId));
+        return MemberResponse.from(findActiveMemberById(memberId));
     }
 
     @Transactional
     public void activeTodoAlarm(Long memberId, boolean toDoAlarmEnable) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
         member.activeTodoAlarm(toDoAlarmEnable);
     }
 
     @Transactional
     public void activeDailyAlarm(Long memberId, boolean dailyAlarmEnable) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
         member.activeDailyAlarm(dailyAlarmEnable);
     }
 
     @Transactional
     public void activeRemindAlarm(Long memberId, boolean remindAlarmEnable) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
         member.activeRemindAlarm(remindAlarmEnable);
     }
 
     @Transactional
     public void activeTermsStatus(Long memberId, boolean isTermsEnable) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
         member.activeTermsStatus(isTermsEnable);
     }
 
     @Transactional
     public void deactivateMember(Long memberId) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
         deactivateMember(member);
     }
 
@@ -241,14 +258,14 @@ public class MemberService {
 
     @Transactional
     public void changeProfileImg(Long memberId, String newProfileImgUrl) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
 
         member.changeProfileImg(newProfileImgUrl);
     }
 
     @Transactional
     public void removeTokens(Long memberId) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
 
         member.removeRefreshToken();
         member.removeFcmToken();
@@ -256,7 +273,7 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public String getProfileImgUrlById(Long memberId) {
-        return findById(memberId)
+        return findActiveMemberById(memberId)
                 .getProfileImgUrl();
     }
 
@@ -285,7 +302,7 @@ public class MemberService {
 
     @Transactional
     public void modifyFcmToken(Long memberId, String newFcmToken) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
 
         if (member.getFcmToken() == null) {
             new FcmToken(member, newFcmToken);
@@ -296,14 +313,14 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public boolean checkProfileImgIsDefault(Long memberId) {
-        return findById(memberId)
+        return findActiveMemberById(memberId)
                 .getProfileImgUrl()
                 .equals(defaultProfileImageUrl);
     }
 
     @Transactional
     public void setProfileImgDefault(Long memberId) {
-        Member member = findById(memberId);
+        Member member = findActiveMemberById(memberId);
         String profileImgUrl = member.getProfileImgUrl();
 
         if (profileImgUrl.equals(defaultProfileImageUrl)) {
@@ -341,5 +358,12 @@ public class MemberService {
     public void activateMember(String email, ProviderAccount account) {
         Member member = findMemberByEmailAndProviderAccount(email, account);
         member.activate();
+    }
+
+    @Transactional(readOnly = true)
+    public void checkMemberExistsById(Long memberId) {
+        if (!memberRepository.existById(memberId)) {
+            throw new TodoaryException(EMPTY_USER);
+        }
     }
 }

@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Todoary Common Responses</title>
+</head>
+<body>
+    <div>
+        <table>
+            <thead>
+            <tr>
+                <th>isSuccess</th>
+                <th>code</th>
+                <th>message</th>
+            </tr>
+            </thead>
+            <tr th:each="response : ${responses}">
+                <td th:text="${response.isSuccess}"></td>
+                <td th:text="${response.code}"></td>
+                <td th:text="${response.message}"></td>
+            </tr>
+        </table>
+    </div>
+</body>
+

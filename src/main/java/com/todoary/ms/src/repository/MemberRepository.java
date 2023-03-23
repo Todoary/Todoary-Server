@@ -145,4 +145,13 @@ public class MemberRepository {
                 .setParameter("time", time)
                 .getResultList();
     }
+
+    public boolean existById(Long memberId) {
+        Integer fetchOne = queryFactory
+                .selectOne()
+                .from(member)
+                .where(member.id.eq(memberId))
+                .fetchFirst();
+        return fetchOne != null;
+    }
 }

@@ -2,7 +2,7 @@
 
 # set -e -o pipefail
 
-PROJECT_ROOT="/home/ubuntu/todoary/dev/project"
+PROJECT_ROOT="/home/ubuntu/todoary/test/project"
 
 #echo -e "\
 # +------------------------------------+

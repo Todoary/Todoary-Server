@@ -123,7 +123,7 @@ public class MemberController {
     // 2.8 알림 활성화 여부 조회 api
     @GetMapping("/alarm")
     public BaseResponse<AlarmEnablesResponse> getAlarmEnabled(@LoginMember Long memberId) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         return new BaseResponse<>(AlarmEnablesResponse.builder()
                                           .memberId(memberId)
                                           .toDoAlarmEnable(member.getToDoAlarmEnable())

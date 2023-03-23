@@ -12,7 +12,7 @@
 
       → PR 코드 리뷰 필수 입니다. 
 
-- Feature : 기능을 개발하는 브랜치 (ex : Feature-Login)
+- Feature : 기능을 개발하는 브랜치 
 - Bugfix : 최종 런칭 버전개발 과정에서 발생한 버그를 수정하는 브렌치
 - Release : 제품으로 출시될 수 있는 브랜치
 - Hotfix : 출시 버전에서 발생한 버그를 수정 하는 브랜치
@@ -21,17 +21,8 @@
 
 ### Todoary commit 컨벤션
 
-```
-[commit type] : subject
-v
-[commit message]
-```
-
-**commit type**
-
-- feat -  새 기능 구현 (ex : [feat] : Add_ local_login&social_login)
-- fix - 에러 수정 (ex : [fix] : local_login_errorfix)
-
+- feat -  새 기능 구현
+- fix - 에러 수정
 - style - 코드 변경이 없는 경우, 코드 포멧팅
 - refactor - 코드 리펙토링
 - rename - 파일, 폴더명만 수정하거나 이동하는 작업
@@ -39,7 +30,6 @@ v
 
 **Subject**
 
-- 50자를 넘기지 않고 대문자로 작성
 - 과거시제를 사용하지 않고 명령어로 작성 (ex : Fixed → Fix,  Added → Add)
 
 **commit message**
@@ -47,12 +37,3 @@ v
 - 커밋에서 작업한 내용을 간략하게 설명합니다.
 - 선택사항이기 때문에 모든 커밋에 작성할 필요는 없습니다.
 - 제목과 구분되도록 한칸 띄워 작성합니다.
-
-```
-ex) 
-
-[Feat] : Add_ local_login&social_login
-v
-소셜로그인 이메일 중복확인 API 개발
-로컬로그인 아이디, 비밀번호 저장 개발
-```

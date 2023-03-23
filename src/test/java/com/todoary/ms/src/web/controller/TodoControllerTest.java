@@ -63,7 +63,7 @@ class TodoControllerTest {
     void 투두_제목_최대_이하일때_생성O() throws Exception {
         // given
         Long expected = 1L;
-        given(todoService.saveTodo(any(), any())).willReturn(expected);
+        given(todoService.createMembersTodo(any(), any())).willReturn(expected);
 
         String title = "제목";
         TodoRequest requestDto = TodoRequest.builder()
@@ -177,7 +177,7 @@ class TodoControllerTest {
     void 투두_제목_최대_이하일때_수정O() throws Exception {
         // given
         Long expected = 1L;
-        given(todoService.saveTodo(any(), any())).willReturn(expected);
+        given(todoService.createMembersTodo(any(), any())).willReturn(expected);
 
         String title = "제목";
         TodoRequest requestDto = TodoRequest.builder()
@@ -206,7 +206,7 @@ class TodoControllerTest {
                 TodoResponse.builder().title("todo1").targetDate(targetDate).build(),
                 TodoResponse.builder().title("todo2").targetDate(targetDate).build()
         );
-        given(todoService.findTodosByDate(any(), eq(targetDate))).willReturn(expected);
+        given(todoService.retrieveMembersTodosOnDate(any(), eq(targetDate))).willReturn(expected);
         // when
         MvcResult result = mvc.perform(get(RETRIEVE_DATE, targetDate))
                 .andExpect(status().isOk())
@@ -243,7 +243,7 @@ class TodoControllerTest {
                 .targetTime(LocalTime.of(21, 40))
                 .isAlarmEnabled(true)
                 .build();
-        given(todoService.updateTodo(anyLong(), anyLong(), any()))
+        given(todoService.updateMembersTodo(anyLong(), anyLong(), any()))
                 .willReturn(TodoResponse.builder()
                                     .title("제목")
                                     .categoryId(10L)
@@ -298,7 +298,7 @@ class TodoControllerTest {
         // given
         willDoNothing()
                 .given(todoService)
-                .deleteTodo(any(), any());
+                .deleteMembersTodo(any(), any());
         // when
         MvcResult result = mvc.perform(delete(REQUEST_URL.DELETE, 1L).with(csrf()))
                 .andExpect(status().isOk())
@@ -315,7 +315,7 @@ class TodoControllerTest {
         // given
         willThrow(new TodoaryException(USERS_TODO_NOT_EXISTS))
                 .given(todoService)
-                .deleteTodo(any(), any());
+                .deleteMembersTodo(any(), any());
         // when
         MvcResult result = mvc.perform(delete(REQUEST_URL.DELETE, 1L).with(csrf()))
                 .andExpect(status().isOk())
@@ -335,7 +335,7 @@ class TodoControllerTest {
                 TodoResponse.builder().categoryId(categoryId).build(),
                 TodoResponse.builder().categoryId(categoryId).build()
         );
-        given(todoService.findTodosByCategory(any(), eq(categoryId))).willReturn(expected);
+        given(todoService.retrieveMembersTodosByCategory(any(), eq(categoryId))).willReturn(expected);
         // when
         MvcResult result = mvc.perform(get(RETRIEVE_CATEGORY, categoryId))
                 .andExpect(status().isOk())
@@ -519,7 +519,7 @@ class TodoControllerTest {
         // given
         YearMonth yearMonth = YearMonth.of(2023, 1);
         List<Integer> expected = List.of(1, 10);
-        given(todoService.findDaysHavingTodoInMonth(any(), eq(yearMonth))).willReturn(expected);
+        given(todoService.retrieveDaysHavingTodoOfMemberInMonth(any(), eq(yearMonth))).willReturn(expected);
         // when
         MvcResult result = mvc.perform(get(RETRIEVE_MONTH_DAYS, yearMonth))
                 .andExpect(status().isOk())

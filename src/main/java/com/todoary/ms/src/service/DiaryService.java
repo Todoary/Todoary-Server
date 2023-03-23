@@ -35,7 +35,7 @@ public class DiaryService {
 
     @Transactional
     public void saveDiaryOrUpdate(Long memberId, DiaryRequest request, LocalDate createdDate) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         findDiaryByDateIfExists(createdDate, member)
                 .ifPresentOrElse(
                         diary -> diary.update(request.getTitle(), request.getContent()),
@@ -51,7 +51,7 @@ public class DiaryService {
 
     @Transactional
     public void deleteDiary(Long memberId, LocalDate createdDate) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Diary diary = findDiaryByDate(createdDate, member);
         diary.removeAssociations();
         diaryRepository.delete(diary);
@@ -59,7 +59,7 @@ public class DiaryService {
 
     @Transactional(readOnly = true)
     public DiaryResponse retrieveDiaryByDate(LocalDate createdDate, Long memberId) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         return findDiaryByDateIfExists(createdDate, member)
                 .map(DiaryResponse::from)
                 .orElse(null);
@@ -67,7 +67,7 @@ public class DiaryService {
 
     @Transactional(readOnly = true)
     public List<Integer> findDaysHavingDiaryInMonth(Long memberId, YearMonth yearMonth) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
 
         LocalDate firstDay = yearMonth.atDay(1);
         LocalDate lastDay = yearMonth.atEndOfMonth();
@@ -91,7 +91,7 @@ public class DiaryService {
 
     @Transactional(readOnly = true)
     public List<StickerResponse> retrieveStickersInDiaryOnDate(Long memberId, LocalDate createdDate) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Diary diary = findDiaryByDate(createdDate, member);
         return diary.getStickers()
                 .stream().map(StickerResponse::from).collect(Collectors.toList());
@@ -112,7 +112,7 @@ public class DiaryService {
         if (requests == null || requests.isEmpty()) {
             return null;
         }
-        Member member = memberService.findById(memberId);
+        Member member = memberService.findActiveMemberById(memberId);
         Diary diary = findDiaryByDate(createdDate, member);
         return stickerRepository.saveAll(
                         requests.stream()
