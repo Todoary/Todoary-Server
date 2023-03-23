@@ -61,11 +61,11 @@ public class MemberService {
     }
 
     private void removeGeneralMemberIfDeactivatedBefore(String email) {
-        removeMemberIfDeactivatedBefore(memberRepository.findByEmailAndProviderAccount(email, ProviderAccount.none()));
+        removeMemberIfDeactivatedBefore(memberRepository.findGeneralMemberByEmail(email));
     }
 
     private void removeOAuthMemberIfDeactivatedBefore(ProviderAccount providerAccount) {
-        removeMemberIfDeactivatedBefore(memberRepository.findByProviderAccount(providerAccount));
+        removeMemberIfDeactivatedBefore(memberRepository.findOauthMemberByProviderAccount(providerAccount));
     }
 
     private void removeMemberIfDeactivatedBefore(Optional<Member> memberOrEmpty) {
@@ -79,7 +79,7 @@ public class MemberService {
 
     private Long join(MemberJoinParam memberJoinParam, ProviderAccount provider) {
         checkNicknameNotUsed(memberJoinParam.getNickname());
-        checkEmailAndOAuthAccountNotUsed(memberJoinParam.getEmail(), provider);
+        checkEmailOrProviderAccountNotUsed(memberJoinParam.getEmail(), provider);
         Member newMember = Member.builder()
                 .name(memberJoinParam.getName())
                 .nickname(memberJoinParam.getNickname())
@@ -145,12 +145,12 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public Optional<Member> findMemberOrEmptyByProviderAccount(ProviderAccount providerAccount) {
-        return memberRepository.findByProviderAccount(providerAccount);
+        return memberRepository.findOauthMemberByProviderAccount(providerAccount);
     }
 
     @Transactional(readOnly = true)
     public Member findActiveMemberByProviderAccount(ProviderAccount providerAccount) {
-        return checkMemberValid(memberRepository.findByProviderAccount(providerAccount));
+        return checkMemberValid(memberRepository.findOauthMemberByProviderAccount(providerAccount));
     }
 
     @Transactional(readOnly = true)
@@ -167,19 +167,33 @@ public class MemberService {
         if (providerAccount.isGeneral()) {
             return memberRepository.findGeneralMemberByEmail(email);
         } else {
-            return memberRepository.findByProviderAccount(providerAccount);
+            return memberRepository.findOauthMemberByProviderAccount(providerAccount);
         }
     }
 
-    private void checkEmailAndOAuthAccountNotUsed(String email, ProviderAccount providerAccount) {
-        if (memberRepository.isProviderAccountAndEmailUsed(providerAccount, email)) {
+    private void checkEmailOrProviderAccountNotUsed(String email, ProviderAccount providerAccount) {
+        if (providerAccount.isGeneral()) {
+            checkEmailOfGeneralMemberNotUsed(email);
+        } else {
+            checkProviderAccountNotUsed(providerAccount);
+        }
+    }
+
+    private void checkEmailOfGeneralMemberNotUsed(String email) {
+        if (memberRepository.isEmailOfGeneralMemberUsed(email)) {
+            throw new TodoaryException(MEMBERS_DUPLICATE_EMAIL);
+        }
+    }
+
+    private void checkProviderAccountNotUsed(ProviderAccount providerAccount) {
+        if (memberRepository.isProviderAccountUsed(providerAccount)) {
             throw new TodoaryException(MEMBERS_DUPLICATE_EMAIL);
         }
     }
 
     @Transactional(readOnly = true)
     public void checkEmailDuplicationOfGeneral(String email) {
-        checkEmailAndOAuthAccountNotUsed(email, ProviderAccount.none());
+        checkEmailOfGeneralMemberNotUsed(email);
     }
 
     @Transactional
