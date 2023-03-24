@@ -56,9 +56,6 @@ public class Todo extends BaseTimeEntity {
     }
 
     private void setCategory(Category category) {
-        if (this.category != null){
-            this.category.getTodos().remove(this);
-        }
         this.category = category;
         category.addTodo(this);
     }
