@@ -111,7 +111,7 @@ public class TodoController {
 
     // 3.9 투두 알람 수정
     @PatchMapping("/{todoId}/alarm")
-    public BaseResponse<BaseResponseStatus> modifyTodoAlram(
+    public BaseResponse<BaseResponseStatus> modifyTodoAlaram(
             @LoginMember Long memberId,
             @PathVariable("todoId") Long todoId,
             @RequestBody @Valid TodoAlarmRequest request

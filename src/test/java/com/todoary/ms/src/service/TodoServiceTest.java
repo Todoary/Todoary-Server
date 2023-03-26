@@ -101,7 +101,7 @@ class TodoServiceTest {
         assertThat(todo.getTargetDate()).isEqualTo(expectedDate);
         assertThat(todo.getTargetTime()).isEqualTo(expectedTime);
         assertThat(todo.getCategory()).isEqualTo(expectedCategory);
-        assertThat(category.getTodos()).isEmpty();
+        assertThat(todoService.retrieveMembersTodosByCategory(member.getId(), category.getId())).isEmpty();
         assertThat(expectedCategory.getTodos()).contains(todo);
     }
 
